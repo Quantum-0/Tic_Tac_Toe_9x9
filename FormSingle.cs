@@ -27,6 +27,8 @@ namespace TTTM
         Graphics graphics;
         Pen penc1, penc2;
         string pl1, pl2;
+        Rectangle[,] Zones = new Rectangle[9, 9];
+        Rectangle[,] FieldZones = new Rectangle[3, 3];
 
         public FormSingle()
         {
@@ -82,10 +84,10 @@ namespace TTTM
             graphics.DrawLine(Pens.Blue, (float)1/11 * w, (float)4/11 * h, (float)10/11 * w, (float)4/11 * h);
             graphics.DrawLine(Pens.Blue, (float)1/11 * w, (float)7/11 * h, (float)10/11 * w, (float)7/11 * h);
 
-            Rectangle[,] Zones = new Rectangle[9, 9];
             for (int i = 0; i < 3; i++)
-                for (int ii = 0; ii < 3; ii++)
-                    for (int j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int ii = 0; ii < 3; ii++)
                         for (int jj = 0; jj < 3; jj++)
                         {
                             double BIGx = (1 + 3 * i) / 11.0;
@@ -110,22 +112,23 @@ namespace TTTM
                             double SMALLy2 = 10.0 / 11;
                             float y2 = (float)(h * (BIGy2 + SMALLy2 * 3 / 11));
 
-                            if (ii != 3 && jj != 3)
+                            if (ii != 2 && jj != 2)
                             {
                                 graphics.DrawLine(Pens.Red, x, y1, x, y2);
                                 graphics.DrawLine(Pens.Red, x1, y, x2, y);
                             }
 
-                            Zones[i * 3 + ii, j * 3 + jj] = new Rectangle((int)(x-w*9/121), (int)(y-h*9/121), (int)w*9/121, (int)h*9/121);
+                            Zones[i * 3 + ii, j * 3 + jj] = new Rectangle((int)(x - w * 9 / 121), (int)(y - h * 9 / 121), (int)w * 9 / 121, (int)h * 9 / 121);
                         }
+                    FieldZones[i, j] = new Rectangle((int)w * (1 + 3 * i) / 11, (int)h * (1 + 3 * j) / 11, (int)w * 3 / 11, (int)h * 3 / 11);
+                }
 
             //for (int i = 0; i <= 9; i++)
             //{
             //    graphics.DrawLine(Pens.Blue, new Point(i * 20, 0), new Point(i * 20, 20 * 9));
             //    graphics.DrawLine(Pens.Blue, new Point(0, i * 20), new Point(20 * 9, i * 20));
             //}
-            graphics.DrawRectangle(Pens.Lime, Zones[3, 3]);
-            return;
+            //graphics.DrawRectangle(Pens.Lime, Zones[3, 3]);
 
             int[,] State = game.State();
             for (int i = 0; i < 9; i++)
@@ -133,9 +136,9 @@ namespace TTTM
                 for (int j = 0; j < 9; j++)
                 {
                     if (State[i,j] == 1)
-                        graphics.DrawEllipse(penc1, i * 20 + 2, j * 20 + 2, 16, 16);
+                        graphics.DrawEllipse(penc1, Zones[i, j]);
                     if (State[i,j] == 2)
-                        graphics.DrawEllipse(penc2, i * 20 + 2, j * 20 + 2, 16, 16);
+                        graphics.DrawEllipse(penc2, Zones[i, j]);
                 }
             }
 
@@ -144,18 +147,18 @@ namespace TTTM
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    graphics.DrawRectangle(Pens.Orange, i * 60 + 1, j * 60 + 1, 58, 58);
+                    graphics.DrawRectangle(Pens.Orange, FieldZones[i, j]);
                     if (FState[i, j].Filled)
-                        graphics.DrawLines(Pens.Gray, DiagonalyLines(new Rectangle(i * 60, j * 60, 60, 60)));
+                        graphics.DrawLines(Pens.Gray, DiagonalyLines(FieldZones[i, j]));
                     if (FState[i, j].OwnerID == 1)
-                        graphics.DrawLines(penc1, DiagonalyLines(new Rectangle(i * 60, j * 60, 60, 60)));
+                        graphics.DrawLines(penc1, DiagonalyLines(FieldZones[i, j]));
                     if (FState[i, j].OwnerID == 2)
-                        graphics.DrawLines(penc2, DiagonalyLines(new Rectangle(i * 60, j * 60, 60, 60)));
+                        graphics.DrawLines(penc2, DiagonalyLines(FieldZones[i, j]));
                 }
             }
 
             if (IncorrectTurn != null)
-                graphics.DrawRectangle(Pens.Yellow, IncorrectTurn.x * 60 + 0, IncorrectTurn.y * 60 + 0, 60, 60);
+                graphics.DrawRectangle(Pens.Yellow, FieldZones[IncorrectTurn.x, IncorrectTurn.y]);
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -164,7 +167,16 @@ namespace TTTM
                 NewGame();
             else
             {
-                game.ClickOn((PointToClient(MousePosition).X - pictureBox1.Left) / 20, (PointToClient(MousePosition).Y - pictureBox1.Top) / 20);
+                Point pnt = new Point(PointToClient(MousePosition).X - pictureBox1.Left, PointToClient(MousePosition).Y - pictureBox1.Top);
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (Zones[i, j].Contains(pnt))
+                            game.ClickOn(i, j);
+                    }
+                }
+                //game.ClickOn((PointToClient(MousePosition).X - pictureBox1.Left) / 20, (PointToClient(MousePosition).Y - pictureBox1.Top) / 20);
                 RedrawGame();
                 IncorrectTurn = null;
             }
@@ -196,6 +208,9 @@ namespace TTTM
 
         private void FormSingle_ResizeEnd(object sender, EventArgs e)
         {
+            if (game == null)
+                return;
+
             graphics = Graphics.FromHwnd(pictureBox1.Handle);
             graphics.FillRectangle(Brushes.White, 0, 0, this.Width, this.Height);
             RedrawGame();
