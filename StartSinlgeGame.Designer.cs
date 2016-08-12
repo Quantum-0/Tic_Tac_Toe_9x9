@@ -32,7 +32,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
-            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
@@ -78,7 +78,7 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(68, 20);
             this.panel1.TabIndex = 4;
-            this.panel1.Click += new System.EventHandler(this.panel1_Click);
+            this.panel1.Click += new System.EventHandler(this.panel_Click);
             // 
             // panel2
             // 
@@ -87,7 +87,7 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(69, 20);
             this.panel2.TabIndex = 5;
-            this.panel2.Click += new System.EventHandler(this.panel2_Click);
+            this.panel2.Click += new System.EventHandler(this.panel_Click);
             // 
             // button1
             // 
@@ -111,6 +111,7 @@
             // 
             // StartSinlgeGame
             // 
+            this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(219, 186);
@@ -137,7 +138,7 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.ColorDialog colorDialog;
         public System.Windows.Forms.TextBox textBox1;
         public System.Windows.Forms.TextBox textBox2;
         public System.Windows.Forms.Panel panel1;

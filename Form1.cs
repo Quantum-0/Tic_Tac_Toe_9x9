@@ -20,9 +20,14 @@ namespace TTTM
         private void buttonSingle_Click(object sender, EventArgs e)
         {
             FormSingle Game = new FormSingle();
-            Game.Show();
-            Game.Closed += (sndr, args) => { Show(); };
             Hide();
+            Game.Closed += (sndr, args) => { Show(); };
+            Game.Show();
+        }
+
+        private void buttonExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

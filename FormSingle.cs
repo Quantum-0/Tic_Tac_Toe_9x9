@@ -21,23 +21,21 @@ namespace TTTM
             InitializeComponent();
             graphics = panel1.CreateGraphics();
         }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-             
-        }
-
+        
         private void FormSingle_Click(object sender, EventArgs e)
         {
             game.ClickOn((PointToClient(MousePosition).X-panel1.Left) / 20, (PointToClient(MousePosition).Y-panel1.Top) / 20);
             RedrawGame();
-            //Rectangle rectangle = new Rectangle(0, 0, this.Width-17, this.Height-40);
         }
 
         private void FormSingle_Load(object sender, EventArgs e)
         {
             StartSinlgeGame frm = new StartSinlgeGame();
-            frm.ShowDialog();
+            if (frm.ShowDialog() != DialogResult.OK)
+            {
+                Close();
+                return;
+            }
             string pl1, pl2;
             pl1 = frm.textBox1.Text;
             pl2 = frm.textBox2.Text;

@@ -16,21 +16,17 @@ namespace TTTM
         {
             InitializeComponent();
         }
-
-        private void panel1_Click(object sender, EventArgs e)
+        private void panel_Click(object sender, EventArgs e)
         {
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                panel1.BackColor = colorDialog1.Color;
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+                (sender as Panel).BackColor = colorDialog.Color;
         }
-
-        private void panel2_Click(object sender, EventArgs e)
-        {
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                panel2.BackColor = colorDialog1.Color;
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
+            if (panel1.BackColor == panel2.BackColor || textBox1.Text == textBox2.Text || string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
+                return;
+
+            DialogResult = DialogResult.OK;
             Close();
         }
     }
