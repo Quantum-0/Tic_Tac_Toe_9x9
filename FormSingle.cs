@@ -8,24 +8,28 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+/*
+ * Add settings +
+ * Replace panel by picturebox +
+ * Incorrect turn
+ * Comments
+ * Make settings
+ * Replace grid by tic tac toe fields
+ */
+
 namespace TTTM
 {
     public partial class FormSingle : Form
     {
         SinglePlayerWithFriend game;
+        Position IncorrectTurn;
         Graphics graphics;
         Pen penc1, penc2;
 
         public FormSingle()
         {
             InitializeComponent();
-            graphics = panel1.CreateGraphics();
-        }
-        
-        private void FormSingle_Click(object sender, EventArgs e)
-        {
-            game.ClickOn((PointToClient(MousePosition).X-panel1.Left) / 20, (PointToClient(MousePosition).Y-panel1.Top) / 20);
-            RedrawGame();
+            graphics = Graphics.FromHwnd(pictureBox1.Handle);
         }
 
         private void FormSingle_Load(object sender, EventArgs e)
@@ -49,8 +53,8 @@ namespace TTTM
 
         private void Game_IncorrectTurn(object sender, Position e)
         {
-            if (e!=null)
-                graphics.DrawRectangle(Pens.Yellow, e.x * 60 + 2, e.y * 60 + 2, 56, 56);
+            if (e != null)
+                IncorrectTurn = e;
         }
 
         private PointF[] DiagonalyLines(Rectangle Rect)
@@ -117,6 +121,16 @@ namespace TTTM
                     //graphics.DrawLines(Pens.Green, DiagonalyLines(new Rectangle(j * 60, i * 60, 20, 20)));
                 }
             }
+
+            if (IncorrectTurn != null)
+                graphics.DrawRectangle(Pens.Yellow, IncorrectTurn.x * 60 + 0, IncorrectTurn.y * 60 + 0, 60, 60);
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            game.ClickOn((PointToClient(MousePosition).X - pictureBox1.Left) / 20, (PointToClient(MousePosition).Y - pictureBox1.Top) / 20);
+            RedrawGame();
+            IncorrectTurn = null;
         }
 
         private void FormSingle_Paint(object sender, PaintEventArgs e)
