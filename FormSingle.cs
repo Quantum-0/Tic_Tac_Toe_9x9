@@ -12,6 +12,7 @@ using System.Windows.Forms;
  * Add settings +
  * Replace panel by picturebox +
  * Incorrect turn +
+ * Buffered Rendering
  * Field Scalling
  * Comments
  * Make settings
@@ -24,7 +25,9 @@ namespace TTTM
     {
         SinglePlayerWithFriend game;
         Position IncorrectTurn;
-        Graphics graphics;
+        private BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+        BufferedGraphics BufGFX;
+        Graphics gfx;
         Pen penc1, penc2;
         string pl1, pl2;
         Rectangle[,] Zones = new Rectangle[9, 9];
@@ -33,27 +36,8 @@ namespace TTTM
         public FormSingle()
         {
             InitializeComponent();
-            graphics = Graphics.FromHwnd(pictureBox1.Handle);
         }
-
-        private void FormSingle_Load(object sender, EventArgs e)
-        {
-            
-        }
-        /*
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg == 0x0112) // WM_SYSCOMMAND
-            {
-                // Check your window state here
-                if (m.WParam == new IntPtr(0xF030)) // Maximize event - SC_MAXIMIZE from Winuser.h
-                {
-                    FormSingle_ResizeEnd(null, null);
-                }
-            }
-            base.WndProc(ref m);
-        }
-        */
+        
         private void Game_IncorrectTurn(object sender, Position e)
         {
             if (e != null)
@@ -73,16 +57,28 @@ namespace TTTM
             return l.ToArray();
         }
 
-        private void RedrawGame()
+        private void RedrawGame(bool refreshGraphics = false)
         {
+            if (refreshGraphics)
+            {
+                BufGFX = context.Allocate(Graphics.FromHwnd(pictureBox1.Handle),
+               new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
+                gfx = BufGFX.Graphics;
+            }
+
+            if (game == null)
+                return;
+
+            gfx.FillRectangle(Brushes.White, 0, 0, this.Width, this.Height);
+
             //Rectangle rectangle = new Rectangle(0, 0, this.Width - 17, this.Height - 40);
             float w = pictureBox1.Width;
             float h = pictureBox1.Height;
 
-            graphics.DrawLine(Pens.Blue, (float)(1 + 3)/11 * w, (float)1/11 * h, (float)(1+3)/11 * w, (float)10/11 * h);
-            graphics.DrawLine(Pens.Blue, (float)(1 + 3 + 3)/11 * w, (float)1/11 * h, (float)(1+6)/11 * w, (float)10/11 * h);
-            graphics.DrawLine(Pens.Blue, (float)1/11 * w, (float)4/11 * h, (float)10/11 * w, (float)4/11 * h);
-            graphics.DrawLine(Pens.Blue, (float)1/11 * w, (float)7/11 * h, (float)10/11 * w, (float)7/11 * h);
+            gfx.DrawLine(Pens.Blue, (float)(1 + 3)/11 * w, (float)1/11 * h, (float)(1+3)/11 * w, (float)10/11 * h);
+            gfx.DrawLine(Pens.Blue, (float)(1 + 3 + 3)/11 * w, (float)1/11 * h, (float)(1+6)/11 * w, (float)10/11 * h);
+            gfx.DrawLine(Pens.Blue, (float)1/11 * w, (float)4/11 * h, (float)10/11 * w, (float)4/11 * h);
+            gfx.DrawLine(Pens.Blue, (float)1/11 * w, (float)7/11 * h, (float)10/11 * w, (float)7/11 * h);
 
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
@@ -114,8 +110,8 @@ namespace TTTM
 
                             if (ii != 2 && jj != 2)
                             {
-                                graphics.DrawLine(Pens.Red, x, y1, x, y2);
-                                graphics.DrawLine(Pens.Red, x1, y, x2, y);
+                                gfx.DrawLine(Pens.Red, x, y1, x, y2);
+                                gfx.DrawLine(Pens.Red, x1, y, x2, y);
                             }
 
                             Zones[i * 3 + ii, j * 3 + jj] = new Rectangle((int)(x - w * 9 / 121), (int)(y - h * 9 / 121), (int)w * 9 / 121, (int)h * 9 / 121);
@@ -136,9 +132,9 @@ namespace TTTM
                 for (int j = 0; j < 9; j++)
                 {
                     if (State[i,j] == 1)
-                        graphics.DrawEllipse(penc1, Zones[i, j]);
+                        gfx.DrawEllipse(penc1, Zones[i, j]);
                     if (State[i,j] == 2)
-                        graphics.DrawEllipse(penc2, Zones[i, j]);
+                        gfx.DrawEllipse(penc2, Zones[i, j]);
                 }
             }
 
@@ -147,18 +143,20 @@ namespace TTTM
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    graphics.DrawRectangle(Pens.Orange, FieldZones[i, j]);
+                    gfx.DrawRectangle(Pens.Orange, FieldZones[i, j]);
                     if (FState[i, j].Filled)
-                        graphics.DrawLines(Pens.Gray, DiagonalyLines(FieldZones[i, j]));
+                        gfx.DrawLines(Pens.Gray, DiagonalyLines(FieldZones[i, j]));
                     if (FState[i, j].OwnerID == 1)
-                        graphics.DrawLines(penc1, DiagonalyLines(FieldZones[i, j]));
+                        gfx.DrawLines(penc1, DiagonalyLines(FieldZones[i, j]));
                     if (FState[i, j].OwnerID == 2)
-                        graphics.DrawLines(penc2, DiagonalyLines(FieldZones[i, j]));
+                        gfx.DrawLines(penc2, DiagonalyLines(FieldZones[i, j]));
                 }
             }
 
             if (IncorrectTurn != null)
-                graphics.DrawRectangle(Pens.Yellow, FieldZones[IncorrectTurn.x, IncorrectTurn.y]);
+                gfx.DrawRectangle(Pens.Yellow, FieldZones[IncorrectTurn.x, IncorrectTurn.y]);
+
+            BufGFX.Render();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -195,6 +193,7 @@ namespace TTTM
             labelCurrentTurn.Text = pl1;
             game.ChangeTurn += Game_ChangeTurn; 
             game.IncorrectTurn += Game_IncorrectTurn;
+            RedrawGame(true);
         }
 
         private void Game_ChangeTurn(object sender, WhosTurn e)
@@ -208,12 +207,12 @@ namespace TTTM
 
         private void FormSingle_ResizeEnd(object sender, EventArgs e)
         {
-            if (game == null)
-                return;
+            // Чтоб при разворачивании окна было норм
+            if (WindowState == FormWindowState.Maximized)
+                Refresh();
 
-            graphics = Graphics.FromHwnd(pictureBox1.Handle);
-            graphics.FillRectangle(Brushes.White, 0, 0, this.Width, this.Height);
-            RedrawGame();
+            
+            RedrawGame(true);
         }
 
         private void buttonNewGame_Click(object sender, EventArgs e)
@@ -229,10 +228,6 @@ namespace TTTM
 
         private void FormSingle_Paint(object sender, PaintEventArgs e)
         {
-            if (game == null)
-                return;
-
-            graphics.FillRectangle(Brushes.White, 0, 0, this.Width, this.Height);
             RedrawGame();
         }
     }
