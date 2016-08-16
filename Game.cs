@@ -6,11 +6,25 @@ using System.Threading.Tasks;
 
 namespace TTTM
 {
+    ////public class Settings
+    //{
+    //    /*
+    //     * Colors
+    //     * Default Name(s)
+    //     * ???
+    //     * save()
+    //     * load()
+    //     */
+    //}
+
+    // Класс координат для игры
     public class Position
     {
-        public int x, y;
-        public bool WithoutValue = true;
+        // Свойства
+        public int x { private set; get; }
+        public int y { private set; get; }
 
+        // Преобразование координаты ячейки/поля
         public static Position GetCellFrom9x9(Position pos)
         {
             return pos % 3;
@@ -20,11 +34,14 @@ namespace TTTM
             return pos / 3;
         }
 
+        // Конструктор
         public Position(int x, int y)
         {
-            this.x = x; this.y = y;
-            WithoutValue = false;
+            this.x = x;
+            this.y = y;
         }
+
+        // Переопределение операторов %, /, метода сравнения и получения хэш-кода
         public override bool Equals(object another)
         {
             if (another is Position)
@@ -32,7 +49,10 @@ namespace TTTM
             else
                 return false;
         }
-
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
         public static Position operator% (Position pos, int number)
         {
             return new Position(pos.x % number, pos.y % number);
@@ -43,6 +63,7 @@ namespace TTTM
         }
     }
 
+    // Класс хранящий состояние поля 3х3
     public struct FieldState
     {
         public Player Owner;
@@ -56,61 +77,20 @@ namespace TTTM
             this.Filled = Filled;
         }
     }
-    /*public class Pos
-    {
-        public int x, y;
-        public Pos(int i, int j)
-        {
-            x = i;
-            y = j;
-        }
-
-        public override bool Equals(object another)
-        {
-            if (another is Pos)
-                return x == ((Pos)another).x && y == ((Pos)another).y;
-            else
-                return false;
-        }
-
-        /*public static bool operator== (Pos a, Pos b)
-        {
-            return a?.Equals(b) ?? false;
-        }
-
-        public static bool operator!= (Pos a, Pos b)
-        {
-            return !(a == b);
-        }
-    }
-
-    public class DoublePos
-    {
-        public Pos FieldPos;
-        public Pos CellPos;
-    }*/
-
-    enum WhosTurn
-    {
-        Player1,
-        Player2,
-        Mine,
-        Comp,
-        OnlinePlayer
-    }
-
+    
+    // Класс, реализующий одиночную игру с другим игроком
     class SinglePlayerWithFriend
     {
-        Game game;
-        Player Player1, Player2;
-        public WhosTurn Turn = WhosTurn.Player1;
+        // Свойства
+        private Game game;
+        private Player Player1, Player2;
         public Player CurrentPlayer;
-        public event EventHandler SomebodyWins;
+        public event EventHandler<Game.GameEndArgs> SomebodyWins;
         public event EventHandler NobodyWins;
-        public event EventHandler<WhosTurn> ChangeTurn;
+        public event EventHandler<Player> ChangeTurn;
         public event EventHandler<Position> IncorrectTurn;
-        //public event EventHandler<Position> FieldBinded;
 
+        // Конструктор
         public SinglePlayerWithFriend(string player1, string player2)
         {
             game = new Game();
@@ -118,36 +98,41 @@ namespace TTTM
             Player1 = new Player(player1);
             Player2 = new Player(player2);
             CurrentPlayer = Player1;
+            game.GameEnds += GameEnds;
         }
 
-        /*private void GameFieldBinded(object sender, Position e)
+        // Обработка конца игры
+        private void GameEnds(object sender, Game.GameEndArgs e)
         {
-            FieldBinded(this, e);
-        }*/
+            if (e.Winner != null)
+                SomebodyWins?.Invoke(this, e);
+            else
+                NobodyWins?.Invoke(this, new EventArgs());
+        }
 
+        // Обработка клика по полю
         public void ClickOn(int i, int j)
         {
+            // Выполнение хода
             bool res = game.Turn(new Position(i, j), CurrentPlayer);
 
+            // Если ход выполнен успешно (ячейка не занята и ход туда разрешён) - свап игрока
             if (res)
             {
-                if (Turn == WhosTurn.Player1)
-                {
-                    Turn = WhosTurn.Player2;
+                if (CurrentPlayer == Player1)
                     CurrentPlayer = Player2;
-                }
                 else
-                {
-                    Turn = WhosTurn.Player1;
                     CurrentPlayer = Player1;
-                }
 
-                ChangeTurn(this, Turn);
+                // Вызов события об обновлении хода
+                ChangeTurn(this, CurrentPlayer);
             }
             else
-                IncorrectTurn?.Invoke(this, game.CurrentField ?? new Position(-1, -1));
+                // Вызов события некорректного хода
+                IncorrectTurn?.Invoke(this, game.CurrentField);
         }
 
+        // Методы возвращающие состоящие игровых полей и ячеек
         public int[,] State()
         {
             int[,] res = new int[9, 9];
@@ -157,7 +142,6 @@ namespace TTTM
 
             return res;
         }
-
         public FieldState[,] FieldsState()
         {
             FieldState[,] res = new FieldState[3, 3];
@@ -167,25 +151,28 @@ namespace TTTM
 
             return res;
         }
-
-        /*public bool[,] FilledFields()
-        {
-            return game.FilledFields();
-        }*/
     }
 
-
+    // Класс содержащий матрицу полей с ячейками, историю ходов и проверяющий корректность хода
     class Game
     {
-        //Player PlayerA, PlayerB;
-        //public Player CurrentPlayer { private set; get; }
-        public event EventHandler GameEnds;
-        public event EventHandler GameStateChanged;
-        //public event EventHandler<Position> GameFieldBinded;
+        // Свойства
         public GameField[,] Fields { private set; get; }
+        public Position CurrentField { private set; get; }
         public List<Position> History = new List<Position>();
 
-        //Added
+        // Событие конца игры
+        public event EventHandler<GameEndArgs> GameEnds;
+        public class GameEndArgs : EventArgs
+        {
+            public Player Winner { private set; get; };
+            public GameEndArgs(Player Winner)
+            {
+                this.Winner = Winner;
+            }
+        }
+
+        // Состояние полей в виде двумерного массива владельцев
         public Player[,] FieldsState()
         {
             Player[,] res = new Player[3,3];
@@ -195,17 +182,8 @@ namespace TTTM
 
             return res;
         }
-        public Position CurrentField { private set; get; }
-        /*public bool[,] FilledFields()
-        {
-            bool[,] res = new bool[3, 3];
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                    res[i, j] = Fields[i, j].Full;
 
-            return res;
-        }*/
-
+        // Индексаторы для обращения к полю/ячейке
         public GameCell this[int i, int j, int k, int l]
         {
             get
@@ -230,18 +208,13 @@ namespace TTTM
                 item.Clear();
             }
         }
-        /*private void SwapPlayer()
-        {
-            if (CurrentPlayer == PlayerA)
-                CurrentPlayer = PlayerB;
-            else
-                CurrentPlayer = PlayerA;
-        }*/
         public bool Turn(Position pos, Player player)
         {
+            // Ход вне диапазона
             if (pos.x < 0 || pos.x > 8 || pos.y < 0 || pos.y > 8)
                 return false;
 
+            // Проверка верности хода
             Position Cell = Position.GetCellFrom9x9(pos);
             Position Field = Position.GetFieldFrom9x9(pos);
 
@@ -251,6 +224,7 @@ namespace TTTM
             if (notSameField && CurrentField != null && fieldIsNotFull)
                 return false;
             
+            // Ход
             if (Fields[Field.x, Field.y][Cell.x, Cell.y].Bind(player))
             {
                 History.Add(pos);
@@ -261,7 +235,7 @@ namespace TTTM
                 return false;
         }
 
-        //Конструктор
+        // Конструктор
         public Game()
         {
             Fields = new GameField[3, 3];
@@ -269,20 +243,50 @@ namespace TTTM
                 for (int j = 0; j < 3; j++)
                 {
                     Fields[i, j] = new GameField(i, j);
-                    //Fields[i, j].Changed += FieldChanged;
-                    //Fields[i, j].Binded += FieldBinded;
+                    Fields[i, j].Changed += FieldChanged;
+                    Fields[i, j].Filled += FieldFilled;
                 }
         }
 
-        //События
-        /*private void FieldBinded(object sender, EventArgs e)
+        // Обработка заполнения и победы поля
+        private void FieldFilled(object sender, EventArgs e)
         {
-            GameFieldBinded?.Invoke(this, new Position(((GameField)sender).PosX, ((GameField)sender).PosY));
-        }*/
-        /*private void FieldChanged(object sender, EventArgs e)
+            // Проверка на заполненность
+            bool full = true;
+            for (int i = 0; i < 3 && full; i++)
+                for (int j = 0; j < 3 && full; j++)
+                    if (Fields[i, j].Owner == null)
+                        full = false;
+
+            if (full)
+            {
+                // Конец игры из-за заполненности всех полей
+                GameEnds?.Invoke(this, new GameEndArgs(null));
+            }
+        }
+        private void FieldChanged(object sender, EventArgs e)
         {
-            GameStateChanged?.Invoke(sender, e);
-        }*/
+            if (checkNeighbors(((GameField)sender).Pos.x, ((GameField)sender).Pos.y))
+            {
+                // Конец игры из-за победы одного из игроков
+                GameEnds?.Invoke(this, new GameEndArgs(((GameCell)sender).Owner));
+            }
+        }
+
+        // Проверка соседних с [i, j] полей на нахождение ряда из трёх
+        private bool checkNeighbors(int i, int j)
+        {
+            if (Fields[i, 0].Owner == Fields[i, 1].Owner && Fields[i, 0].Owner == Fields[i, 2].Owner && Fields[i, 0].Owner != null)
+                return true;
+            if (Fields[0, j].Owner == Fields[1, j].Owner && Fields[0, j].Owner == Fields[2, j].Owner && Fields[0, j].Owner != null)
+                return true;
+            if ((i == 0 || i == 2) && (j == 0 || j == 2))
+                if (((Fields[0, 0].Owner == Fields[1, 1].Owner && Fields[0, 0].Owner == Fields[2, 2].Owner)
+                || (Fields[0, 2].Owner == Fields[1, 1].Owner && Fields[0, 0].Owner == Fields[2, 0].Owner)) && Fields[0, 0].Owner != null)
+                    return true;
+
+            return false;
+        }
 
         //Сохранение в строку
         public string GetStateCode()
@@ -295,40 +299,51 @@ namespace TTTM
         }
     }
 
+    // Класс игрока
     public class Player : IDisposable
     {
+        // Счётчик созданных игроков для присвоения уникального идентификатора 
         private static int Players = 0;
+
+        // Свойства
         public int Id { private set; get; }
         public string Name { private set; get; }
 
+        // Конструктор
         public Player(string Name)
         {
             Id = ++Players;
             this.Name = Name;
         }
+
+        // Освобождение памяти после игрока
         public void Dispose()
         {
             Players--;
         }
     }
 
-    class GameCell
+    // Игровая ячейка
+    class GameCell : IGameObjectAsCell
     {
-        public Position Pos;
-        //public int PosX { private set; get; }
-        //public int PosY { private set; get; }
+        // Свойства
+        public Position Pos { private set; get; }
         public Player Owner { get; private set; }
+
+        // Событие
         public event EventHandler Changed;
 
+        // Конструктор
         public GameCell(int X, int Y, Player P = null)
         {
             Pos = new Position(X, Y);
             Owner = P;
         }
 
+        // Ход
         public bool Bind(Player P)
         {
-            if (Owner != null)
+            if (Owner != null || P == null)
                 return false;
             else
             {
@@ -338,19 +353,28 @@ namespace TTTM
 
             return true;
         }
+
+        // Очищение ячейки
         public void Clear()
         {
             Owner = null;
         }    
     }
 
-    class GameField
+    // Игровое поле 3х3
+    class GameField : IGameObjectAsCell
     {
+        // Свойства
         public bool Full { private set; get; } = false;
         public GameCell[,] Cells { private set; get; }
-        public int PosX { private set; get; }
-        public int PosY { private set; get; }
+        public Position Pos { private set; get; }
         public Player Owner { private set; get; }
+
+        // Событие
+        public event EventHandler Changed;
+        public event EventHandler Filled;
+
+        // Индексатор для обращения к ячейкам
         public GameCell this[int i,int j]
         {
             get
@@ -359,10 +383,10 @@ namespace TTTM
             }
         }
 
+        // Конструктор
         public GameField(int X, int Y)
         {
-            PosX = X;
-            PosY = Y;
+            Pos = new Position(X, Y);
             Cells = new GameCell[3, 3];
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
@@ -372,6 +396,7 @@ namespace TTTM
                 }
         }
 
+        // Проверка соседних клеток с [i, j] на нахождение ряда из трёх
         private bool checkNeighbors(int i, int j)
         {
             if (Cells[i, 0].Owner == Cells[i, 1].Owner && Cells[i, 0].Owner == Cells[i, 2].Owner && Cells[i, 0].Owner != null)
@@ -386,30 +411,37 @@ namespace TTTM
             return false;
         }
 
+        //Обработка изменения ячейки
         private void CellChanged(object sender, EventArgs e)
         {
+            // Проверка на победу в этом поле
             if (Owner == null)
                 if (checkNeighbors(((GameCell)sender).Pos.x, ((GameCell)sender).Pos.y))
                 {
                     Owner = ((GameCell)sender).Owner;
-                    //Binded(this, e);
-                    //Binded = true;
+                    // Фу, скатился, отписка
+                    for (int i = 0; i < 3; i++)
+                        for (int j = 0; j < 3; j++)
+                            Cells[i, j].Changed -= CellChanged;
+
+                    Changed?.Invoke(this, new EventArgs());
                 }
 
+            // Проверка на заполненность
             bool full = true;
             for (int i = 0; i < 3 && full; i++)
                 for (int j = 0; j < 3 && full; j++)
                     if (Cells[i, j].Owner == null)
                         full = false;
-
-            //Changed?.Invoke(this, e);
+            
             if (full)
             {
                 Full = true;
-                //Filled?.Invoke(this, e);
+                Filled?.Invoke(this, e);
             }
         }
 
+        // Очищение поля
         public void Clear()
         {
             foreach (var item in Cells)
@@ -419,5 +451,13 @@ namespace TTTM
                 Owner = null;
             }
         }
+    }
+
+    // Интерфейсы
+    interface IGameObjectAsCell
+    {
+        Position Pos { get; }
+        Player Owner { get; }
+        void Clear();
     }
 }

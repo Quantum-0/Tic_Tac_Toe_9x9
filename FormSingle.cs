@@ -197,7 +197,7 @@ namespace TTTM
             RedrawGame(true);
         }
 
-        private void Game_ChangeTurn(object sender, WhosTurn e)
+        private void Game_ChangeTurn(object sender, Player e)
         {
             RedrawGame();
             if (labelCurrentTurn.Text == pl1)
