@@ -216,6 +216,17 @@ namespace TTTM
             RedrawGame(true);
         }
 
+        private void buttonSaveGame_Click(object sender, EventArgs e)
+        {
+            string t = game.Save();
+            Clipboard.SetText(t);
+        }
+
+        private void buttonLoadGame_Click(object sender, EventArgs e)
+        {
+            game.Load(Clipboard.GetText()); // протестить
+        }
+
         private void buttonNewGame_Click(object sender, EventArgs e)
         {
             if (game != null)

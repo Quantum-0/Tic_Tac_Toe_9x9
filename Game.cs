@@ -151,6 +151,18 @@ namespace TTTM
 
             return res;
         }
+
+        // Сохранение/загрузка
+        public string Save()
+        {
+            return game.GetStateCode();
+        }
+
+        public void Load(string State)
+        {
+            var sb = new StringBuilder("2100200000");
+            game.UpdateFromStateCode("100010002" + sb.Append('0', 9*8), Player1, Player2);
+        }
     }
 
     // Класс содержащий матрицу полей с ячейками, историю ходов и проверяющий корректность хода
@@ -165,7 +177,7 @@ namespace TTTM
         public event EventHandler<GameEndArgs> GameEnds;
         public class GameEndArgs : EventArgs
         {
-            public Player Winner { private set; get; };
+            public Player Winner { private set; get; }
             public GameEndArgs(Player Winner)
             {
                 this.Winner = Winner;
@@ -269,7 +281,7 @@ namespace TTTM
             if (checkNeighbors(((GameField)sender).Pos.x, ((GameField)sender).Pos.y))
             {
                 // Конец игры из-за победы одного из игроков
-                GameEnds?.Invoke(this, new GameEndArgs(((GameCell)sender).Owner));
+                GameEnds?.Invoke(this, new GameEndArgs(((GameField)sender).Owner));
             }
         }
 
@@ -291,11 +303,70 @@ namespace TTTM
         //Сохранение в строку
         public string GetStateCode()
         {
-            return "";
+            StringBuilder res = new StringBuilder();
+
+            // Запись полей
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    res.Append(Fields[i, j].Owner?.Id ?? 0);
+
+            // Запись ячеек
+            for (int i = 0; i < 9; i++)
+                for (int j = 0; j < 9; j++)
+                    res.Append(Fields[i / 3, j / 3][i % 3, j % 3].Owner?.Id ?? 0);
+
+            if (CurrentField != null)
+                res.Append(CurrentField.x * 3 + CurrentField.y);
+            else
+                res.Append('X'); // Не забудь обработать
+
+            return res.ToString();
         }
-        public bool UpdateFromStateCode()
+        public bool UpdateFromStateCode(string State, Player p1, Player p2)
         {
-            return false;//если неудалось распарсить
+            if (State.Length != 91)
+                return false;
+
+            foreach (var item in Fields)
+            {
+                item.Clear();
+            }
+
+            try
+            {
+                int k = 0;
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++, k++)
+                    {
+                        if (State[k] == '1')
+                            Fields[i, j]._Bind(p1);
+                        if (State[k] == '2')
+                            Fields[i, j]._Bind(p2);
+                    }
+
+                for (int i = 0; i < 9; i++)
+                    for (int j = 0; j < 9; j++, k++)
+                    {
+                        if (State[k] == '1')
+                            Fields[i / 3, j / 3][i % 3, j % 3].Bind(p1);
+                        if (State[k] == '2')
+                            Fields[i / 3, j / 3][i % 3, j % 3].Bind(p2);
+                    }
+
+                if (State[90] == 'X')
+                    CurrentField = null;
+                else
+                {
+                    int temp = int.Parse(State[90].ToString());
+                    CurrentField = new Position(temp / 3, temp % 3);
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 
@@ -439,6 +510,11 @@ namespace TTTM
                 Full = true;
                 Filled?.Invoke(this, e);
             }
+        }
+
+        public void _Bind(Player P)
+        {
+            Owner = P;
         }
 
         // Очищение поля

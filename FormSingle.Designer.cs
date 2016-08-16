@@ -99,6 +99,7 @@
             this.buttonLoadGame.TabIndex = 5;
             this.buttonLoadGame.Text = "Загрузить";
             this.buttonLoadGame.UseVisualStyleBackColor = true;
+            this.buttonLoadGame.Click += new System.EventHandler(this.buttonLoadGame_Click);
             // 
             // buttonSaveGame
             // 
@@ -109,6 +110,7 @@
             this.buttonSaveGame.TabIndex = 6;
             this.buttonSaveGame.Text = "Сохранить";
             this.buttonSaveGame.UseVisualStyleBackColor = true;
+            this.buttonSaveGame.Click += new System.EventHandler(this.buttonSaveGame_Click);
             // 
             // FormSingle
             // 
