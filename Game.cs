@@ -231,7 +231,7 @@ namespace TTTM
             Position Cell = Position.GetCellFrom9x9(pos);
             Position Field = Position.GetFieldFrom9x9(pos);
 
-            bool notSameField = !Field.Equals(CurrentField);
+            bool notSameField = !Field.Equals(CurrentField); //Зачем?
             bool fieldIsNotFull = (CurrentField != null) ? !Fields[CurrentField.x, CurrentField.y].Full : true;
 
             if (notSameField && CurrentField != null && fieldIsNotFull)
@@ -317,15 +317,13 @@ namespace TTTM
                     res.Append(Fields[i / 3, j / 3][i % 3, j % 3].Owner?.Id ?? 0);
 
             // Куда должен совершаться ход
-            if (CurrentField != null)
-                res.Append(CurrentField.x * 3 + CurrentField.y);
-            else
+            if (CurrentField == null)
                 res.Append('X');
+            else
+                res.Append(CurrentField.x * 3 + CurrentField.y);
 
             // ID игрока сделавшего последний ход
             if (CurrentField == null)
-                res.Append('X');
-            else if (Fields[CurrentField.x, CurrentField.y].Full)
                 res.Append('X');
             else
             {
@@ -417,20 +415,14 @@ namespace TTTM
     }
 
     // Игровая ячейка
-    class GameCell : IGameObjectAsCell
+    class GameCell : AGameCell
     {
-        // Свойства
-        public Position Pos { private set; get; }
-        public Player Owner { get; private set; }
-
         // Событие
         public event EventHandler Changed;
 
         // Конструктор
-        public GameCell(int X, int Y, Player P = null)
+        public GameCell(int X, int Y) : base(X, Y)
         {
-            Pos = new Position(X, Y);
-            Owner = P;
         }
 
         // Ход
@@ -446,22 +438,14 @@ namespace TTTM
 
             return true;
         }
-
-        // Очищение ячейки
-        public void Clear()
-        {
-            Owner = null;
-        }    
     }
 
     // Игровое поле 3х3
-    class GameField : IGameObjectAsCell
+    class GameField : AGameCell
     {
         // Свойства
         public bool Full { private set; get; } = false;
         public GameCell[,] Cells { private set; get; }
-        public Position Pos { private set; get; }
-        public Player Owner { private set; get; }
 
         // Событие
         public event EventHandler Changed;
@@ -477,9 +461,8 @@ namespace TTTM
         }
 
         // Конструктор
-        public GameField(int X, int Y)
+        public GameField(int X, int Y) : base(X, Y)
         {
-            Pos = new Position(X, Y);
             Cells = new GameCell[3, 3];
             for (int i = 0; i < 3; i++)
                 for (int j = 0; j < 3; j++)
@@ -504,7 +487,7 @@ namespace TTTM
             return false;
         }
 
-        //Обработка изменения ячейки
+        // Обработка изменения ячейки
         private void CellChanged(object sender, EventArgs e)
         {
             // Проверка на победу в этом поле
@@ -536,28 +519,45 @@ namespace TTTM
             }
         }
 
+
         public void _Bind(Player P)
         {
             Owner = P;
         }
 
         // Очищение поля
-        public void Clear()
+        public override void Clear()
         {
+            base.Clear();
+            if (Full)
+            {
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        Cells[i, j].Changed += CellChanged;
+            }
+            Full = false;
             foreach (var item in Cells)
             {
                 item.Clear();
-                Full = false;
-                Owner = null;
             }
         }
     }
 
-    // Интерфейсы
-    interface IGameObjectAsCell
+    abstract class AGameCell
     {
-        Position Pos { get; }
-        Player Owner { get; }
-        void Clear();
+        // Свойства
+        public Position Pos { protected set; get; }
+        public Player Owner { protected set; get; }
+
+        public AGameCell(int X, int Y)
+        {
+            Pos = new Position(X, Y);
+        }
+
+        // Очищение ячейки
+        public virtual void Clear()
+        {
+            Owner = null;
+        }
     }
 }
