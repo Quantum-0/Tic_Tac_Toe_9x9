@@ -9,14 +9,20 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 /*
+ * TODO:
+ * 
  * Add settings +
  * Replace panel by picturebox +
  * Incorrect turn +
- * Buffered Rendering
- * Field Scalling
- * Comments
+ * Buffered Rendering +
+ * Field Scalling +
+ * Comments +/-
+ * Сохранять в GameState айдишник текущего хода +
+ * Доделать сохранение/загрузку в логике
+ * Доделать сохранение/загрузку в форме
+ * Глючит последний столбец
+ * И если заполнено ходить в другую
  * Make settings
- * Replace grid by tic tac toe fields
  */
 
 namespace TTTM
@@ -136,7 +142,7 @@ namespace TTTM
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    Rectangle rect = new Rectangle((int)((w * (i + 1)) / 11f), (int)((h * (j + 1)) / 11f), (int)(w / 11f), (int)(h / 11f));
+                    Rectangle rect = new Rectangle((int)((w * (i + 1.1)) / 11f), (int)((h * (j + 1.1)) / 11f), (int)(0.8 * w / 11f), (int)(0.8 * h / 11f));
                     if (State[i,j] == 1)
                         gfx.DrawEllipse(penc1, rect);
                     if (State[i,j] == 2)
@@ -200,10 +206,7 @@ namespace TTTM
         private void Game_ChangeTurn(object sender, Player e)
         {
             RedrawGame();
-            if (labelCurrentTurn.Text == pl1)
-                labelCurrentTurn.Text = pl2;
-            else
-                labelCurrentTurn.Text = pl1;
+            labelCurrentTurn.Text = e.Name;
         }
 
         private void FormSingle_ResizeEnd(object sender, EventArgs e)
@@ -225,6 +228,12 @@ namespace TTTM
         private void buttonLoadGame_Click(object sender, EventArgs e)
         {
             game.Load(Clipboard.GetText()); // протестить
+            RedrawGame();
+        }
+
+        private void FormSingle_Load(object sender, EventArgs e)
+        {
+
         }
 
         private void buttonNewGame_Click(object sender, EventArgs e)
@@ -240,7 +249,7 @@ namespace TTTM
 
         private void FormSingle_Paint(object sender, PaintEventArgs e)
         {
-            //RedrawGame();
+            RedrawGame();
         }
     }
 }

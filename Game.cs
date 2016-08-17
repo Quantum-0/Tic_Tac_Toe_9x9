@@ -93,6 +93,8 @@ namespace TTTM
         // Конструктор
         public SinglePlayerWithFriend(string player1, string player2)
         {
+            Player1?.Dispose();
+            Player2?.Dispose();
             game = new Game();
             game.StartGame();
             Player1 = new Player(player1);
@@ -157,11 +159,10 @@ namespace TTTM
         {
             return game.GetStateCode();
         }
-
         public void Load(string State)
         {
-            var sb = new StringBuilder("2100200000");
-            game.UpdateFromStateCode("100010002" + sb.Append('0', 9*8), Player1, Player2);
+            game.UpdateFromStateCode(State, Player1, Player2, ref CurrentPlayer);
+            ChangeTurn(this, CurrentPlayer);
         }
     }
 
@@ -171,7 +172,7 @@ namespace TTTM
         // Свойства
         public GameField[,] Fields { private set; get; }
         public Position CurrentField { private set; get; }
-        public List<Position> History = new List<Position>();
+        public List<Position> History { private set; get; } = new List<Position>();
 
         // Событие конца игры
         public event EventHandler<GameEndArgs> GameEnds;
@@ -231,7 +232,7 @@ namespace TTTM
             Position Field = Position.GetFieldFrom9x9(pos);
 
             bool notSameField = !Field.Equals(CurrentField);
-            bool fieldIsNotFull = !Fields[Field.x, Field.y].Full;
+            bool fieldIsNotFull = (CurrentField != null) ? !Fields[CurrentField.x, CurrentField.y].Full : true;
 
             if (notSameField && CurrentField != null && fieldIsNotFull)
                 return false;
@@ -315,16 +316,31 @@ namespace TTTM
                 for (int j = 0; j < 9; j++)
                     res.Append(Fields[i / 3, j / 3][i % 3, j % 3].Owner?.Id ?? 0);
 
+            // Куда должен совершаться ход
             if (CurrentField != null)
                 res.Append(CurrentField.x * 3 + CurrentField.y);
             else
-                res.Append('X'); // Не забудь обработать
+                res.Append('X');
+
+            // ID игрока сделавшего последний ход
+            if (CurrentField == null)
+                res.Append('X');
+            else if (Fields[CurrentField.x, CurrentField.y].Full)
+                res.Append('X');
+            else
+            {
+                Position lastfield = Position.GetFieldFrom9x9(History.Last());
+                int lastPlayerID = Fields[lastfield.x, lastfield.y].Cells[CurrentField.x, CurrentField.y].Owner.Id;
+                res.Append(lastPlayerID);
+            }
 
             return res.ToString();
         }
-        public bool UpdateFromStateCode(string State, Player p1, Player p2)
+        public bool UpdateFromStateCode(string State, Player p1, Player p2, ref Player currentPlayer)
         {
-            if (State.Length != 91)
+            string Backup = GetStateCode();
+
+            if (State.Length != 92)
                 return false;
 
             foreach (var item in Fields)
@@ -361,10 +377,16 @@ namespace TTTM
                     CurrentField = new Position(temp / 3, temp % 3);
                 }
 
+                if (State[91] == '1')
+                    currentPlayer = p2;
+                else if (State[91] == '2')
+                    currentPlayer = p1;
+
                 return true;
             }
             catch
             {
+                UpdateFromStateCode(Backup, p1, p2, ref currentPlayer);
                 return false;
             }
         }
@@ -490,10 +512,6 @@ namespace TTTM
                 if (checkNeighbors(((GameCell)sender).Pos.x, ((GameCell)sender).Pos.y))
                 {
                     Owner = ((GameCell)sender).Owner;
-                    // Фу, скатился, отписка
-                    for (int i = 0; i < 3; i++)
-                        for (int j = 0; j < 3; j++)
-                            Cells[i, j].Changed -= CellChanged;
 
                     Changed?.Invoke(this, new EventArgs());
                 }
@@ -508,6 +526,12 @@ namespace TTTM
             if (full)
             {
                 Full = true;
+
+                // Фу, скатился, отписка
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        Cells[i, j].Changed -= CellChanged;
+
                 Filled?.Invoke(this, e);
             }
         }

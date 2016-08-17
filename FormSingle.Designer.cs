@@ -126,6 +126,7 @@
             this.Controls.Add(this.label1);
             this.Name = "FormSingle";
             this.Text = "Одиночная игра";
+            this.Load += new System.EventHandler(this.FormSingle_Load);
             this.ResizeEnd += new System.EventHandler(this.FormSingle_ResizeEnd);
             this.SizeChanged += new System.EventHandler(this.FormSingle_ResizeEnd);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.FormSingle_Paint);
