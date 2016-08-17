@@ -221,13 +221,14 @@ namespace TTTM
 
         private void buttonSaveGame_Click(object sender, EventArgs e)
         {
-            string t = game.Save();
-            Clipboard.SetText(t);
+            string t = game?.Save();
+            if (t != null)
+                Clipboard.SetText(t);
         }
 
         private void buttonLoadGame_Click(object sender, EventArgs e)
         {
-            game.Load(Clipboard.GetText()); // протестить
+            game?.Load(Clipboard.GetText()); // протестить
             RedrawGame();
         }
 
