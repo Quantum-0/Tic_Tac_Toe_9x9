@@ -79,7 +79,7 @@ namespace TTTM
     }
     
     // Класс, реализующий одиночную игру с другим игроком
-    class SinglePlayerWithFriend
+    class SinglePlayerWithFriend : IDisposable
     {
         // Свойства
         private Game game;
@@ -93,14 +93,18 @@ namespace TTTM
         // Конструктор
         public SinglePlayerWithFriend(string player1, string player2)
         {
-            Player1?.Dispose();
-            Player2?.Dispose();
             game = new Game();
             game.StartGame();
             Player1 = new Player(player1);
             Player2 = new Player(player2);
             CurrentPlayer = Player1;
             game.GameEnds += GameEnds;
+        }
+
+        public void Dispose()
+        {
+            Player1?.Dispose();
+            Player2?.Dispose();
         }
 
         // Обработка конца игры

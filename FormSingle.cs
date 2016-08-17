@@ -21,8 +21,10 @@ using System.Windows.Forms;
  * Доделать сохранение/загрузку в логике
  * Доделать сохранение/загрузку в форме
  * Глючит последний столбец
- * И если заполнено ходить в другую
+ * И если заполнено ходить в другую +
  * Make settings
+ * Сделать мультиплеер
+ * Отрисовывать нормально, а не как сейчас
  */
 
 namespace TTTM
@@ -192,6 +194,12 @@ namespace TTTM
             StartSinlgeGame frm = new StartSinlgeGame();
             if (frm.ShowDialog() != DialogResult.OK)
                 return;
+            if (game != null)
+            {
+                game.ChangeTurn -= Game_ChangeTurn;
+                game.IncorrectTurn -= Game_IncorrectTurn;
+                game.Dispose();
+            }
             pl1 = frm.textBox1.Text;
             pl2 = frm.textBox2.Text;
             penc1 = new Pen(frm.panel1.BackColor);
@@ -239,12 +247,6 @@ namespace TTTM
 
         private void buttonNewGame_Click(object sender, EventArgs e)
         {
-            if (game != null)
-            {
-                game.ChangeTurn -= Game_ChangeTurn;
-                game.IncorrectTurn -= Game_IncorrectTurn;
-                game = null;
-            }
             NewGame();
         }
 
