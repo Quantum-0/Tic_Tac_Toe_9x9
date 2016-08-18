@@ -1,21 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace TTTM
 {
-    ////public class Settings
-    //{
-    //    /*
-    //     * Colors
-    //     * Default Name(s)
-    //     * ???
-    //     * save()
-    //     * load()
-    //     */
-    //}
+    [Serializable]
+    public class Settings
+    {
+        public Color BackgroundColor;
+        public Color SmallGrid;
+        public Color BigGrid;
+        public Color PlayerColor1;
+        public Color PlayerColor2;
+        public string DefaultName1;
+        public string DefaultName2;
+
+        /*
+         *  TODO:
+         *  Переписать эти методы, чтоб хранить информацию более компактно. INI или "key = value \n key = value ..."
+         */
+
+        public static bool Save(string fname, Settings settings)
+        {
+            using (StreamWriter sw = new StreamWriter(fname))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Settings));
+                serializer.Serialize(sw, settings);
+                return true;
+            }
+        }
+        public static bool Load(string fname, Settings settings)
+        {
+            try
+            {
+                using (StreamReader sr = new StreamReader(fname))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(Settings));
+                    settings = (Settings)serializer.Deserialize(sr);
+                    return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+    }
 
     // Класс координат для игры
     public class Position

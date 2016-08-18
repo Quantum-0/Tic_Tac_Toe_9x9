@@ -12,9 +12,18 @@ namespace TTTM
 {
     public partial class StartSinlgeGame : Form
     {
-        public StartSinlgeGame()
+        Settings settings;
+        public StartSinlgeGame(Settings settings)
         {
             InitializeComponent();
+            this.settings = settings;
+            if (settings != null)
+            {
+                textBox1.Text = settings.DefaultName1;
+                textBox2.Text = settings.DefaultName2;
+                panel1.BackColor = settings.PlayerColor1;
+                panel2.BackColor = settings.PlayerColor2;
+            }
         }
         private void panel_Click(object sender, EventArgs e)
         {
