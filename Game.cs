@@ -3,22 +3,73 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace TTTM
 {
+    class IniFile
+    {
+        string Path;
+        string EXE = Assembly.GetExecutingAssembly().GetName().Name;
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        static extern long WritePrivateProfileString(string Section, string Key, string Value, string FilePath);
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        static extern int GetPrivateProfileString(string Section, string Key, string Default, StringBuilder RetVal, int Size, string FilePath);
+
+        public IniFile(string IniPath = null)
+        {
+            Path = new FileInfo(IniPath ?? EXE + ".ini").FullName.ToString();
+        }
+
+        public string Read(string Key, string Section = null)
+        {
+            var RetVal = new StringBuilder(255);
+            GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
+            return RetVal.ToString();
+        }
+
+        public void Write(string Key, string Value, string Section = null)
+        {
+            WritePrivateProfileString(Section ?? EXE, Key, Value, Path);
+        }
+
+        public void DeleteKey(string Key, string Section = null)
+        {
+            Write(Key, null, Section ?? EXE);
+        }
+
+        public void DeleteSection(string Section = null)
+        {
+            Write(null, null, Section ?? EXE);
+        }
+
+        public bool KeyExists(string Key, string Section = null)
+        {
+            return Read(Key, Section).Length > 0;
+        }
+    }
+
     [Serializable]
     public class Settings
     {
+        // Цвета не сериализуются :с
         public Color BackgroundColor;
         public Color SmallGrid;
         public Color BigGrid;
         public Color PlayerColor1;
         public Color PlayerColor2;
+        public Color IncorrectTurn;
+        public Color FilledField = Color.Gray;
         public string DefaultName1;
         public string DefaultName2;
+        public string MpIP;
+        public int MpPort;
 
         /*
          *  TODO:
@@ -34,18 +85,14 @@ namespace TTTM
                 return true;
             }
         }
-        public static bool Load(string fname, Settings settings)
+        public static bool Load(string fname, out Settings settings)
         {
-            try
-            {
                 using (StreamReader sr = new StreamReader(fname))
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(Settings));
                     settings = (Settings)serializer.Deserialize(sr);
                     return true;
                 }
-            }
-            catch { }
             return false;
         }
     }

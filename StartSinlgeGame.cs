@@ -34,7 +34,7 @@ namespace TTTM
         {
             if (panel1.BackColor == panel2.BackColor || textBox1.Text == textBox2.Text || string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
                 return;
-
+            
             DialogResult = DialogResult.OK;
             Close();
         }

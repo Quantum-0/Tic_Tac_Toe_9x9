@@ -32,50 +32,6 @@ using System.Windows.Forms;
 
 namespace TTTM
 {
-    class IniFile
-    {
-        string Path;
-        string EXE = Assembly.GetExecutingAssembly().GetName().Name;
-
-        [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        static extern long WritePrivateProfileString(string Section, string Key, string Value, string FilePath);
-
-        [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        static extern int GetPrivateProfileString(string Section, string Key, string Default, StringBuilder RetVal, int Size, string FilePath);
-
-        public IniFile(string IniPath = null)
-        {
-            Path = new FileInfo(IniPath ?? EXE + ".ini").FullName.ToString();
-        }
-
-        public string Read(string Key, string Section = null)
-        {
-            var RetVal = new StringBuilder(255);
-            GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
-            return RetVal.ToString();
-        }
-
-        public void Write(string Key, string Value, string Section = null)
-        {
-            WritePrivateProfileString(Section ?? EXE, Key, Value, Path);
-        }
-
-        public void DeleteKey(string Key, string Section = null)
-        {
-            Write(Key, null, Section ?? EXE);
-        }
-
-        public void DeleteSection(string Section = null)
-        {
-            Write(null, null, Section ?? EXE);
-        }
-
-        public bool KeyExists(string Key, string Section = null)
-        {
-            return Read(Key, Section).Length > 0;
-        }
-    }
-
     public partial class FormSingle : Form
     {
         Settings settings;
@@ -89,10 +45,10 @@ namespace TTTM
         Rectangle[,] Zones = new Rectangle[9, 9];
         Rectangle[,] FieldZones = new Rectangle[3, 3];
 
-        public FormSingle()
+        public FormSingle(Settings settings)
         {
             InitializeComponent();
-            Settings.Load("Settings.cfg", settings);
+            this.settings = settings;
         }
         
         private void Game_IncorrectTurn(object sender, Position e)
@@ -117,6 +73,12 @@ namespace TTTM
 
         private void RedrawGame(bool refreshGraphics = false)
         {
+            Brush Background = new SolidBrush(settings.BackgroundColor);
+            Pen SmallGrid = new Pen(settings.SmallGrid);
+            Pen BigGrid = new Pen(settings.BigGrid, 3);
+            Pen pIncorrectTurn = new Pen(settings.IncorrectTurn, 4);
+            Pen FilledField = new Pen(settings.FilledField);
+
             // Обновление графики (нужно при ресайзе)
             if (refreshGraphics)
             {
@@ -133,7 +95,7 @@ namespace TTTM
             float h = pictureBox1.Height;
 
             // Фон
-            gfx.FillRectangle(Brushes.White, 0, 0, w, h);
+            gfx.FillRectangle(Background, 0, 0, w, h);
 
             /* Не оч выглядит 
             //gfx.DrawLine(Pens.Blue, (float)(1 + 3)/11 * w, (float)1/11 * h, (float)(1+3)/11 * w, (float)10/11 * h);
@@ -184,8 +146,8 @@ namespace TTTM
 
             for (int i = 1; i <= 10; i++)
             {
-                gfx.DrawLine(Pens.Blue, new PointF(w * i / 11f, h / 11f), new PointF(w * i / 11f, h * 10 / 11f));
-                gfx.DrawLine(Pens.Blue, new PointF(w / 11f, h * i / 11f), new PointF(w * 10 / 11f, h * i / 11f));
+                gfx.DrawLine(SmallGrid, new PointF(w * i / 11f, h / 11f), new PointF(w * i / 11f, h * 10 / 11f));
+                gfx.DrawLine(SmallGrid, new PointF(w / 11f, h * i / 11f), new PointF(w * 10 / 11f, h * i / 11f));
             }
             
             int[,] State = game.State();
@@ -207,9 +169,9 @@ namespace TTTM
                 for (int j = 0; j < 3; j++)
                 {
                     Rectangle rect = new Rectangle((int)((w * (i * 3 + 1)) / 11f), (int)((h * (j * 3 + 1)) / 11f), (int)(3 * w / 11f), (int)(3 * h / 11f));
-                    gfx.DrawRectangle(Pens.Orange, rect);
+                    gfx.DrawRectangle(BigGrid, rect);
                     if (FState[i, j].Filled)
-                        gfx.DrawLines(Pens.Gray, DiagonalyLines(rect));
+                        gfx.DrawLines(FilledField, DiagonalyLines(rect));
                     if (FState[i, j].OwnerID == 1)
                         gfx.DrawLines(penc1, DiagonalyLines(rect));
                     if (FState[i, j].OwnerID == 2)
@@ -218,7 +180,7 @@ namespace TTTM
             }
 
             if (IncorrectTurn != null)
-                gfx.DrawRectangle(Pens.Yellow, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3/ 11f), (int)(h * 3/ 11f)));
+                gfx.DrawRectangle(pIncorrectTurn, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3/ 11f), (int)(h * 3/ 11f)));
 
             BufGFX.Render();
         }
@@ -240,7 +202,7 @@ namespace TTTM
 
         private void NewGame()
         {
-            StartSinlgeGame frm = new StartSinlgeGame();
+            StartSinlgeGame frm = new StartSinlgeGame(settings);
             if (frm.ShowDialog() != DialogResult.OK)
                 return;
             if (game != null)
@@ -291,7 +253,11 @@ namespace TTTM
 
         private void FormSingle_Load(object sender, EventArgs e)
         {
+        }
 
+        private void buttonSettings_Click(object sender, EventArgs e)
+        {
+            (new FormSettings(settings)).ShowDialog();
         }
 
         private void buttonNewGame_Click(object sender, EventArgs e)

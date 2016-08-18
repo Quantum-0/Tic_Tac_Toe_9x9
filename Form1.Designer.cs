@@ -1,6 +1,6 @@
 ﻿namespace TTTM
 {
-    partial class Form1
+    partial class FormMainMenu
     {
         /// <summary>
         /// Обязательная переменная конструктора.
@@ -62,7 +62,7 @@
             this.buttonExit.UseVisualStyleBackColor = true;
             this.buttonExit.Click += new System.EventHandler(this.buttonExit_Click);
             // 
-            // Form1
+            // FormMainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -70,7 +70,7 @@
             this.Controls.Add(this.buttonExit);
             this.Controls.Add(this.buttonMulti);
             this.Controls.Add(this.buttonSingle);
-            this.Name = "Form1";
+            this.Name = "FormMainMenu";
             this.Text = "Менюшк";
             this.ResumeLayout(false);
 

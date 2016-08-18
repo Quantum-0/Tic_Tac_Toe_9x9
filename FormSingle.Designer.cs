@@ -65,6 +65,7 @@
             this.buttonSettings.TabIndex = 0;
             this.buttonSettings.Text = "Настройки";
             this.buttonSettings.UseVisualStyleBackColor = true;
+            this.buttonSettings.Click += new System.EventHandler(this.buttonSettings_Click);
             // 
             // pictureBox1
             // 
