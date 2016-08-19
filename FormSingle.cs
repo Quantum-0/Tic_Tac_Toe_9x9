@@ -21,13 +21,13 @@ using System.Windows.Forms;
  * Field Scalling +
  * Comments +/-
  * Сохранять в GameState айдишник текущего хода +
- * Доделать сохранение/загрузку в логике
+ * Доделать сохранение/загрузку в логике (в файл)
  * Доделать сохранение/загрузку в форме
- * Глючит последний столбец
+ * Глючит последний столбец / протестить и понять что с ним было не так
  * И если заполнено ходить в другую +
- * Make settings
+ * Make settings +
  * Сделать мультиплеер
- * Отрисовывать нормально, а не как сейчас
+ * Отрисовывать нормально, а не как сейчас +/-
  */
 
 namespace TTTM
@@ -73,6 +73,7 @@ namespace TTTM
 
         private void RedrawGame(bool refreshGraphics = false)
         {
+            // Цвета
             Brush Background = new SolidBrush(settings.BackgroundColor);
             Pen SmallGrid = new Pen(settings.SmallGrid);
             Pen BigGrid = new Pen(settings.BigGrid, 3);
@@ -96,60 +97,15 @@ namespace TTTM
 
             // Фон
             gfx.FillRectangle(Background, 0, 0, w, h);
-
-            /* Не оч выглядит 
-            //gfx.DrawLine(Pens.Blue, (float)(1 + 3)/11 * w, (float)1/11 * h, (float)(1+3)/11 * w, (float)10/11 * h);
-            //gfx.DrawLine(Pens.Blue, (float)(1 + 3 + 3)/11 * w, (float)1/11 * h, (float)(1+6)/11 * w, (float)10/11 * h);
-            //gfx.DrawLine(Pens.Blue, (float)1/11 * w, (float)4/11 * h, (float)10/11 * w, (float)4/11 * h);
-            //gfx.DrawLine(Pens.Blue, (float)1/11 * w, (float)7/11 * h, (float)10/11 * w, (float)7/11 * h);
-
-            //for (int i = 0; i < 3; i++)
-            //    for (int j = 0; j < 3; j++)
-            //    {
-            //        for (int ii = 0; ii < 3; ii++)
-            //            for (int jj = 0; jj < 3; jj++)
-            //            {
-            //                double BIGx = (1 + 3 * i) / 11.0;
-            //                double SMALLx = (1 + 3 + 3 * ii) / 11.0;
-            //                float x = (float)(w * (BIGx + SMALLx * 3 / 11));
-
-            //                double BIGy = (1 + 3 * j) / 11.0;
-            //                double SMALLy = (1 + 3 + 3 * jj) / 11.0;
-            //                float y = (float)(h * (BIGy + SMALLy * 3 / 11));
-
-            //                double BIGx1 = (1 + 3 * i) / 11.0;
-            //                double SMALLx1 = 1.0 / 11;
-            //                float x1 = (float)(w * (BIGx1 + SMALLx1 * 3 / 11));
-            //                double BIGx2 = (1 + 3 * i) / 11.0;
-            //                double SMALLx2 = 10.0 / 11;
-            //                float x2 = (float)(w * (BIGx2 + SMALLx2 * 3 / 11));
-
-            //                double BIGy1 = (1 + 3 * j) / 11.0;
-            //                double SMALLy1 = 1.0 / 11;
-            //                float y1 = (float)(h * (BIGy1 + SMALLy1 * 3 / 11));
-            //                double BIGy2 = (1 + 3 * j) / 11.0;
-            //                double SMALLy2 = 10.0 / 11;
-            //                float y2 = (float)(h * (BIGy2 + SMALLy2 * 3 / 11));
-
-            //                if (ii != 2 && jj != 2)
-            //                {
-            //                    gfx.DrawLine(Pens.Red, x, y1, x, y2);
-            //                    gfx.DrawLine(Pens.Red, x1, y, x2, y);
-            //                }
-
-            //                Zones[i * 3 + ii, j * 3 + jj] = new Rectangle((int)(x - w * 9 / 121), (int)(y - h * 9 / 121), (int)w * 9 / 121, (int)h * 9 / 121);
-            //            }
-            //        FieldZones[i, j] = new Rectangle((int)w * (1 + 3 * i) / 11, (int)h * (1 + 3 * j) / 11, (int)w * 3 / 11, (int)h * 3 / 11);
-            //    }
-
-            */
-
+            
+            //Линии
             for (int i = 1; i <= 10; i++)
             {
                 gfx.DrawLine(SmallGrid, new PointF(w * i / 11f, h / 11f), new PointF(w * i / 11f, h * 10 / 11f));
                 gfx.DrawLine(SmallGrid, new PointF(w / 11f, h * i / 11f), new PointF(w * 10 / 11f, h * i / 11f));
             }
             
+            // Вывод игрового состояния
             int[,] State = game.State();
             for (int i = 0; i < 9; i++)
             {
@@ -163,6 +119,7 @@ namespace TTTM
                 }
             }
 
+            // Закрашивание полей
             FieldState[,] FState = game.FieldsState();
             for (int i = 0; i < 3; i++)
             {
@@ -179,9 +136,11 @@ namespace TTTM
                 }
             }
 
+            // Выделение поля, куда нужно ходить, при попытке пойти нетуда
             if (IncorrectTurn != null)
                 gfx.DrawRectangle(pIncorrectTurn, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3/ 11f), (int)(h * 3/ 11f)));
 
+            // Рендеринг полученной графики
             BufGFX.Render();
         }
 

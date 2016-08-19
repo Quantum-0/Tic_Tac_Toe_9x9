@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -79,6 +80,51 @@ namespace TTTM
             panel7.BackColor = Color.LightGray;
             textBox2.Text = "127.0.0.1";
             textBox4.Text = "7890";
+        }
+
+        private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+                e.Handled = true;
+
+            UInt16 value;
+            textBox4.Text = UInt16.TryParse(textBox4.Text, out value) ? value.ToString() : "7890";
+        }
+
+        private void textBox4_Leave(object sender, EventArgs e)
+        {
+            UInt16 value;
+            textBox4.Text = UInt16.TryParse(textBox4.Text, out value) ? value.ToString() : "7890";
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            //if (!Regex.IsMatch(textBox2.Text, @"^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
+            //    textBox2.Undo();
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox3.Text == textBox1.Text || textBox3.Text.Contains('='))
+                textBox3.Undo();
+
+            if (string.IsNullOrWhiteSpace(textBox3.Text))
+            {
+                textBox3.Text = "Игрок 1";
+                textBox3.SelectAll();
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox3.Text == textBox1.Text || textBox1.Text.Contains('='))
+                textBox1.Undo();
+
+            if (string.IsNullOrWhiteSpace(textBox1.Text))
+            {
+                textBox1.Text = "Игрок 2";
+                textBox1.SelectAll();
+            }
         }
     }
 }

@@ -35,7 +35,9 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.panel7 = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.panel5 = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
@@ -51,8 +53,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.colorDialog = new System.Windows.Forms.ColorDialog();
-            this.panel7 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -76,6 +76,7 @@
             this.textBox1.Size = new System.Drawing.Size(193, 20);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Игрок 1";
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox2
             // 
@@ -84,6 +85,7 @@
             this.textBox2.Size = new System.Drawing.Size(149, 20);
             this.textBox2.TabIndex = 3;
             this.textBox2.Text = "127.0.0.1";
+            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // textBox3
             // 
@@ -94,6 +96,7 @@
             this.textBox3.Size = new System.Drawing.Size(193, 20);
             this.textBox3.TabIndex = 4;
             this.textBox3.Text = "Игрок 2";
+            this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
             // 
             // panel1
             // 
@@ -138,6 +141,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Цвета";
             // 
+            // panel7
+            // 
+            this.panel7.BackColor = System.Drawing.Color.LightGray;
+            this.panel7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel7.Location = new System.Drawing.Point(179, 84);
+            this.panel7.Name = "panel7";
+            this.panel7.Size = new System.Drawing.Size(56, 13);
+            this.panel7.TabIndex = 12;
+            this.panel7.Click += new System.EventHandler(this.panel_Click);
+            // 
             // panel6
             // 
             this.panel6.BackColor = System.Drawing.Color.White;
@@ -147,6 +160,15 @@
             this.panel6.Size = new System.Drawing.Size(56, 13);
             this.panel6.TabIndex = 10;
             this.panel6.Click += new System.EventHandler(this.panel_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 84);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(162, 13);
+            this.label1.TabIndex = 11;
+            this.label1.Text = "Штриховка нейтрального поля";
             // 
             // label5
             // 
@@ -253,9 +275,11 @@
             // 
             this.textBox4.Location = new System.Drawing.Point(60, 42);
             this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(61, 20);
+            this.textBox4.Size = new System.Drawing.Size(95, 20);
             this.textBox4.TabIndex = 6;
             this.textBox4.Text = "7890";
+            this.textBox4.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox4_KeyPress);
+            this.textBox4.Leave += new System.EventHandler(this.textBox4_Leave);
             // 
             // label7
             // 
@@ -287,25 +311,6 @@
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения по умолчанию для игроков";
-            // 
-            // panel7
-            // 
-            this.panel7.BackColor = System.Drawing.Color.LightGray;
-            this.panel7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel7.Location = new System.Drawing.Point(179, 84);
-            this.panel7.Name = "panel7";
-            this.panel7.Size = new System.Drawing.Size(56, 13);
-            this.panel7.TabIndex = 12;
-            this.panel7.Click += new System.EventHandler(this.panel_Click);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 84);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(162, 13);
-            this.label1.TabIndex = 11;
-            this.label1.Text = "Штриховка нейтрального поля";
             // 
             // FormSettings
             // 

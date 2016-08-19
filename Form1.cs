@@ -10,6 +10,14 @@ using System.Windows.Forms;
 
 namespace TTTM
 {
+    /*
+     * TODO:
+     * 
+     * Картинку для менюшки
+     * Попробовать переделать в WPF
+     * 
+     */
+
     public partial class FormMainMenu : Form
     {
         Settings settings;
@@ -17,22 +25,35 @@ namespace TTTM
         public FormMainMenu()
         {
             InitializeComponent();
+
+            // Создаём настройки
+            if (!Settings.Load("Settings.cfg", out settings))
+                settings = new Settings();
         }
 
         private void buttonSingle_Click(object sender, EventArgs e)
         {
-            if (!Settings.Load("Settings.cfg", out settings))
-                settings = new Settings();
-            FormSingle Game = new FormSingle(settings);
+            // Открытие формы одиночной игры, подписка на событие о её закрытии и скрывание текущей формы
+            FormSingle GameForm = new FormSingle(settings);
             Hide();
-            Game.Closed += (sndr, args) => { Show(); };
-            Game.Show();
+            GameForm.Closed += (sndr, args) => { Show(); };
+            GameForm.Show();
         }
 
         private void buttonExit_Click(object sender, EventArgs e)
         {
+            Close();
+        }
+
+        private void FormMainMenu_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Сохранение настроек перед закрытием
             Settings.Save("Settings.cfg", settings);
-            Application.Exit();
+        }
+
+        private void buttonSettings_Click(object sender, EventArgs e)
+        {
+            (new FormSettings(settings)).ShowDialog();
         }
     }
 }
