@@ -96,7 +96,7 @@ namespace TTTM
                     if (val is String || val is int)
                         sw.WriteLine(val);
                     else if (val is Color)
-                        sw.WriteLine(((Color)val).R.ToString() + ";" + ((Color)val).G.ToString() + ";" + ((Color)val).B.ToString());
+                        sw.WriteLine(((Color)val).ToArgb());
                     else if (val == null)
                         throw new Exception("Попытка сохранить настройки с полями со значениями null");
                 }
@@ -125,14 +125,16 @@ namespace TTTM
                     string field = str.Substring(0, str.IndexOf('='));
                     dynamic val = str.Substring(str.IndexOf('=')+1);
                     
-                    // Парсим цвет
-                    if (val.Split(';').Length == 3 && typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(Color))
+                    // Color
+                    if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(Color))
                     {
-                        int[] components = (val as string).Split(';').ToList().Select(c => int.Parse(c)).ToArray();
-                        val = Color.FromArgb(components[0], components[1], components[2]);
+                        int temp;
+                        int.TryParse(val, out temp);
+                        val = Color.FromArgb(temp);
                     }                            
-                    else if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(int))
-                    { // Парсим инт
+                    else // int
+                    if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(int))
+                    {
                         int temp;
                         int.TryParse(val, out temp);
                         val = temp;
