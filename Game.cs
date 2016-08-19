@@ -66,34 +66,83 @@ namespace TTTM
         public Color PlayerColor2;
         public Color IncorrectTurn;
         public Color FilledField = Color.Gray;
-        public string DefaultName1;
-        public string DefaultName2;
-        public string MpIP;
-        public int MpPort;
+        public string DefaultName1 = "";
+        public string DefaultName2 = "";
+        public string MpIP = "";
+        public int MpPort = 0;
 
-        /*
-         *  TODO:
-         *  Переписать эти методы, чтоб хранить информацию более компактно. INI или "key = value \n key = value ..."
-         */
+        // Первый раз использую Reflection o.o
 
+        // Сохранение настроек в файл
         public static bool Save(string fname, Settings settings)
         {
+            // Выход если настроек нет
+            if (settings == null)
+                return false;
+
             using (StreamWriter sw = new StreamWriter(fname))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-                serializer.Serialize(sw, settings);
+                // Заголовок файла
+                sw.WriteLine("[Tic Tac Toe Settings]");
+                // Получаем массив полей класса Settings
+                FieldInfo[] fis = typeof(Settings).GetFields();
+                // Проходим по всем полям
+                foreach (var fi in fis)
+                {
+                    // Записываем "Имя поля = "
+                    sw.Write(fi.Name + "=");
+                    // Записываем значение в зависимости от его типа
+                    object val = fi.GetValue(settings);
+                    if (val is String || val is int)
+                        sw.WriteLine(val);
+                    else if (val is Color)
+                        sw.WriteLine(((Color)val).R.ToString() + ";" + ((Color)val).G.ToString() + ";" + ((Color)val).B.ToString());
+                    else if (val == null)
+                        throw new Exception("Попытка сохранить настройки с полями со значениями null");
+                }
                 return true;
             }
         }
         public static bool Load(string fname, out Settings settings)
         {
-                using (StreamReader sr = new StreamReader(fname))
+            // Создаём объект настроек, в любом случае пригодится, да и возвращать что-то надо
+            settings = new Settings();
+
+            // Выход если файл отсутствует
+            if (!File.Exists(fname))
+                return false;
+
+            using (StreamReader sr = new StreamReader(fname))
+            {
+                // Пропускаем заголовок
+                sr.ReadLine();
+                // Читаем строки до конца файла
+                while (!sr.EndOfStream)
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-                    settings = (Settings)serializer.Deserialize(sr);
-                    return true;
+                    string str = sr.ReadLine();
+
+                    // Вытаскиваем из строки название поля и его значение
+                    string field = str.Substring(0, str.IndexOf('='));
+                    dynamic val = str.Substring(str.IndexOf('=')+1);
+                    
+                    // Парсим цвет
+                    if (val.Split(';').Length == 3 && typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(Color))
+                    {
+                        int[] components = (val as string).Split(';').ToList().Select(c => int.Parse(c)).ToArray();
+                        val = Color.FromArgb(components[0], components[1], components[2]);
+                    }                            
+                    else if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(int))
+                    { // Парсим инт
+                        int temp;
+                        int.TryParse(val, out temp);
+                        val = temp;
+                    }
+
+                    // Записываем значение в настройки
+                    typeof(Settings).GetFields().First(f => f.Name == field).SetValue(settings, val);
                 }
-            return false;
+                return true;
+            }
         }
     }
 
