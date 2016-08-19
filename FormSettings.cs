@@ -35,6 +35,7 @@ namespace TTTM
             panel4.BackColor = settings.BigGrid;
             panel5.BackColor = settings.IncorrectTurn;
             panel6.BackColor = settings.BackgroundColor;
+            panel7.BackColor = settings.FilledField;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -49,6 +50,7 @@ namespace TTTM
             settings.SmallGrid = panel3.BackColor;
             settings.PlayerColor1 = panel2.BackColor;
             settings.PlayerColor2 = panel1.BackColor;
+            settings.FilledField = panel7.BackColor;
             DialogResult = DialogResult.OK;
         }
 
@@ -74,6 +76,7 @@ namespace TTTM
             panel4.BackColor = Color.FromArgb(255, 128, 0);
             panel5.BackColor = Color.Yellow;
             panel6.BackColor = Color.White;
+            panel7.BackColor = Color.LightGray;
             textBox2.Text = "127.0.0.1";
             textBox4.Text = "7890";
         }

@@ -51,6 +51,8 @@
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.colorDialog = new System.Windows.Forms.ColorDialog();
+            this.panel7 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -97,7 +99,8 @@
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            this.panel1.Location = new System.Drawing.Point(207, 44);
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Location = new System.Drawing.Point(207, 45);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(28, 20);
             this.panel1.TabIndex = 5;
@@ -107,7 +110,8 @@
             // 
             this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.BackColor = System.Drawing.Color.Red;
-            this.panel2.Location = new System.Drawing.Point(207, 18);
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Location = new System.Drawing.Point(207, 19);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(28, 20);
             this.panel2.TabIndex = 0;
@@ -117,7 +121,9 @@
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.panel7);
             this.groupBox1.Controls.Add(this.panel6);
+            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.panel5);
             this.groupBox1.Controls.Add(this.label4);
@@ -127,7 +133,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(15, 90);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(247, 85);
+            this.groupBox1.Size = new System.Drawing.Size(247, 108);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Цвета";
@@ -135,9 +141,10 @@
             // panel6
             // 
             this.panel6.BackColor = System.Drawing.Color.White;
-            this.panel6.Location = new System.Drawing.Point(115, 67);
+            this.panel6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel6.Location = new System.Drawing.Point(179, 67);
             this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(39, 13);
+            this.panel6.Size = new System.Drawing.Size(56, 13);
             this.panel6.TabIndex = 10;
             this.panel6.Click += new System.EventHandler(this.panel_Click);
             // 
@@ -153,9 +160,10 @@
             // panel5
             // 
             this.panel5.BackColor = System.Drawing.Color.Yellow;
-            this.panel5.Location = new System.Drawing.Point(115, 50);
+            this.panel5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel5.Location = new System.Drawing.Point(179, 50);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(39, 13);
+            this.panel5.Size = new System.Drawing.Size(56, 13);
             this.panel5.TabIndex = 8;
             this.panel5.Click += new System.EventHandler(this.panel_Click);
             // 
@@ -171,9 +179,10 @@
             // panel4
             // 
             this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
-            this.panel4.Location = new System.Drawing.Point(115, 33);
+            this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel4.Location = new System.Drawing.Point(179, 33);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(39, 13);
+            this.panel4.Size = new System.Drawing.Size(56, 13);
             this.panel4.TabIndex = 6;
             this.panel4.Click += new System.EventHandler(this.panel_Click);
             // 
@@ -189,15 +198,16 @@
             // panel3
             // 
             this.panel3.BackColor = System.Drawing.Color.DodgerBlue;
-            this.panel3.Location = new System.Drawing.Point(115, 16);
+            this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Location = new System.Drawing.Point(179, 16);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(39, 13);
+            this.panel3.Size = new System.Drawing.Size(56, 13);
             this.panel3.TabIndex = 4;
             this.panel3.Click += new System.EventHandler(this.panel_Click);
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(15, 258);
+            this.button1.Location = new System.Drawing.Point(15, 281);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 0;
@@ -207,7 +217,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(96, 258);
+            this.button2.Location = new System.Drawing.Point(96, 281);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(92, 23);
             this.button2.TabIndex = 1;
@@ -218,7 +228,7 @@
             // button3
             // 
             this.button3.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button3.Location = new System.Drawing.Point(194, 258);
+            this.button3.Location = new System.Drawing.Point(194, 281);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(68, 23);
             this.button3.TabIndex = 2;
@@ -232,7 +242,7 @@
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.textBox2);
-            this.groupBox2.Location = new System.Drawing.Point(15, 181);
+            this.groupBox2.Location = new System.Drawing.Point(15, 204);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(247, 71);
             this.groupBox2.TabIndex = 7;
@@ -278,13 +288,32 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Значения по умолчанию для игроков";
             // 
+            // panel7
+            // 
+            this.panel7.BackColor = System.Drawing.Color.LightGray;
+            this.panel7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel7.Location = new System.Drawing.Point(179, 84);
+            this.panel7.Name = "panel7";
+            this.panel7.Size = new System.Drawing.Size(56, 13);
+            this.panel7.TabIndex = 12;
+            this.panel7.Click += new System.EventHandler(this.panel_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 84);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(162, 13);
+            this.label1.TabIndex = 11;
+            this.label1.Text = "Штриховка нейтрального поля";
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button3;
-            this.ClientSize = new System.Drawing.Size(274, 290);
+            this.ClientSize = new System.Drawing.Size(274, 310);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.button3);
@@ -331,5 +360,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ColorDialog colorDialog;
+        private System.Windows.Forms.Panel panel7;
+        private System.Windows.Forms.Label label1;
     }
 }
