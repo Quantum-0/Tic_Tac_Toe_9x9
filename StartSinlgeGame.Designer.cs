@@ -102,7 +102,6 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Enabled = false;
             this.checkBox1.Location = new System.Drawing.Point(15, 112);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(84, 17);
@@ -145,6 +144,6 @@
         public System.Windows.Forms.Panel panel1;
         public System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.CheckBox checkBox1;
+        public System.Windows.Forms.CheckBox checkBox1;
     }
 }

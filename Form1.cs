@@ -27,8 +27,7 @@ namespace TTTM
             InitializeComponent();
 
             // Создаём настройки
-            if (!Settings.Load("Settings.cfg", out settings))
-                settings = new Settings();
+            Settings.Load("Settings.cfg", out settings);
         }
 
         private void buttonSingle_Click(object sender, EventArgs e)
@@ -42,6 +41,7 @@ namespace TTTM
 
         private void buttonExit_Click(object sender, EventArgs e)
         {
+            // Закрытие формы и выход из игры
             Close();
         }
 
@@ -53,6 +53,7 @@ namespace TTTM
 
         private void buttonSettings_Click(object sender, EventArgs e)
         {
+            // Открытие настроек
             (new FormSettings(settings)).ShowDialog();
         }
     }

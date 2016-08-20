@@ -94,6 +94,7 @@
             // buttonLoadGame
             // 
             this.buttonLoadGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonLoadGame.Enabled = false;
             this.buttonLoadGame.Location = new System.Drawing.Point(93, 344);
             this.buttonLoadGame.Name = "buttonLoadGame";
             this.buttonLoadGame.Size = new System.Drawing.Size(75, 23);
@@ -105,6 +106,7 @@
             // buttonSaveGame
             // 
             this.buttonSaveGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonSaveGame.Enabled = false;
             this.buttonSaveGame.Location = new System.Drawing.Point(174, 344);
             this.buttonSaveGame.Name = "buttonSaveGame";
             this.buttonSaveGame.Size = new System.Drawing.Size(75, 23);

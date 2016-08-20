@@ -11,6 +11,38 @@ using System.Xml.Serialization;
 
 namespace TTTM
 {
+    // Класс рандомного бота
+    public class StupidBot// : IBot
+    {
+        Random rnd = new Random();
+        public Player Player { private set; get; }
+        public Game Game { private set; get; }
+
+        public StupidBot(Player player, Game game)
+        {
+            Player = player;
+            Game = game;
+        }
+
+        public void makeTurn()
+        {
+            Position Field = Game.CurrentField;
+            int x, y;
+            if (!Game.Fields[Field.x, Field.y].Full)
+            {
+                x = Field.x * 3 + rnd.Next(0, 3);
+                y = Field.y * 3 + rnd.Next(0, 3);
+            }
+            else
+            {
+                x = rnd.Next(0, 9);
+                y = rnd.Next(0, 9);
+            }
+            if (!Game.Turn(new Position(x, y), Player))
+                makeTurn();
+        }
+    }
+
     // Класс настроек
     public class Settings
     {
@@ -125,7 +157,7 @@ namespace TTTM
             this.y = y;
         }
 
-        // Переопределение операторов %, /, метода сравнения и получения хэш-кода
+        // Переопределение операторов %, /, *, метода сравнения и получения хэш-кода
         public override bool Equals(object another)
         {
             if (another is Position)
@@ -145,6 +177,10 @@ namespace TTTM
         {
             return new Position(pos.x / number, pos.y / number);
         }
+        public static Position operator* (Position pos, int number)
+        {
+            return new Position(pos.x * number, pos.y * number);
+        }
     }
 
     // Класс хранящий состояние поля 3х3
@@ -161,13 +197,14 @@ namespace TTTM
             this.Filled = Filled;
         }
     }
-    
+
     // Класс, реализующий одиночную игру с другим игроком
-    class SinglePlayerWithFriend : IDisposable
+    class SinglePlayerGame : IDisposable
     {
         // Свойства
-        private Game game;
-        private Player Player1, Player2;
+        public Game game { private set; get; }
+        public Player Player1 { private set; get; }
+        public Player Player2 { private set; get; }
         public Player CurrentPlayer;
         public event EventHandler<Game.GameEndArgs> SomebodyWins;
         public event EventHandler NobodyWins;
@@ -175,7 +212,7 @@ namespace TTTM
         public event EventHandler<Position> IncorrectTurn;
 
         // Конструктор
-        public SinglePlayerWithFriend(string player1, string player2)
+        public SinglePlayerGame(string player1, string player2)
         {
             game = new Game();
             game.StartGame();
@@ -255,7 +292,7 @@ namespace TTTM
     }
 
     // Класс содержащий матрицу полей с ячейками, историю ходов и проверяющий корректность хода
-    class Game
+    public class Game
     {
         // Свойства
         public GameField[,] Fields { private set; get; }
@@ -367,7 +404,7 @@ namespace TTTM
         }
         private void FieldChanged(object sender, EventArgs e)
         {
-            if (checkNeighbors(((GameField)sender).Pos.x, ((GameField)sender).Pos.y))
+            if (checkNeighbors(((GameField)sender).Pos))
             {
                 // Конец игры из-за победы одного из игроков
                 GameEnds?.Invoke(this, new GameEndArgs(((GameField)sender).Owner));
@@ -375,8 +412,10 @@ namespace TTTM
         }
 
         // Проверка соседних с [i, j] полей на нахождение ряда из трёх
-        private bool checkNeighbors(int i, int j)
+        private bool checkNeighbors(Position Pos)
         {
+            int i = Pos.x;
+            int j = Pos.y;
             if (Fields[i, 0].Owner == Fields[i, 1].Owner && Fields[i, 0].Owner == Fields[i, 2].Owner && Fields[i, 0].Owner != null)
                 return true;
             if (Fields[0, j].Owner == Fields[1, j].Owner && Fields[0, j].Owner == Fields[2, j].Owner && Fields[0, j].Owner != null)
@@ -503,7 +542,7 @@ namespace TTTM
     }
 
     // Игровая ячейка
-    class GameCell : AGameCell
+    public class GameCell : AGameCell
     {
         // Событие
         public event EventHandler Changed;
@@ -529,7 +568,7 @@ namespace TTTM
     }
 
     // Игровое поле 3х3
-    class GameField : AGameCell
+    public class GameField : AGameCell
     {
         // Свойства
         public bool Full { private set; get; } = false;
@@ -561,8 +600,10 @@ namespace TTTM
         }
 
         // Проверка соседних клеток с [i, j] на нахождение ряда из трёх
-        private bool checkNeighbors(int i, int j)
+        private bool checkNeighbors(Position Pos)
         {
+            int i = Pos.x;
+            int j = Pos.y;
             if (Cells[i, 0].Owner == Cells[i, 1].Owner && Cells[i, 0].Owner == Cells[i, 2].Owner && Cells[i, 0].Owner != null)
                 return true;
             if (Cells[0, j].Owner == Cells[1, j].Owner && Cells[0, j].Owner == Cells[2, j].Owner && Cells[0, j].Owner != null)
@@ -580,7 +621,7 @@ namespace TTTM
         {
             // Проверка на победу в этом поле
             if (Owner == null)
-                if (checkNeighbors(((GameCell)sender).Pos.x, ((GameCell)sender).Pos.y))
+                if (checkNeighbors(((GameCell)sender).Pos))
                 {
                     Owner = ((GameCell)sender).Owner;
 
@@ -631,7 +672,7 @@ namespace TTTM
         }
     }
 
-    abstract class AGameCell
+    public abstract class AGameCell
     {
         // Свойства
         public Position Pos { protected set; get; }

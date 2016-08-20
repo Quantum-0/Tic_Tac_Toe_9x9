@@ -28,14 +28,17 @@ using System.Windows.Forms;
  * Make settings +
  * Сделать мультиплеер
  * Отрисовывать нормально, а не как сейчас +/-
+ * Нормально отрисовывать диагональные линии
  */
 
 namespace TTTM
 {
     public partial class FormSingle : Form
     {
+        StupidBot Bot;
+        bool WithBot;
         Settings settings;
-        SinglePlayerWithFriend game;
+        SinglePlayerGame game;
         Position IncorrectTurn;
         private BufferedGraphicsContext context = BufferedGraphicsManager.Current;
         BufferedGraphics BufGFX;
@@ -168,23 +171,50 @@ namespace TTTM
             {
                 game.ChangeTurn -= Game_ChangeTurn;
                 game.IncorrectTurn -= Game_IncorrectTurn;
+                game.SomebodyWins -= Game_SomebodyWins;
+                game.NobodyWins -= Game_NobodyWins;
                 game.Dispose();
             }
             pl1 = frm.textBox1.Text;
             pl2 = frm.textBox2.Text;
             penc1 = new Pen(frm.panel1.BackColor);
             penc2 = new Pen(frm.panel2.BackColor);
-            game = new SinglePlayerWithFriend(pl1, pl2);
+            game = new SinglePlayerGame(pl1, pl2);
             labelCurrentTurn.Text = pl1;
             game.ChangeTurn += Game_ChangeTurn; 
             game.IncorrectTurn += Game_IncorrectTurn;
+            game.SomebodyWins += Game_SomebodyWins;
+            game.NobodyWins += Game_NobodyWins;
+            WithBot = frm.checkBox1.Checked;
+            if (WithBot)
+                Bot = new StupidBot(game.Player2, game.game);
             RedrawGame(true);
+            buttonLoadGame.Enabled = true;
+            buttonSaveGame.Enabled = true;
+        }
+
+        private void Game_NobodyWins(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Game_SomebodyWins(object sender, Game.GameEndArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void Game_ChangeTurn(object sender, Player e)
         {
+            if (e.Id == 2 && WithBot)
+            {
+                // вставить тут остановку выполнения на секунду, тип бот думает
+                Bot.makeTurn();
+                game.CurrentPlayer = game.Player1;
+            }
+            
+            // Перерисовка
             RedrawGame();
-            labelCurrentTurn.Text = e.Name;
+            labelCurrentTurn.Text = game.CurrentPlayer.Name;
         }
 
         private void FormSingle_ResizeEnd(object sender, EventArgs e)
