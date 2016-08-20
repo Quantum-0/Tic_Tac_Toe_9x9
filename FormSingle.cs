@@ -232,26 +232,53 @@ namespace TTTM
             }
         }
 
-        private void FormSingle_ResizeEnd(object sender, EventArgs e)
+        private void FormSingle_ResizeEnd_And_SizeChanged(object sender, EventArgs e)
         {
             // Чтоб при разворачивании окна было норм
             if (WindowState == FormWindowState.Maximized)
                 Refresh();
 
-            
+            //// Чтоб отображалось поле норм, но как-то не очень работает
+            //this.Width = (int)Math.Floor(this.Width / 9.0) * 9;
+            //this.Height = (int)Math.Floor(this.Height / 9.0) * 9;
+
             RedrawGame(true);
         }
 
         private void buttonSaveGame_Click(object sender, EventArgs e)
         {
-            string t = game?.Save();
-            if (t != null)
-                Clipboard.SetText(t);
+            if (game == null)
+                return;
+
+            SaveFileDialog SaveDialog = new SaveFileDialog();
+            SaveDialog.Filter = "Tic Tac Toe Save File|*.ttts|Все файлы|*.*";
+            if (SaveDialog.ShowDialog() == DialogResult.OK)
+            {
+                using (StreamWriter sw = new StreamWriter(SaveDialog.FileName))
+                {
+                    sw.WriteLine(pl1);
+                    sw.WriteLine(pl2);
+                    sw.WriteLine(game.Save());
+                }
+            }
         }
 
         private void buttonLoadGame_Click(object sender, EventArgs e)
         {
-            game?.Load(Clipboard.GetText()); // протестить
+            if (game == null)
+                return;
+
+            OpenFileDialog OpenDialog = new OpenFileDialog();
+            OpenDialog.Filter = "Tic Tac Toe Save File|*.ttts|Все файлы|*.*";
+            if (OpenDialog.ShowDialog() == DialogResult.OK)
+            {
+                using (StreamReader sr = new StreamReader(OpenDialog.FileName))
+                {
+                    pl1 = sr.ReadLine();
+                    pl2 = sr.ReadLine();
+                    game.Load(sr.ReadLine());
+                }
+            }
             RedrawGame();
         }
 

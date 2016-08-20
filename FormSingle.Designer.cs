@@ -138,8 +138,8 @@
             this.Name = "FormSingle";
             this.Text = "Одиночная игра";
             this.Load += new System.EventHandler(this.FormSingle_Load);
-            this.ResizeEnd += new System.EventHandler(this.FormSingle_ResizeEnd);
-            this.SizeChanged += new System.EventHandler(this.FormSingle_ResizeEnd);
+            this.ResizeEnd += new System.EventHandler(this.FormSingle_ResizeEnd_And_SizeChanged);
+            this.SizeChanged += new System.EventHandler(this.FormSingle_ResizeEnd_And_SizeChanged);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.FormSingle_Paint);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
