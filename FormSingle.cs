@@ -35,10 +35,10 @@ namespace TTTM
 {
     public partial class FormSingle : Form
     {
-        StupidBot Bot;
+        ABot Bot;
         bool WithBot;
         Settings settings;
-        SinglePlayerGame game;
+        GameManagerWthFriend game;
         Position IncorrectTurn;
         private BufferedGraphicsContext context = BufferedGraphicsManager.Current;
         BufferedGraphics BufGFX;
@@ -179,15 +179,23 @@ namespace TTTM
             pl2 = frm.textBox2.Text;
             penc1 = new Pen(frm.panel1.BackColor);
             penc2 = new Pen(frm.panel2.BackColor);
-            game = new SinglePlayerGame(pl1, pl2);
+
+            WithBot = frm.checkBox1.Checked;
+            if (WithBot)
+            {
+                game = new GameManagerWithBot(pl1, pl2, 1);
+                Bot = (game as GameManagerWithBot).Bot;
+            }
+            else
+            {
+                game = new GameManagerWthFriend(pl1, pl2);
+            }
+            
             labelCurrentTurn.Text = pl1;
             game.ChangeTurn += Game_ChangeTurn; 
             game.IncorrectTurn += Game_IncorrectTurn;
             game.SomebodyWins += Game_SomebodyWins;
             game.NobodyWins += Game_NobodyWins;
-            WithBot = frm.checkBox1.Checked;
-            if (WithBot)
-                Bot = new StupidBot(game.Player2, game.game);
             RedrawGame(true);
             buttonLoadGame.Enabled = true;
             buttonSaveGame.Enabled = true;
@@ -195,26 +203,33 @@ namespace TTTM
 
         private void Game_NobodyWins(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Игра окончена. Ничья");
+            buttonSaveGame.Enabled = false;
         }
 
         private void Game_SomebodyWins(object sender, Game.GameEndArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Игра окончена.\nПобедитель: " + e.Winner.Name);
+            buttonSaveGame.Enabled = false;
         }
 
         private void Game_ChangeTurn(object sender, Player e)
         {
-            if (e.Id == 2 && WithBot)
-            {
-                // вставить тут остановку выполнения на секунду, тип бот думает
-                Bot.makeTurn();
-                game.CurrentPlayer = game.Player1;
-            }
+            //if (e.Id == 2 && WithBot)
+            //{
+            //    // вставить тут остановку выполнения на секунду, тип бот думает
+            //    Bot.makeTurn();
+            //    game.CurrentPlayer = game.Player1;
+            //}
             
             // Перерисовка
             RedrawGame();
-            labelCurrentTurn.Text = game.CurrentPlayer.Name;
+            labelCurrentTurn.Text = e.Name;
+            if (WithBot)
+            {
+                timerBotTurn.Interval = new Random().Next(500, 2500);
+                timerBotTurn.Start();
+            }
         }
 
         private void FormSingle_ResizeEnd(object sender, EventArgs e)
@@ -247,6 +262,12 @@ namespace TTTM
         private void buttonSettings_Click(object sender, EventArgs e)
         {
             (new FormSettings(settings)).ShowDialog();
+        }
+
+        private void timerBotTurn_Tick(object sender, EventArgs e)
+        {
+            (game as GameManagerWithBot).BotTurn();
+            timerBotTurn.Stop();
         }
 
         private void buttonNewGame_Click(object sender, EventArgs e)

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.labelCurrentTurn = new System.Windows.Forms.Label();
             this.buttonSettings = new System.Windows.Forms.Button();
@@ -35,6 +36,7 @@
             this.buttonNewGame = new System.Windows.Forms.Button();
             this.buttonLoadGame = new System.Windows.Forms.Button();
             this.buttonSaveGame = new System.Windows.Forms.Button();
+            this.timerBotTurn = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -115,6 +117,11 @@
             this.buttonSaveGame.UseVisualStyleBackColor = true;
             this.buttonSaveGame.Click += new System.EventHandler(this.buttonSaveGame_Click);
             // 
+            // timerBotTurn
+            // 
+            this.timerBotTurn.Interval = 500;
+            this.timerBotTurn.Tick += new System.EventHandler(this.timerBotTurn_Tick);
+            // 
             // FormSingle
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -148,5 +155,6 @@
         private System.Windows.Forms.Button buttonNewGame;
         private System.Windows.Forms.Button buttonLoadGame;
         private System.Windows.Forms.Button buttonSaveGame;
+        private System.Windows.Forms.Timer timerBotTurn;
     }
 }

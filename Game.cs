@@ -11,20 +11,65 @@ using System.Xml.Serialization;
 
 namespace TTTM
 {
-    // Класс рандомного бота
-    public class StupidBot// : IBot
-    {
-        Random rnd = new Random();
-        public Player Player { private set; get; }
-        public Game Game { private set; get; }
 
+    /*
+     * FieldCheck - не доделан, вроде не работает, проверить починить доделать
+     * Второй бот не работает
+     */
+
+    static class FieldCheck
+    {
+        //static string ConvertToString(GameField field)
+
+        public static Position Check(GameField field, Player X, string State)
+        {
+            Position Pos = null; ;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    switch(State[j + i*3])
+                    {
+                        case 'A':
+                            break;
+                        case 'X':
+                            if (field[i, j].Owner != X)
+                                return null;
+                            break;
+                        case 'E':
+                            if (field[i, j].Owner != null || Pos != null)
+                                return null;
+                            else
+                                Pos = new Position(i, j);
+                            break;
+                        default:
+                            throw new Exception("Некорректная запись состояния поля");
+                    }
+                }
+            }
+            return Pos;
+        }
+    }
+
+    // Абстрактный бот (как базовый класс для реализаций бота
+    abstract public class ABot
+    {
+        protected Random rnd = new Random();
+        public Player Player { protected set; get; }
+        public Game Game { protected set; get; }
+        public abstract void makeTurn();
+    }
+
+    // Класс рандомного бота
+    public class StupidBot : ABot
+    {
         public StupidBot(Player player, Game game)
         {
             Player = player;
             Game = game;
         }
 
-        public void makeTurn()
+        public override void makeTurn()
         {
             Position Field = Game.CurrentField;
             int x, y;
@@ -32,6 +77,65 @@ namespace TTTM
             {
                 x = Field.x * 3 + rnd.Next(0, 3);
                 y = Field.y * 3 + rnd.Next(0, 3);
+            }
+            else
+            {
+                x = rnd.Next(0, 9);
+                y = rnd.Next(0, 9);
+            }
+            if (!Game.Turn(new Position(x, y), Player))
+                makeTurn();
+        }
+    }
+
+    // Класс чуть более умного бота
+    public class SomeMoreCleverBot : ABot
+    {
+        public SomeMoreCleverBot(Player player, Game game)
+        {
+            Player = player;
+            Game = game;
+        }
+
+        private bool checkIfCanWin(ref int x, ref int y)
+        {
+            Position Field = Game.CurrentField;
+            GameField f = Game.Fields[Field.x, Field.y];
+            Position Res;
+
+            Res = FieldCheck.Check(f, Player, "EXXAAAAAA");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "AAAEXXAAA");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "AAAAAAEXX");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "XEXAAAAAA");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "AAAXEXAAA");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "AAAAAAXEX");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "XEXAAAAAA");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "AAAXEXAAA");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            Res = FieldCheck.Check(f, Player, "AAAAAAXEX");
+            if (Res != null) { x = Res.x; y = Res.y; return true; }
+
+            return false;
+        }
+
+        public override void makeTurn()
+        {
+            Position Field = Game.CurrentField;
+            int x = 0, y = 0;
+            if (!Game.Fields[Field.x, Field.y].Full)
+            {
+                if (!checkIfCanWin(ref x, ref y))
+                {
+                    x = Field.x * 3 + rnd.Next(0, 3);
+                    y = Field.y * 3 + rnd.Next(0, 3);
+                }
             }
             else
             {
@@ -198,21 +302,80 @@ namespace TTTM
         }
     }
 
-    // Класс, реализующий одиночную игру с другим игроком
-    class SinglePlayerGame : IDisposable
+    // Менеджер для одиночной игры с ботом
+    public class GameManagerWithBot : GameManagerWthFriend
+    {
+        public ABot Bot { private set; get; }
+        public override event EventHandler<Player> ChangeTurn;
+        public override event EventHandler<Position> IncorrectTurn;
+        public GameManagerWithBot(string player1, string player2, int botType) : base(player1, player2)
+        {
+            // BASE CTOR HERE
+            switch (botType)
+            {
+                case 1:
+                    Bot = new StupidBot(Player2, game);
+                    break;
+                case 2:
+                    Bot = new SomeMoreCleverBot(Player2, game);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void BotTurn()
+        {
+            // Вылет если ход не бота
+            if (CurrentPlayer != Player2)
+                return;
+
+            Bot.makeTurn();
+            CurrentPlayer = Player1;
+
+            // Вызов события об обновлении хода
+            ChangeTurn(this, CurrentPlayer);
+        }
+
+        public override void ClickOn(int i, int j)
+        {
+            // Вылет если сейчас ход бота
+            if (CurrentPlayer != Player1)
+                return;
+
+            // Выполнение хода
+            bool res = game.Turn(new Position(i, j), CurrentPlayer);
+
+            // Если ход выполнен успешно (ячейка не занята и ход туда разрешён) - свап игрока
+            if (res)
+            {
+                // Передача хода боту
+                CurrentPlayer = Player2;
+
+                // Вызов события об обновлении хода
+                ChangeTurn(this, CurrentPlayer);
+            }
+            else
+                // Вызов события некорректного хода
+                IncorrectTurn?.Invoke(this, game.CurrentField);
+        }
+    }
+
+    // Абстрактная реализация менеджера игры
+    public class GameManagerWthFriend : IDisposable
     {
         // Свойства
-        public Game game { private set; get; }
-        public Player Player1 { private set; get; }
-        public Player Player2 { private set; get; }
+        protected Game game;// { private set; get; }
+        protected Player Player1;// { private set; get; }
+        protected Player Player2;// { private set; get; }
         public Player CurrentPlayer;
         public event EventHandler<Game.GameEndArgs> SomebodyWins;
         public event EventHandler NobodyWins;
-        public event EventHandler<Player> ChangeTurn;
-        public event EventHandler<Position> IncorrectTurn;
+        public virtual event EventHandler<Player> ChangeTurn;
+        public virtual event EventHandler<Position> IncorrectTurn;
 
         // Конструктор
-        public SinglePlayerGame(string player1, string player2)
+        public GameManagerWthFriend(string player1, string player2)
         {
             game = new Game();
             game.StartGame();
@@ -238,7 +401,7 @@ namespace TTTM
         }
 
         // Обработка клика по полю
-        public void ClickOn(int i, int j)
+        public virtual void ClickOn(int i, int j)
         {
             // Выполнение хода
             bool res = game.Turn(new Position(i, j), CurrentPlayer);
@@ -265,7 +428,7 @@ namespace TTTM
             int[,] res = new int[9, 9];
             for (int i = 0; i < 9; i++)
                 for (int j = 0; j < 9; j++)
-                    res[i,j] = (game[i / 3, j / 3, i % 3, j % 3].Owner?.Id ?? 0);
+                    res[i, j] = (game[i / 3, j / 3, i % 3, j % 3].Owner?.Id ?? 0);
 
             return res;
         }
@@ -278,6 +441,88 @@ namespace TTTM
 
             return res;
         }
+
+        //// Класс, реализующий одиночную игру с другим игроком
+        //class SinglePlayerGame : IDisposable
+        //{
+        //    // Свойства
+        //    public Game game { private set; get; }
+        //    public Player Player1 { private set; get; }
+        //    public Player Player2 { private set; get; }
+        //    public Player CurrentPlayer;
+        //    public event EventHandler<Game.GameEndArgs> SomebodyWins;
+        //    public event EventHandler NobodyWins;
+        //    public event EventHandler<Player> ChangeTurn;
+        //    public event EventHandler<Position> IncorrectTurn;
+
+        //    // Конструктор
+        //    public SinglePlayerGame(string player1, string player2)
+        //    {
+        //        game = new Game();
+        //        game.StartGame();
+        //        Player1 = new Player(player1);
+        //        Player2 = new Player(player2);
+        //        CurrentPlayer = Player1;
+        //        game.GameEnds += GameEnds;
+        //    }
+
+        //    public void Dispose()
+        //    {
+        //        Player1?.Dispose();
+        //        Player2?.Dispose();
+        //    }
+
+        //    // Обработка конца игры
+        //    private void GameEnds(object sender, Game.GameEndArgs e)
+        //    {
+        //        if (e.Winner != null)
+        //            SomebodyWins?.Invoke(this, e);
+        //        else
+        //            NobodyWins?.Invoke(this, new EventArgs());
+        //    }
+
+        //    // Обработка клика по полю
+        //    public void ClickOn(int i, int j)
+        //    {
+        //        // Выполнение хода
+        //        bool res = game.Turn(new Position(i, j), CurrentPlayer);
+
+        //        // Если ход выполнен успешно (ячейка не занята и ход туда разрешён) - свап игрока
+        //        if (res)
+        //        {
+        //            if (CurrentPlayer == Player1)
+        //                CurrentPlayer = Player2;
+        //            else
+        //                CurrentPlayer = Player1;
+
+        //            // Вызов события об обновлении хода
+        //            ChangeTurn(this, CurrentPlayer);
+        //        }
+        //        else
+        //            // Вызов события некорректного хода
+        //            IncorrectTurn?.Invoke(this, game.CurrentField);
+        //    }
+
+        //    // Методы возвращающие состоящие игровых полей и ячеек
+        //    public int[,] State()
+        //    {
+        //        int[,] res = new int[9, 9];
+        //        for (int i = 0; i < 9; i++)
+        //            for (int j = 0; j < 9; j++)
+        //                res[i,j] = (game[i / 3, j / 3, i % 3, j % 3].Owner?.Id ?? 0);
+
+        //        return res;
+        //    }
+        //    public FieldState[,] FieldsState()
+        //    {
+        //        FieldState[,] res = new FieldState[3, 3];
+        //        for (int i = 0; i < 3; i++)
+        //            for (int j = 0; j < 3; j++)
+        //                res[i, j] = new FieldState(game[i, j].Owner, game[i, j].Full);
+
+        //        return res;
+        //    }
+
 
         // Сохранение/загрузка
         public string Save()
@@ -295,6 +540,7 @@ namespace TTTM
     public class Game
     {
         // Свойства
+        public bool Finished = false;
         public GameField[,] Fields { private set; get; }
         public Position CurrentField { private set; get; }
         public List<Position> History { private set; get; } = new List<Position>();
@@ -340,6 +586,7 @@ namespace TTTM
         //Игровые действия
         public void StartGame()
         {
+            Finished = false;
             History.Clear();
             foreach (var item in Fields)
             {
@@ -348,6 +595,10 @@ namespace TTTM
         }
         public bool Turn(Position pos, Player player)
         {
+            // Игра была закончена
+            if (Finished)
+                return true;
+
             // Ход вне диапазона
             if (pos.x < 0 || pos.x > 8 || pos.y < 0 || pos.y > 8)
                 return false;
@@ -400,6 +651,7 @@ namespace TTTM
             {
                 // Конец игры из-за заполненности всех полей
                 GameEnds?.Invoke(this, new GameEndArgs(null));
+                Finished = true;
             }
         }
         private void FieldChanged(object sender, EventArgs e)
@@ -408,6 +660,7 @@ namespace TTTM
             {
                 // Конец игры из-за победы одного из игроков
                 GameEnds?.Invoke(this, new GameEndArgs(((GameField)sender).Owner));
+                Finished = true;
             }
         }
 
@@ -507,6 +760,7 @@ namespace TTTM
                 else if (State[91] == '2')
                     currentPlayer = p1;
 
+                Finished = false;
                 return true;
             }
             catch
@@ -608,9 +862,9 @@ namespace TTTM
                 return true;
             if (Cells[0, j].Owner == Cells[1, j].Owner && Cells[0, j].Owner == Cells[2, j].Owner && Cells[0, j].Owner != null)
                 return true;
-            if ((i == 0 || i == 2) && (j == 0 || j == 2))
+            if (((i == 0 || i == 2) && (j == 0 || j == 2)) || (i == 1 && j == 1))
                 if (((Cells[0, 0].Owner == Cells[1, 1].Owner && Cells[0, 0].Owner == Cells[2, 2].Owner)
-                || (Cells[0, 2].Owner == Cells[1, 1].Owner && Cells[0, 0].Owner == Cells[2, 0].Owner)) && Cells[0, 0].Owner != null)
+                || (Cells[0, 2].Owner == Cells[1, 1].Owner && Cells[1, 1].Owner == Cells[2, 0].Owner)) && Cells[1, 1].Owner != null)
                     return true;
 
             return false;
