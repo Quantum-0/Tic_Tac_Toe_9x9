@@ -3,55 +3,153 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace TTTM
 {
-
     /*
-     * FieldCheck - не доделан, вроде не работает, проверить починить доделать
-     * Второй бот не работает
+     * 3 бота доделать норм
+     * TODO для ботов:
+     * - убрать рекурсивный вызов makeTurn()
+     * - вызывать exception если бот не может пойти
+     * - сделать анализ ячеек и оценивание их
+     * - каждой ячейке соответствует количество очков
+     * - выигрыш при ходе в ту ячейку + к очкам
+     * - закрытие выигрыша противнику + к очкам
+     * задать настройку бота которую можно взять из файла:
+     * - указаны в проценташ шансы того что он прибавит к очкам за то или иное соответствие
+     * - указано количество очков
+     * - указан шанс что бот будет выбирать лучшее значение (например 50% что наилучший ход, 30% что второй, 15% что третий, 5% что последний)
      */
 
-    static class FieldCheck
+    public class Connection
     {
-        //static string ConvertToString(GameField field)
-
-        public static Position Check(GameField field, Player X, string State)
+        // Состояние
+        public enum State : int
         {
-            Position Pos = null; ;
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    switch(State[j + i*3])
-                    {
-                        case 'A':
-                            break;
-                        case 'X':
-                            if (field[i, j].Owner != X)
-                                return null;
-                            break;
-                        case 'E':
-                            if (field[i, j].Owner != null || Pos != null)
-                                return null;
-                            else
-                                Pos = new Position(i, j);
-                            break;
-                        default:
-                            throw new Exception("Некорректная запись состояния поля");
-                    }
-                }
-            }
-            return Pos;
+            Off, Listening, Connecting, Game
         }
+
+        private Thread ListeningThread; // Топок, в котором будет прослушиваться порт
+        private Socket Listener; // Прослушивание порта для ожидания противника
+        private Thread WorkWithClient; // Поток обрабатывающий приходящие от клиента/сервера данные
+        private Socket Handler; // Противник
+        public State state { private set; get; } // Текущее состояние
+
+        // События
+        public event EventHandler AnotherPlayerConnected; // Серверное
+        public event EventHandler AnotherPlayerDisconnected; // Серверное
+        public event EventHandler ConnectedToServer; // Клиентское
+        public event EventHandler ReceivedChat;
+        public event EventHandler ReceivedTurn;
+
+        // Остановка прослушивания порта
+        public void StopServerListening()
+        {
+            if (state != State.Listening)
+                return;
+
+            ListeningThread.Abort();
+            Listener.Close();
+            state = State.Off;
+        }
+
+        // Старт прослушивания порта
+        public void StartServerListening(int port)
+        {
+            IPAddress ipAddr = IPAddress.Any;
+            IPEndPoint ipEndPoint = new IPEndPoint(ipAddr, port);
+            Listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            Listener.ReceiveBufferSize = 1024;
+
+            Listener.Bind(ipEndPoint);
+            Listener.Listen(5);
+
+            ListeningThread = new Thread(Listening);
+            ListeningThread.Start();
+
+            state = State.Listening;
+        }
+
+        // Подключение к серверу
+        public void ConnectToServer(string ip, int port)
+        {
+            IPAddress ipAddr;
+            IPAddress.TryParse(ip, out ipAddr);
+
+            Handler = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Handler.Connect(ip, port);
+
+            Handler.ReceiveBufferSize = 1024;
+            WorkWithClient = new Thread(this.DoClientWork);
+            WorkWithClient.Start();
+            state = State.Game;
+        }
+
+        // Прослушивание
+        private void Listening()
+        {
+            Handler = Listener.Accept();
+            WorkWithClient = new Thread(new ParameterizedThreadStart(ProccessReceivedData));
+            WorkWithClient.Start(Handler);
+            state = State.Game;
+        }
+
+        // Обработка приходящих данных
+        private void ProccessReceivedData(object ohandler)
+        {
+            Socket handler = (Socket)ohandler;
+            //bool stoping = false;
+
+            //while (!stoping && handler != null)
+            //{
+            //    // Программа приостанавливается, ожидая входящее соединение
+            //    byte[] bytes = new byte[handler.ReceiveBufferSize];
+            //    //Socket handler = sListener.Receive(bytes);
+            //    string data = null;
+
+            //    if (!handler.IsConnected())
+            //        stoping = true;
+            //    else
+            //    {
+
+            //        // Мы дождались клиента, пытающегося с нами соединиться
+            //        int bytesRec = handler.Receive(bytes);
+            //        if (bytesRec == 0)
+            //            continue;
+
+            //        data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
+
+            //        this.SetText("Сообщение от клиента (" + handlers.IndexOf(handler) + ")-" + data);
+
+            //        foreach (var h in handlers)
+            //        {
+            //            h.Send(Encoding.UTF8.GetBytes("(" + handlers.IndexOf(handler) + ")" + data));
+            //        }
+            //    }
+            //}
+            //this.SetText("Клиент отключилс");
+            //handler.Shutdown(SocketShutdown.Both);
+            //handler.Close();
+            //handlers.Remove(handler);
+            //foreach (var h in handlers)
+            //{
+            //    h.Send(Encoding.UTF8.GetBytes("System: Пользователь отключился"));
+            //}
+        }
+
+        //
     }
 
-    // Абстрактный бот (как базовый класс для реализаций бота
+    // Абстрактный бот (как базовый класс для реализаций бота)
     abstract public class ABot
     {
         protected Random rnd = new Random();
@@ -75,16 +173,26 @@ namespace TTTM
             int x, y;
             if (!Game.Fields[Field.x, Field.y].Full)
             {
-                x = Field.x * 3 + rnd.Next(0, 3);
-                y = Field.y * 3 + rnd.Next(0, 3);
+                do
+                {
+                    x = rnd.Next(0, 3);
+                    y = rnd.Next(0, 3);
+                }
+                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
+                x += Field.x * 3;
+                y += Field.y * 3;
             }
             else
             {
-                x = rnd.Next(0, 9);
-                y = rnd.Next(0, 9);
+                do
+                {
+                    x = rnd.Next(0, 9);
+                    y = rnd.Next(0, 9);
+                }
+                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
             }
             if (!Game.Turn(new Position(x, y), Player))
-                makeTurn();
+                throw new Exception("Бот не смог сделать ход");
         }
     }
 
@@ -97,32 +205,46 @@ namespace TTTM
             Game = game;
         }
 
-        private bool checkIfCanWin(ref int x, ref int y)
+        private Position check3(Position p1, Position p2, Position p3)
         {
-            Position Field = Game.CurrentField;
-            GameField f = Game.Fields[Field.x, Field.y];
-            Position Res;
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == null)
+                return p3;
 
-            Res = FieldCheck.Check(f, Player, "EXXAAAAAA");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "AAAEXXAAA");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "AAAAAAEXX");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "XEXAAAAAA");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "AAAXEXAAA");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "AAAAAAXEX");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "XEXAAAAAA");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "AAAXEXAAA");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
-            Res = FieldCheck.Check(f, Player, "AAAAAAXEX");
-            if (Res != null) { x = Res.x; y = Res.y; return true; }
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == null &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+                return p2;
 
-            return false;
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == null &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+                return p1;
+
+            return null;
+        }
+
+        protected virtual Position findBetterPos()
+        {
+            List<Position> Results = new List<Position>();
+            Position Current;
+            for (int i = 0; i < 3; i++)
+            {
+                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i));
+                if (Current != null) Results.Add(Current);
+                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2));
+                if (Current != null) Results.Add(Current);
+            }
+            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2));
+            if (Current != null) Results.Add(Current);
+            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2));
+            if (Current != null) Results.Add(Current);
+
+            if (Results.Count > 0)
+                return Results[rnd.Next(Results.Count)];
+            else
+                return null;
         }
 
         public override void makeTurn()
@@ -131,19 +253,133 @@ namespace TTTM
             int x = 0, y = 0;
             if (!Game.Fields[Field.x, Field.y].Full)
             {
-                if (!checkIfCanWin(ref x, ref y))
+                Position finded = findBetterPos();
+                if (finded == null)
                 {
-                    x = Field.x * 3 + rnd.Next(0, 3);
-                    y = Field.y * 3 + rnd.Next(0, 3);
+                    do
+                    {
+                        x = rnd.Next(0, 3);
+                        y = rnd.Next(0, 3);
+                    }
+                    while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
+                    x += Field.x * 3;
+                    y += Field.y * 3;
+                }
+                else
+                {
+                    x = Field.x * 3 + finded.x;
+                    y = Field.y * 3 + finded.y;
                 }
             }
             else
             {
-                x = rnd.Next(0, 9);
-                y = rnd.Next(0, 9);
+                do
+                {
+                    x = rnd.Next(0, 9);
+                    y = rnd.Next(0, 9);
+                    if (Game.Fields[x / 3, y / 3].Owner != null)
+                        continue;
+                }
+                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
             }
             if (!Game.Turn(new Position(x, y), Player))
-                makeTurn();
+                throw new Exception("Бот не смог сделать ход");
+        }
+    }
+
+    public class Bot3 : ABot
+    {
+        public Bot3(Player player, Game game)
+        {
+            Player = player;
+            Game = game;
+        }
+        
+        private Position check3(Position p1, Position p2, Position p3)
+        {
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == null)
+                return p3;
+
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == null &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+                return p2;
+
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == null &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+                return p1;
+
+            return null;
+        }
+
+        protected virtual Position findBetterPos()
+        {
+            Dictionary<Position, int> Scores = new Dictionary<Position, int>();
+
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[i, j].Owner == null)
+                        Scores.Add(new Position(i, j), 0);
+
+            Position Current;
+            for (int i = 0; i < 3; i++)
+            {
+                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i));
+                if (Current != null) Scores[Current] += 10;
+                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2));
+                if (Current != null) Scores[Current] += 10;
+            }
+            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2));
+            if (Current != null) Scores[Current] += 10;
+            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2));
+            if (Current != null) Scores[Current] += 10;
+
+            if (Scores.Count > 0)
+                return Scores.OrderBy(p => p.Value).Last().Key;
+            else
+                return null;
+        }
+
+        public override void makeTurn()
+        {
+            Position Field = Game.CurrentField;
+            int x = 0, y = 0;
+            if (!Game.Fields[Field.x, Field.y].Full)
+            {
+                Position finded = findBetterPos();
+                if (finded == null)
+                {
+                    do
+                    {
+                        x = rnd.Next(0, 3);
+                        y = rnd.Next(0, 3);
+                    }
+                    while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
+                    x += Field.x * 3;
+                    y += Field.y * 3;
+                }
+                else
+                {
+                    x = Field.x * 3 + finded.x;
+                    y = Field.y * 3 + finded.y;
+                }
+            }
+            else
+            {
+                do
+                {
+                    x = rnd.Next(0, 9);
+                    y = rnd.Next(0, 9);
+                    if (Game.Fields[x / 3, y / 3].Owner != null)
+                        continue;
+                }
+                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
+            }
+            if (!Game.Turn(new Position(x, y), Player))
+                throw new Exception("Бот не смог сделать ход");
         }
     }
 
@@ -318,6 +554,9 @@ namespace TTTM
                     break;
                 case 2:
                     Bot = new SomeMoreCleverBot(Player2, game);
+                    break;
+                case 3:
+                    Bot = new Bot3(Player2, game);
                     break;
                 default:
                     break;
@@ -673,9 +912,9 @@ namespace TTTM
                 return true;
             if (Fields[0, j].Owner == Fields[1, j].Owner && Fields[0, j].Owner == Fields[2, j].Owner && Fields[0, j].Owner != null)
                 return true;
-            if ((i == 0 || i == 2) && (j == 0 || j == 2))
+            if (((i == 0 || i == 2) && (j == 0 || j == 2)) || (i == 1 && j == 1))
                 if (((Fields[0, 0].Owner == Fields[1, 1].Owner && Fields[0, 0].Owner == Fields[2, 2].Owner)
-                || (Fields[0, 2].Owner == Fields[1, 1].Owner && Fields[0, 0].Owner == Fields[2, 0].Owner)) && Fields[0, 0].Owner != null)
+                || (Fields[0, 2].Owner == Fields[1, 1].Owner && Fields[1, 1].Owner == Fields[2, 0].Owner)) && Fields[1, 1].Owner != null)
                     return true;
 
             return false;

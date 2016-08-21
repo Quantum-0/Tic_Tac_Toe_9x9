@@ -183,7 +183,7 @@ namespace TTTM
             WithBot = frm.checkBox1.Checked;
             if (WithBot)
             {
-                game = new GameManagerWithBot(pl1, pl2, 2);
+                game = new GameManagerWithBot(pl1, pl2, 3);
                 Bot = (game as GameManagerWithBot).Bot;
             }
             else
