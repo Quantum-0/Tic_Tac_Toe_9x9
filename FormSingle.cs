@@ -183,7 +183,7 @@ namespace TTTM
             WithBot = frm.checkBox1.Checked;
             if (WithBot)
             {
-                game = new GameManagerWithBot(pl1, pl2, 1);
+                game = new GameManagerWithBot(pl1, pl2, 2);
                 Bot = (game as GameManagerWithBot).Bot;
             }
             else
@@ -262,7 +262,11 @@ namespace TTTM
                 }
             }
         }
-
+        /// <summary>
+        /// ////////////////////////починить тута
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonLoadGame_Click(object sender, EventArgs e)
         {
             if (game == null)
@@ -276,6 +280,8 @@ namespace TTTM
                 {
                     pl1 = sr.ReadLine();
                     pl2 = sr.ReadLine();
+                    game.Dispose();
+                    //game = new GameManagerWthFriend / new GameManagerWthBot в зависимости от того, с ботом эта игра или нет
                     game.Load(sr.ReadLine());
                 }
             }

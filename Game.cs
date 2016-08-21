@@ -125,69 +125,20 @@ namespace TTTM
             return false;
         }
 
-        private Position check3(Position p1, Position p2, Position p3)
-        {
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == null)
-                return p3;
-
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
-                return p2;
-
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
-                return p1;
-
-            return null;
-        }
-
-        private Position findBetterPos()
-        {
-            List<Position> Results = new List<Position>();
-            Position Current;
-            for (int i = 0; i < 3; i++)
-            {
-                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i));
-                if (Current != null) Results.Add(Current);
-                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2));
-                if (Current != null) Results.Add(Current);
-            }
-            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2));
-            if (Current != null) Results.Add(Current);
-            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2));
-            if (Current != null) Results.Add(Current);
-
-            if (Results.Count > 0)
-                return Results[rnd.Next(Results.Count)];
-            else
-                return null;
-        }
-
         public override void makeTurn()
         {
             Position Field = Game.CurrentField;
             int x = 0, y = 0;
             if (!Game.Fields[Field.x, Field.y].Full)
             {
-                Position finded = findBetterPos();
-                if (finded == null)
+                if (!checkIfCanWin(ref x, ref y))
                 {
                     x = Field.x * 3 + rnd.Next(0, 3);
                     y = Field.y * 3 + rnd.Next(0, 3);
                 }
-                else
-                {
-                    x = Field.x * 3 + finded.x;
-                    y = Field.y * 3 + finded.y;
-                }
             }
             else
             {
-                ///////?
                 x = rnd.Next(0, 9);
                 y = rnd.Next(0, 9);
             }
@@ -722,9 +673,9 @@ namespace TTTM
                 return true;
             if (Fields[0, j].Owner == Fields[1, j].Owner && Fields[0, j].Owner == Fields[2, j].Owner && Fields[0, j].Owner != null)
                 return true;
-            if (((i == 0 || i == 2) && (j == 0 || j == 2)) || (i == 1 && j == 1))
+            if ((i == 0 || i == 2) && (j == 0 || j == 2))
                 if (((Fields[0, 0].Owner == Fields[1, 1].Owner && Fields[0, 0].Owner == Fields[2, 2].Owner)
-                || (Fields[0, 2].Owner == Fields[1, 1].Owner && Fields[1, 1].Owner == Fields[2, 0].Owner)) && Fields[1, 1].Owner != null)
+                || (Fields[0, 2].Owner == Fields[1, 1].Owner && Fields[0, 0].Owner == Fields[2, 0].Owner)) && Fields[0, 0].Owner != null)
                     return true;
 
             return false;
