@@ -89,7 +89,7 @@ namespace TTTM
             Handler.Connect(ip, port);
 
             Handler.ReceiveBufferSize = 1024;
-            WorkWithClient = new Thread(this.DoClientWork);
+            //WorkWithClient = new Thread(this.DoClientWork);
             WorkWithClient.Start();
             state = State.Game;
         }
@@ -154,6 +154,7 @@ namespace TTTM
     {
         protected Random rnd = new Random();
         public Player Player { protected set; get; }
+        public Player HumanPlayer { protected set; get; }
         public Game Game { protected set; get; }
         public abstract void makeTurn();
     }
@@ -205,21 +206,28 @@ namespace TTTM
             Game = game;
         }
 
-        private Position check3(Position p1, Position p2, Position p3)
+        public SomeMoreCleverBot(Player player, Player hplayer, Game game)
         {
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
+            Player = player;
+            HumanPlayer = hplayer;
+            Game = game;
+        }
+
+        private Position check3(Position p1, Position p2, Position p3, Player Plr)
+        {
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Plr &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Plr &&
                 Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == null)
                 return p3;
 
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
+            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Plr &&
                 Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Plr)
                 return p2;
 
             if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Plr &&
+                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Plr)
                 return p1;
 
             return null;
@@ -231,14 +239,23 @@ namespace TTTM
             Position Current;
             for (int i = 0; i < 3; i++)
             {
-                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i));
+                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), Player);
                 if (Current != null) Results.Add(Current);
-                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2));
+                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), Player);
+                if (Current != null) Results.Add(Current);
+                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), HumanPlayer);
+                if (Current != null) Results.Add(Current);
+                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), HumanPlayer);
                 if (Current != null) Results.Add(Current);
             }
-            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2));
+            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), Player);
             if (Current != null) Results.Add(Current);
-            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2));
+            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), Player);
+            if (Current != null) Results.Add(Current);
+
+            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), HumanPlayer);
+            if (Current != null) Results.Add(Current);
+            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), HumanPlayer);
             if (Current != null) Results.Add(Current);
 
             if (Results.Count > 0)
@@ -280,7 +297,7 @@ namespace TTTM
                     if (Game.Fields[x / 3, y / 3].Owner != null)
                         continue;
                 }
-                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
+                while (Game.Fields[x/3, y/3].Cells[x%3, y%3].Owner != null);
             }
             if (!Game.Turn(new Position(x, y), Player))
                 throw new Exception("Бот не смог сделать ход");
@@ -544,6 +561,7 @@ namespace TTTM
         public ABot Bot { private set; get; }
         public override event EventHandler<Player> ChangeTurn;
         public override event EventHandler<Position> IncorrectTurn;
+        public override event EventHandler NobodyWins;
         public GameManagerWithBot(string player1, string player2, int botType) : base(player1, player2)
         {
             // BASE CTOR HERE
@@ -553,7 +571,7 @@ namespace TTTM
                     Bot = new StupidBot(Player2, game);
                     break;
                 case 2:
-                    Bot = new SomeMoreCleverBot(Player2, game);
+                    Bot = new SomeMoreCleverBot(Player2, Player1, game);
                     break;
                 case 3:
                     Bot = new Bot3(Player2, game);
@@ -588,6 +606,12 @@ namespace TTTM
             // Если ход выполнен успешно (ячейка не занята и ход туда разрешён) - свап игрока
             if (res)
             {
+                if (game.Finished)
+                {
+                    NobodyWins?.Invoke(this, new EventArgs());
+                    return;
+                }
+
                 // Передача хода боту
                 CurrentPlayer = Player2;
 
@@ -609,7 +633,7 @@ namespace TTTM
         protected Player Player2;// { private set; get; }
         public Player CurrentPlayer;
         public event EventHandler<Game.GameEndArgs> SomebodyWins;
-        public event EventHandler NobodyWins;
+        public virtual event EventHandler NobodyWins;
         public virtual event EventHandler<Player> ChangeTurn;
         public virtual event EventHandler<Position> IncorrectTurn;
 
@@ -889,8 +913,8 @@ namespace TTTM
             if (full)
             {
                 // Конец игры из-за заполненности всех полей
-                GameEnds?.Invoke(this, new GameEndArgs(null));
                 Finished = true;
+                GameEnds?.Invoke(this, new GameEndArgs(null));
             }
         }
         private void FieldChanged(object sender, EventArgs e)

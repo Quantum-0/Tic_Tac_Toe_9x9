@@ -53,25 +53,11 @@ namespace TTTM
             InitializeComponent();
             this.settings = settings;
         }
-        
+
         private void Game_IncorrectTurn(object sender, Position e)
         {
             if (e != null)
                 IncorrectTurn = e;
-        }
-
-        private PointF[] DiagonalyLines(Rectangle Rect) // FIX IT!1
-        {
-            List<PointF> l = new List<PointF>();
-            // x + w - min(w,i) = x + w + max(-w,-i) = x + max(0,w-i)
-            for (int i = 0; i <= Math.Max(Rect.Width, Rect.Height); i+=8)
-            { 
-                l.Add(new PointF(Rect.X + Math.Min(Rect.Width, i), Rect.Y));
-                l.Add(new PointF(Rect.X, Rect.Y + Math.Min(Rect.Height, i)));
-                //l.Add(new PointF(Rect.X + Math.Max(0, Rect.Width - i), Rect.Y + Rect.Height));
-                //l.Add(new PointF(Rect.X + Rect.Width, Rect.Y + Math.Max(0, Rect.Height - i)));
-            }
-            return l.ToArray();
         }
 
         private void RedrawGame(bool refreshGraphics = false)
@@ -100,14 +86,14 @@ namespace TTTM
 
             // Фон
             gfx.FillRectangle(Background, 0, 0, w, h);
-            
+
             //Линии
             for (int i = 1; i <= 10; i++)
             {
                 gfx.DrawLine(SmallGrid, new PointF(w * i / 11f, h / 11f), new PointF(w * i / 11f, h * 10 / 11f));
                 gfx.DrawLine(SmallGrid, new PointF(w / 11f, h * i / 11f), new PointF(w * 10 / 11f, h * i / 11f));
             }
-            
+
             // Вывод игрового состояния
             int[,] State = game.State();
             for (int i = 0; i < 9; i++)
@@ -115,9 +101,9 @@ namespace TTTM
                 for (int j = 0; j < 9; j++)
                 {
                     Rectangle rect = new Rectangle((int)((w * (i + 1.1)) / 11f), (int)((h * (j + 1.1)) / 11f), (int)(0.8 * w / 11f), (int)(0.8 * h / 11f));
-                    if (State[i,j] == 1)
+                    if (State[i, j] == 1)
                         gfx.DrawEllipse(penc1, rect);
-                    if (State[i,j] == 2)
+                    if (State[i, j] == 2)
                         gfx.DrawEllipse(penc2, rect);
                 }
             }
@@ -131,17 +117,17 @@ namespace TTTM
                     Rectangle rect = new Rectangle((int)((w * (i * 3 + 1)) / 11f), (int)((h * (j * 3 + 1)) / 11f), (int)(3 * w / 11f), (int)(3 * h / 11f));
                     gfx.DrawRectangle(BigGrid, rect);
                     if (FState[i, j].Filled)
-                        gfx.DrawLines(FilledField, DiagonalyLines(rect));
+                        gfx.DrawDiagonalyLines(FilledField, rect);
                     if (FState[i, j].OwnerID == 1)
-                        gfx.DrawLines(penc1, DiagonalyLines(rect));
+                        gfx.DrawDiagonalyLines(penc1, rect);
                     if (FState[i, j].OwnerID == 2)
-                        gfx.DrawLines(penc2, DiagonalyLines(rect));
+                        gfx.DrawDiagonalyLines(penc2, rect);
                 }
             }
 
             // Выделение поля, куда нужно ходить, при попытке пойти нетуда
             if (IncorrectTurn != null)
-                gfx.DrawRectangle(pIncorrectTurn, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3/ 11f), (int)(h * 3/ 11f)));
+                gfx.DrawRectangle(pIncorrectTurn, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3 / 11f), (int)(h * 3 / 11f)));
 
             // Рендеринг полученной графики
             BufGFX.Render();
@@ -183,16 +169,16 @@ namespace TTTM
             WithBot = frm.checkBox1.Checked;
             if (WithBot)
             {
-                game = new GameManagerWithBot(pl1, pl2, 3);
+                game = new GameManagerWithBot(pl1, pl2, 2);
                 Bot = (game as GameManagerWithBot).Bot;
             }
             else
             {
                 game = new GameManagerWthFriend(pl1, pl2);
             }
-            
+
             labelCurrentTurn.Text = pl1;
-            game.ChangeTurn += Game_ChangeTurn; 
+            game.ChangeTurn += Game_ChangeTurn;
             game.IncorrectTurn += Game_IncorrectTurn;
             game.SomebodyWins += Game_SomebodyWins;
             game.NobodyWins += Game_NobodyWins;
@@ -221,7 +207,7 @@ namespace TTTM
             //    Bot.makeTurn();
             //    game.CurrentPlayer = game.Player1;
             //}
-            
+
             // Перерисовка
             RedrawGame();
             labelCurrentTurn.Text = e.Name;
@@ -311,6 +297,19 @@ namespace TTTM
         private void FormSingle_Paint(object sender, PaintEventArgs e)
         {
             RedrawGame();
+        }
+    }
+
+    public static class ExtensionsClass
+    {
+        public static void DrawDiagonalyLines(this Graphics gfx, Pen pen, Rectangle Rect)
+        {
+            for (int i = 0; i <= Rect.Width + Rect.Height; i += 12)
+            {
+                PointF p1 = new PointF(Math.Min(i, Rect.Width) + Rect.Left, Math.Max(i - Rect.Width, 0) + Rect.Top);
+                PointF p2 = new PointF(Math.Max(i - Rect.Height, 0) + Rect.Left, Math.Min(i, Rect.Height) + Rect.Top);
+                gfx.DrawLine(pen, p1, p2);
+            }
         }
     }
 }
