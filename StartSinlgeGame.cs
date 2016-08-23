@@ -38,5 +38,10 @@ namespace TTTM
             DialogResult = DialogResult.OK;
             Close();
         }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

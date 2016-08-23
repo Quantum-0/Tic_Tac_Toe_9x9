@@ -54,6 +54,7 @@
             this.buttonMulti.TabIndex = 1;
             this.buttonMulti.Text = "Мультиплеер";
             this.buttonMulti.UseVisualStyleBackColor = true;
+            this.buttonMulti.Click += new System.EventHandler(this.buttonMulti_Click);
             // 
             // buttonExit
             // 

@@ -34,7 +34,7 @@ namespace TTTM
         // Состояние
         public enum State : int
         {
-            Off, Listening, Connecting, Game
+            Off, Listening, Connected, Game
         }
 
         private Thread ListeningThread; // Топок, в котором будет прослушиваться порт
@@ -46,7 +46,6 @@ namespace TTTM
         // События
         public event EventHandler AnotherPlayerConnected; // Серверное
         public event EventHandler AnotherPlayerDisconnected; // Серверное
-        public event EventHandler ConnectedToServer; // Клиентское
         public event EventHandler ReceivedChat;
         public event EventHandler ReceivedTurn;
 
@@ -56,6 +55,7 @@ namespace TTTM
             if (state != State.Listening)
                 return;
 
+            Listener.Shutdown(SocketShutdown.Both);
             ListeningThread.Abort();
             Listener.Close();
             state = State.Off;
@@ -71,9 +71,10 @@ namespace TTTM
             Listener.ReceiveBufferSize = 1024;
 
             Listener.Bind(ipEndPoint);
-            Listener.Listen(5);
+            Listener.Listen(2);
 
             ListeningThread = new Thread(Listening);
+            ListeningThread.IsBackground = true;
             ListeningThread.Start();
 
             state = State.Listening;
@@ -86,21 +87,43 @@ namespace TTTM
             IPAddress.TryParse(ip, out ipAddr);
 
             Handler = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            Handler.Connect(ip, port);
+            try
+            {
+                Handler.Connect(ip, port);
+            }
+            catch(SocketException e)
+            {
+                state = State.Off;
+                throw e;
+            }
 
             Handler.ReceiveBufferSize = 1024;
-            //WorkWithClient = new Thread(this.DoClientWork);
-            WorkWithClient.Start();
-            state = State.Game;
+            state = State.Connected;
+        }
+
+        public void Disconnect()
+        {
+            if (state == State.Connected)
+            {
+                Handler.Close();
+                state = State.Off; // Или listening? o.O
+            }
         }
 
         // Прослушивание
         private void Listening()
         {
-            Handler = Listener.Accept();
-            WorkWithClient = new Thread(new ParameterizedThreadStart(ProccessReceivedData));
-            WorkWithClient.Start(Handler);
-            state = State.Game;
+            if (Listener == null)
+                return;
+
+            while (true)
+            {
+                Handler = Listener.Accept();
+                AnotherPlayerConnected(this, new EventArgs());
+                WorkWithClient = new Thread(new ParameterizedThreadStart(ProccessReceivedData));
+                WorkWithClient.Start(Handler);
+                state = State.Game;
+            }
         }
 
         // Обработка приходящих данных
@@ -452,7 +475,10 @@ namespace TTTM
 
             // Выход если файл отсутствует
             if (!File.Exists(fname))
+            {
+                //SET DEFAULTS!!!!!!!
                 return false;
+            }
 
             using (StreamReader sr = new StreamReader(fname))
             {

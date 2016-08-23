@@ -56,5 +56,14 @@ namespace TTTM
             // Открытие настроек
             (new FormSettings(settings)).ShowDialog();
         }
+
+        private void buttonMulti_Click(object sender, EventArgs e)
+        {
+            // Открытие формы одиночной игры, подписка на событие о её закрытии и скрывание текущей формы
+            StartMultiplayerGame smg = new StartMultiplayerGame(settings);
+            Hide();
+            smg.ShowDialog();
+            Show();
+        }
     }
 }

@@ -66,6 +66,12 @@
     <Compile Include="Game.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StartMultiplayerGame.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StartMultiplayerGame.Designer.cs">
+      <DependentUpon>StartMultiplayerGame.cs</DependentUpon>
+    </Compile>
     <Compile Include="StartSinlgeGame.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,6 +96,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="StartMultiplayerGame.resx">
+      <DependentUpon>StartMultiplayerGame.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="StartSinlgeGame.resx">
       <DependentUpon>StartSinlgeGame.cs</DependentUpon>
     </EmbeddedResource>
