@@ -15,6 +15,123 @@ namespace TTTM
     {
         Connection connection;
         Settings settings;
+
+        private enum interfaceNetConfigState : byte
+        {
+            AllDisabled, OnlyPort, OnlyIP, AllEnabled
+        }
+        private enum interfaceButtonState : byte
+        {
+            Hidden = 0, Disabled = 1, Enabled = 2
+        }
+
+        private bool interfaceServerClientSwitcher
+        {
+            get
+            {
+                if (radioButtonClient.Enabled != radioButtonServer.Enabled)
+                    throw new Exception("Некорректное состояние интерфейса");
+                else
+                    return radioButtonClient.Enabled;
+            }
+            set
+            {
+                radioButtonClient.Enabled = value;
+                radioButtonServer.Enabled = value;
+            }
+        }
+        private bool interfacePlayerSettings
+        {
+            set
+            {
+                if (textBoxNick.Enabled && !value)
+                    panel1.Click -= panel1_Click;
+
+                if (!textBoxNick.Enabled && value)
+                    panel1.Click += panel1_Click;
+
+                textBoxNick.Enabled = value;
+            }
+            get
+            {
+                return textBoxNick.Enabled;
+            }
+        }
+        private interfaceNetConfigState interfaceNetConfig
+        {
+            set
+            {
+                switch (value)
+                {
+                    case interfaceNetConfigState.AllDisabled:
+                        textBoxPort.Enabled = false;
+                        textBoxIP.Enabled = false;
+                        break;
+                    case interfaceNetConfigState.OnlyPort:
+                        textBoxPort.Enabled = true;
+                        textBoxIP.Enabled = false;
+                        break;
+                    case interfaceNetConfigState.OnlyIP:
+                        textBoxPort.Enabled = false;
+                        textBoxIP.Enabled = true;
+                        break;
+                    case interfaceNetConfigState.AllEnabled:
+                        textBoxPort.Enabled = true;
+                        textBoxIP.Enabled = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        private interfaceButtonState interfaceBtnStart
+        {
+            set
+            {
+                buttonStart.Enabled = (value == interfaceButtonState.Enabled);
+                buttonStart.Visible = (value >= interfaceButtonState.Disabled);
+            }
+            get
+            {
+                if (buttonStart.Visible)
+                {
+                    if (buttonStart.Enabled)
+                        return interfaceButtonState.Enabled;
+                    else
+                        return interfaceButtonState.Disabled;
+                }
+                else
+                    return interfaceButtonState.Hidden;
+            }
+        }
+        private interfaceButtonState interfaceBtnCancel
+        {
+            set
+            {
+                buttonCancel.Enabled = (value == interfaceButtonState.Enabled);
+                buttonCancel.Visible = (value >= interfaceButtonState.Disabled);
+            }
+            get
+            {
+                if (buttonCancel.Visible)
+                {
+                    if (buttonCancel.Enabled)
+                        return interfaceButtonState.Enabled;
+                    else
+                        return interfaceButtonState.Disabled;
+                }
+                else
+                    return interfaceButtonState.Hidden;
+            }
+        }
+
+        private void changeInterface(bool? ServerOrClientSwither, bool? PlayerSettings, bool? PortChanging,
+            bool? IPChanging, string StartButtonCaption, bool? StartButtonVisible, bool? StartButtonEnabled,
+            string CancelButtonCaption, bool? CancelButtonVisible, bool? CancelButtonEnabled)
+        {
+
+        }
+
         public StartMultiplayerGame(Settings settings)
         {
             InitializeComponent();
@@ -22,15 +139,10 @@ namespace TTTM
             connection = new Connection();
         }
 
-        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void radioButtonServer_CheckedChanged(object sender, EventArgs e)
         {
+            interfaceNetConfig = interfaceNetConfigState.OnlyPort;
             buttonStart.Text = "Создать сервер";
-            textBoxIP.Enabled = false;
         }
 
         private void StartMultiplayerGame_Load(object sender, EventArgs e)
@@ -43,18 +155,15 @@ namespace TTTM
 
         private void radioButtonClient_CheckedChanged(object sender, EventArgs e)
         {
+            interfaceNetConfig = interfaceNetConfigState.AllEnabled;
             buttonStart.Text = "Подключится";
-            textBoxIP.Enabled = true;
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            radioButtonServer.Enabled = false;
-            radioButtonClient.Enabled = false;
-            textBoxIP.Enabled = false;
-            textBoxPort.Enabled = false;
-            textBoxNick.Enabled = false;
-            panel1.Click -= panel1_Click;
+            interfaceNetConfig = interfaceNetConfigState.AllDisabled;
+            interfacePlayerSettings = false;
+            interfaceServerClientSwitcher = false;
 
             if (radioButtonServer.Checked)
                 startServer();
@@ -64,8 +173,8 @@ namespace TTTM
 
         private void startClient()
         {
-            toolStripStatusLabel1.Text = "Попытка подключения..";
-            buttonStart.Enabled = false;
+            toolStripStatusLabel.Text = "Попытка подключения..";
+            interfaceBtnStart = interfaceButtonState.Disabled;
             Refresh();
             try
             {
@@ -75,31 +184,29 @@ namespace TTTM
             {
                 stopConnecting();
                 if (e.ErrorCode == 10061)
-                    toolStripStatusLabel1.Text = "Сервер отверг подключение";
+                    toolStripStatusLabel.Text = "Сервер отверг подключение";
                 return;
             }
 
-            buttonCancel.Visible = true;
+            interfaceBtnCancel = interfaceButtonState.Enabled;
             buttonCancel.Text = "Отключиться";
-            toolStripStatusLabel1.Text = "Подключено к серверу";
+            toolStripStatusLabel.Text = "Подключено к серверу";
 
             // После этого ждём чтоб сервер прислал ник/цвет игрока с сервера
         }
 
         private void stopConnecting()
         {
-            radioButtonServer.Enabled = true;
-            radioButtonClient.Enabled = true;
-            textBoxIP.Enabled = radioButtonClient.Checked;
-            textBoxPort.Enabled = true;
-            textBoxNick.Enabled = true;
-            panel1.Click += panel1_Click;
-            buttonCancel.Visible = false;
-            buttonStart.Enabled = true;
+            interfaceServerClientSwitcher = true;
+            interfaceNetConfig = (radioButtonClient.Checked) ?
+                interfaceNetConfigState.AllEnabled : interfaceNetConfigState.OnlyPort;
+            interfacePlayerSettings = true;
+            interfaceBtnStart = interfaceButtonState.Enabled;
+            interfaceBtnCancel = interfaceButtonState.Hidden;
 
             if (connection.state == Connection.State.Listening)
             {
-                toolStripStatusLabel1.Text = "Сервер остановлен";
+                toolStripStatusLabel.Text = "Сервер остановлен";
                 connection.StopServerListening();
                 buttonStart.Text = "Создать сервер";
             }
@@ -107,8 +214,8 @@ namespace TTTM
 
             if (connection.state == Connection.State.Connected)
             {
-                toolStripStatusLabel1.Text = "Отключено";
                 connection.Disconnect();
+                toolStripStatusLabel.Text = "Отключено";
             }
         }
 
@@ -116,30 +223,29 @@ namespace TTTM
         {
             try
             {
-                toolStripStatusLabel1.Text = "Запуск сервера";
+                toolStripStatusLabel.Text = "Запуск сервера";
                 connection.StartServerListening(7890);
                 connection.AnotherPlayerConnected += ConnectionServer_AnotherPlayerConnected;
-                toolStripStatusLabel1.Text = "Ожидание входящего подключения";
-                buttonCancel.Visible = true;
+                toolStripStatusLabel.Text = "Ожидание входящего подключения";
+                interfaceBtnCancel = interfaceButtonState.Enabled;
                 buttonStart.Text = "Начать игру";
-                buttonStart.Enabled = false;
+                interfaceBtnStart = interfaceButtonState.Disabled;
                 buttonCancel.Text = "Отключить сервер";
                 Refresh();
             }
             catch (SocketException e)
             {
-                toolStripStatusLabel1.Text = "Порт уже занят";
-                radioButtonClient.Enabled = true;
-                radioButtonServer.Enabled = true;
-                textBoxNick.Enabled = true;
-                textBoxPort.Enabled = true;
-                panel1.Click += panel1_Click;
+                toolStripStatusLabel.Text = "Порт уже занят";
+                interfacePlayerSettings = true;
+                interfaceServerClientSwitcher = true;
+                interfaceNetConfig = (radioButtonClient.Checked) ?
+                    interfaceNetConfigState.AllEnabled : interfaceNetConfigState.OnlyPort;
             }
         }
 
         private void ConnectionServer_AnotherPlayerConnected(object sender, EventArgs e)
         {
-            toolStripStatusLabel1.Text = "Клиент подключён";
+            toolStripStatusLabel.Text = "Клиент подключён";
         }
 
         private void panel1_Click(object sender, EventArgs e)
