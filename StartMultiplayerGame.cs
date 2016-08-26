@@ -101,6 +101,7 @@ namespace TTTM
             {
                 toolStripStatusLabel1.Text = "Сервер остановлен";
                 connection.StopServerListening();
+                buttonStart.Text = "Создать сервер";
             }
 
 
@@ -113,15 +114,27 @@ namespace TTTM
 
         private void startServer()
         {
-            toolStripStatusLabel1.Text = "Запуск сервера";
-            buttonStart.Text = "Начать игру";
-            buttonStart.Enabled = false;
-            buttonCancel.Text = "Отключить сервер";
-            Refresh();
-            connection.StartServerListening(7890);
-            connection.AnotherPlayerConnected += ConnectionServer_AnotherPlayerConnected;
-            toolStripStatusLabel1.Text = "Ожидание входящего подключения";
-            buttonCancel.Visible = true;
+            try
+            {
+                toolStripStatusLabel1.Text = "Запуск сервера";
+                connection.StartServerListening(7890);
+                connection.AnotherPlayerConnected += ConnectionServer_AnotherPlayerConnected;
+                toolStripStatusLabel1.Text = "Ожидание входящего подключения";
+                buttonCancel.Visible = true;
+                buttonStart.Text = "Начать игру";
+                buttonStart.Enabled = false;
+                buttonCancel.Text = "Отключить сервер";
+                Refresh();
+            }
+            catch (SocketException e)
+            {
+                toolStripStatusLabel1.Text = "Порт уже занят";
+                radioButtonClient.Enabled = true;
+                radioButtonServer.Enabled = true;
+                textBoxNick.Enabled = true;
+                textBoxPort.Enabled = true;
+                panel1.Click += panel1_Click;
+            }
         }
 
         private void ConnectionServer_AnotherPlayerConnected(object sender, EventArgs e)

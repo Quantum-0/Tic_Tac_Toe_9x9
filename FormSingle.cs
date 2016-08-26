@@ -142,7 +142,6 @@ namespace TTTM
                 Point pnt = new Point(PointToClient(MousePosition).X - pictureBox1.Left, PointToClient(MousePosition).Y - pictureBox1.Top);
                 PointF pntf = new PointF(pnt.X * 11f / pictureBox1.Width - 1, pnt.Y * 11f / pictureBox1.Height - 1);
                 game.ClickOn((int)pntf.X, (int)pntf.Y);
-                //game.ClickOn((PointToClient(MousePosition).X - pictureBox1.Left) / 20, (PointToClient(MousePosition).Y - pictureBox1.Top) / 20);
                 RedrawGame();
                 IncorrectTurn = null;
             }

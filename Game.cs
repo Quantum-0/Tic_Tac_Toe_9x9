@@ -38,7 +38,7 @@ namespace TTTM
         }
 
         private Thread ListeningThread; // Топок, в котором будет прослушиваться порт
-        private Socket Listener; // Прослушивание порта для ожидания противника
+        private TcpListener Listener; // Прослушивание порта для ожидания противника
         private Thread WorkWithClient; // Поток обрабатывающий приходящие от клиента/сервера данные
         private Socket Handler; // Противник
         public State state { private set; get; } // Текущее состояние
@@ -54,10 +54,9 @@ namespace TTTM
         {
             if (state != State.Listening)
                 return;
-
-            Listener.Shutdown(SocketShutdown.Both);
+            
+            Listener.Stop();
             ListeningThread.Abort();
-            Listener.Close();
             state = State.Off;
         }
 
@@ -66,18 +65,20 @@ namespace TTTM
         {
             IPAddress ipAddr = IPAddress.Any;
             IPEndPoint ipEndPoint = new IPEndPoint(ipAddr, port);
-            Listener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Listener = new TcpListener(ipEndPoint);
 
-            Listener.ReceiveBufferSize = 1024;
-
-            Listener.Bind(ipEndPoint);
-            Listener.Listen(2);
+            try
+            {
+                Listener.Start();
+            }
+            catch(SocketException e)
+            {
+                throw e;
+            }
 
             ListeningThread = new Thread(Listening);
             ListeningThread.IsBackground = true;
             ListeningThread.Start();
-
-            state = State.Listening;
         }
 
         // Подключение к серверу
@@ -91,7 +92,7 @@ namespace TTTM
             {
                 Handler.Connect(ip, port);
             }
-            catch(SocketException e)
+            catch (SocketException e)
             {
                 state = State.Off;
                 throw e;
@@ -116,14 +117,16 @@ namespace TTTM
             if (Listener == null)
                 return;
 
-            while (true)
-            {
-                Handler = Listener.Accept();
-                AnotherPlayerConnected(this, new EventArgs());
-                WorkWithClient = new Thread(new ParameterizedThreadStart(ProccessReceivedData));
-                WorkWithClient.Start(Handler);
-                state = State.Game;
-            }
+            state = State.Listening;
+            while (!Listener.Pending())
+                Thread.Sleep(250);
+
+            Handler = Listener.AcceptSocket();
+            Listener.Stop();
+            state = State.Connected;
+            AnotherPlayerConnected(this, new EventArgs());
+            WorkWithClient = new Thread(new ParameterizedThreadStart(ProccessReceivedData));
+            WorkWithClient.Start(Handler);
         }
 
         // Обработка приходящих данных
@@ -476,7 +479,7 @@ namespace TTTM
             // Выход если файл отсутствует
             if (!File.Exists(fname))
             {
-                //SET DEFAULTS!!!!!!!
+                settings.SetDefaults();
                 return false;
             }
 
@@ -491,15 +494,15 @@ namespace TTTM
 
                     // Вытаскиваем из строки название поля и его значение
                     string field = str.Substring(0, str.IndexOf('='));
-                    dynamic val = str.Substring(str.IndexOf('=')+1);
-                    
+                    dynamic val = str.Substring(str.IndexOf('=') + 1);
+
                     // Color
                     if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(Color))
                     {
                         int temp;
                         int.TryParse(val, out temp);
                         val = Color.FromArgb(temp);
-                    }                            
+                    }
                     else // int
                     if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(int))
                     {
@@ -513,6 +516,22 @@ namespace TTTM
                 }
                 return true;
             }
+        }
+
+        private void SetDefaults()
+        {
+            // Сделать выполнение этого в настройках
+            BackgroundColor = Color.Black;
+            SmallGrid = Color.FromArgb(0, 200, 0);
+            BigGrid = Color.Lime;
+            PlayerColor1 = Color.Red;
+            PlayerColor2 = Color.FromArgb(100, 100, 255);
+            IncorrectTurn = Color.Orange;
+            FilledField = Color.Gray;
+            DefaultName1 = "Игрок 1";
+            DefaultName2 = "Игрок 2";
+            MpIP = "127.0.0.1";
+            MpPort = 7890;
         }
     }
 
@@ -622,6 +641,10 @@ namespace TTTM
 
         public override void ClickOn(int i, int j)
         {
+            // Вылет если игра закончена
+            if (game.Finished)
+                return;
+
             // Вылет если сейчас ход бота
             if (CurrentPlayer != Player1)
                 return;
@@ -632,12 +655,6 @@ namespace TTTM
             // Если ход выполнен успешно (ячейка не занята и ход туда разрешён) - свап игрока
             if (res)
             {
-                if (game.Finished)
-                {
-                    NobodyWins?.Invoke(this, new EventArgs());
-                    return;
-                }
-
                 // Передача хода боту
                 CurrentPlayer = Player2;
 
@@ -692,6 +709,10 @@ namespace TTTM
         // Обработка клика по полю
         public virtual void ClickOn(int i, int j)
         {
+            // Вылет если игра закончена
+            if (game.Finished)
+                return;
+
             // Выполнение хода
             bool res = game.Turn(new Position(i, j), CurrentPlayer);
 
