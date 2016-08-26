@@ -132,48 +132,41 @@ namespace TTTM
         // Обработка приходящих данных
         private void ProccessReceivedData(object ohandler)
         {
+            // Принимает хэндлер
             Socket handler = (Socket)ohandler;
-            //bool stoping = false;
+            bool stoping = false;
+            string data = "";
 
-            //while (!stoping && handler != null)
-            //{
-            //    // Программа приостанавливается, ожидая входящее соединение
-            //    byte[] bytes = new byte[handler.ReceiveBufferSize];
-            //    //Socket handler = sListener.Receive(bytes);
-            //    string data = null;
+            // Зацикливаем, пока приходят данные
+            while (!stoping && handler != null)
+            {
+                // Пыдаемся получить данные и вылетаем из цикла, если отключился
+                byte[] bytes = new byte[handler.ReceiveBufferSize];
+                
+                if (!handler.IsConnected())
+                    break;
+                else
+                {
+                    // Приём данных
+                    int bytesRec = handler.Receive(bytes);
+                    if (bytesRec == 0)
+                        continue;
 
-            //    if (!handler.IsConnected())
-            //        stoping = true;
-            //    else
-            //    {
+                    data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
+                    
+                    // WORK WITH DATA
 
-            //        // Мы дождались клиента, пытающегося с нами соединиться
-            //        int bytesRec = handler.Receive(bytes);
-            //        if (bytesRec == 0)
-            //            continue;
-
-            //        data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
-
-            //        this.SetText("Сообщение от клиента (" + handlers.IndexOf(handler) + ")-" + data);
-
-            //        foreach (var h in handlers)
-            //        {
-            //            h.Send(Encoding.UTF8.GetBytes("(" + handlers.IndexOf(handler) + ")" + data));
-            //        }
-            //    }
-            //}
-            //this.SetText("Клиент отключилс");
-            //handler.Shutdown(SocketShutdown.Both);
-            //handler.Close();
-            //handlers.Remove(handler);
-            //foreach (var h in handlers)
-            //{
-            //    h.Send(Encoding.UTF8.GetBytes("System: Пользователь отключился"));
-            //}
+                    // Разделить Connection на private LowLevelConnection (соединение) & 
+                    //    public HighLevelConnection (обработка принятых данных, отправка ходов, сообщений и т.п.)
+                }
+            }
+            handler.Shutdown(SocketShutdown.Both);
+            handler.Close();
+            AnotherPlayerDisconnected(this, new EventArgs());
         }
-
-        //
     }
+
+
 
     // Абстрактный бот (как базовый класс для реализаций бота)
     abstract public class ABot

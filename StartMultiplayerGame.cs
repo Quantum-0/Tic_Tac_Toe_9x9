@@ -15,6 +15,7 @@ namespace TTTM
     {
         Connection connection;
         Settings settings;
+        delegate void CallbackDelegate();
 
         private enum interfaceNetConfigState : byte
         {
@@ -125,13 +126,6 @@ namespace TTTM
             }
         }
 
-        private void changeInterface(bool? ServerOrClientSwither, bool? PlayerSettings, bool? PortChanging,
-            bool? IPChanging, string StartButtonCaption, bool? StartButtonVisible, bool? StartButtonEnabled,
-            string CancelButtonCaption, bool? CancelButtonVisible, bool? CancelButtonEnabled)
-        {
-
-        }
-
         public StartMultiplayerGame(Settings settings)
         {
             InitializeComponent();
@@ -223,6 +217,7 @@ namespace TTTM
         {
             try
             {
+                connection.StopServerListening(); // ?
                 toolStripStatusLabel.Text = "Запуск сервера";
                 connection.StartServerListening(7890);
                 connection.AnotherPlayerConnected += ConnectionServer_AnotherPlayerConnected;
@@ -243,9 +238,21 @@ namespace TTTM
             }
         }
 
+        private void ConnectionServer_AnotherPlayerDisconnected(object sender, EventArgs e)
+        {
+            toolStripStatusLabel.Text = "Клиент отключился";
+            connection.AnotherPlayerDisconnected -= ConnectionServer_AnotherPlayerDisconnected;
+
+            CallbackDelegate d = new CallbackDelegate(startServer);
+
+            Invoke(d);
+        }
+
         private void ConnectionServer_AnotherPlayerConnected(object sender, EventArgs e)
         {
             toolStripStatusLabel.Text = "Клиент подключён";
+            connection.AnotherPlayerDisconnected += ConnectionServer_AnotherPlayerDisconnected;
+            connection.AnotherPlayerConnected -= ConnectionServer_AnotherPlayerConnected;
         }
 
         private void panel1_Click(object sender, EventArgs e)
