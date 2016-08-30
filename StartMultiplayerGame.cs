@@ -131,6 +131,15 @@ namespace TTTM
             InitializeComponent();
             this.settings = settings;
             connection = new Connection();
+            connection.ReceivedIAM += Connection_ReceivedIAM;
+        }
+
+        private void Connection_ReceivedIAM(object sender, Connection.IAMEventArgs e)
+        {
+            // Исправить на изменения в интерфейсе (подпись подключённого
+            // игрока и кнопки "принять и пойти с ним играть" и "отклонить"
+            // после того как приеду из СП !!!
+            MessageBox.Show(e.Nick);
         }
 
         private void radioButtonServer_CheckedChanged(object sender, EventArgs e)
@@ -173,18 +182,18 @@ namespace TTTM
             try
             {
                 connection.ConnectToServer(textBoxIP.Text, 7890);
+                connection.SendIAM(textBoxNick.Text, panel1.BackColor);
+                interfaceBtnCancel = interfaceButtonState.Enabled;
+                buttonCancel.Text = "Отключиться";
+                toolStripStatusLabel.Text = "Подключено к серверу";
             }
             catch (SocketException e)
             {
                 stopConnecting();
                 if (e.ErrorCode == 10061)
                     toolStripStatusLabel.Text = "Сервер отверг подключение";
-                return;
             }
 
-            interfaceBtnCancel = interfaceButtonState.Enabled;
-            buttonCancel.Text = "Отключиться";
-            toolStripStatusLabel.Text = "Подключено к серверу";
 
             // После этого ждём чтоб сервер прислал ник/цвет игрока с сервера
         }
@@ -250,6 +259,7 @@ namespace TTTM
 
         private void ConnectionServer_AnotherPlayerConnected(object sender, EventArgs e)
         {
+            connection.SendIAM(textBoxNick.Text, panel1.BackColor);
             toolStripStatusLabel.Text = "Клиент подключён";
             connection.AnotherPlayerDisconnected += ConnectionServer_AnotherPlayerDisconnected;
             connection.AnotherPlayerConnected -= ConnectionServer_AnotherPlayerConnected;

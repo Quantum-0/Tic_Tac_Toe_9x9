@@ -15,11 +15,9 @@ using System.Xml.Serialization;
 namespace TTTM
 {
     /*
-     * 3 бота доделать норм
+     * 3-его бота доделать норм
      * TODO для ботов:
-     * - убрать рекурсивный вызов makeTurn()
-     * - вызывать exception если бот не может пойти
-     * - сделать анализ ячеек и оценивание их
+     * - сделать анализ ячеек и оценивание их (в виде дерева)
      * - каждой ячейке соответствует количество очков
      * - выигрыш при ходе в ту ячейку + к очкам
      * - закрытие выигрыша противнику + к очкам
@@ -28,33 +26,41 @@ namespace TTTM
      * - указано количество очков
      * - указан шанс что бот будет выбирать лучшее значение (например 50% что наилучший ход, 30% что второй, 15% что третий, 5% что последний)
      */
-
-    public class Connection
+    
+    class LowLevelConnection
     {
         // Состояние
         public enum State : int
         {
-            Off, Listening, Connected, Game
+            Off, Listening, Connected
         }
+        public State state { private set; get; } // Текущее состояние
 
         private Thread ListeningThread; // Топок, в котором будет прослушиваться порт
         private TcpListener Listener; // Прослушивание порта для ожидания противника
         private Thread WorkWithClient; // Поток обрабатывающий приходящие от клиента/сервера данные
         private Socket Handler; // Противник
-        public State state { private set; get; } // Текущее состояние
 
         // События
         public event EventHandler AnotherPlayerConnected; // Серверное
         public event EventHandler AnotherPlayerDisconnected; // Серверное
-        public event EventHandler ReceivedChat;
-        public event EventHandler ReceivedTurn;
+        public event EventHandler<ReceivedDataEventArgs> ReceivedData;
+
+        public class ReceivedDataEventArgs : EventArgs
+        {
+            public string Data { private set; get; }
+            public ReceivedDataEventArgs(string Data)
+            {
+                this.Data = Data;
+            }
+        }
 
         // Остановка прослушивания порта
         public void StopServerListening()
         {
             if (state != State.Listening)
                 return;
-            
+
             Listener.Stop();
             ListeningThread.Abort();
             state = State.Off;
@@ -71,7 +77,7 @@ namespace TTTM
             {
                 Listener.Start();
             }
-            catch(SocketException e)
+            catch (SocketException e)
             {
                 throw e;
             }
@@ -100,6 +106,9 @@ namespace TTTM
 
             Handler.ReceiveBufferSize = 1024;
             state = State.Connected;
+            
+            WorkWithClient = new Thread(new ParameterizedThreadStart(ProccessReceivedData));
+            WorkWithClient.Start(Handler);
         }
 
         public void Disconnect()
@@ -107,7 +116,7 @@ namespace TTTM
             if (state == State.Connected)
             {
                 Handler.Close();
-                state = State.Off; // Или listening? o.O
+                state = State.Off;
             }
         }
 
@@ -142,27 +151,160 @@ namespace TTTM
             {
                 // Пыдаемся получить данные и вылетаем из цикла, если отключился
                 byte[] bytes = new byte[handler.ReceiveBufferSize];
-                
+
                 if (!handler.IsConnected())
                     break;
                 else
                 {
                     // Приём данных
-                    int bytesRec = handler.Receive(bytes);
-                    if (bytesRec == 0)
-                        continue;
+                    if (handler.Available > 0)
+                    {
+                        int bytesRec = handler.Receive(bytes);
+                        if (bytesRec == 0)
+                            continue;
 
-                    data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
-                    
-                    // WORK WITH DATA
+                        data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
 
-                    // Разделить Connection на private LowLevelConnection (соединение) & 
-                    //    public HighLevelConnection (обработка принятых данных, отправка ходов, сообщений и т.п.)
+                        ReceivedData?.Invoke(this, new ReceivedDataEventArgs(data));
+                    }
+                    else
+                        Thread.Sleep(100);
                 }
             }
             handler.Shutdown(SocketShutdown.Both);
             handler.Close();
             AnotherPlayerDisconnected(this, new EventArgs());
+        }
+
+        // Отправка данных
+        public void Send(string Data)
+        {
+            if (state == State.Connected)
+            Handler.Send(Encoding.UTF8.GetBytes(Data), Encoding.UTF8.GetByteCount(Data), SocketFlags.None);
+        }
+    }
+    
+    public class Connection
+    {
+        // Состояние
+        public enum State : int
+        {
+            Off, Listening, Connected
+        }
+        public State state { private set; get; } // Текущее состояние
+
+        LowLevelConnection LLCon = new LowLevelConnection();
+
+        // События
+        public event EventHandler AnotherPlayerConnected; // Серверное
+        public event EventHandler AnotherPlayerDisconnected; // Серверное
+
+
+        public event EventHandler ReceivedChat;
+        public event EventHandler ReceivedTurn;
+        public event EventHandler<IAMEventArgs> ReceivedIAM;
+
+        public class IAMEventArgs : EventArgs
+        {
+            public string Nick { private set; get; }
+            public Color Color { private set; get; }
+
+            public IAMEventArgs(string Data)
+            {
+                string[] Strings = Data.Split('\n');
+                Nick = Strings[1];
+                Color = Color.FromArgb(int.Parse(Strings[2]));
+            }
+        }
+
+        public Connection()
+        {
+            LLCon.AnotherPlayerConnected += LLCon_AnotherPlayerConnected;
+            LLCon.AnotherPlayerDisconnected += LLCon_AnotherPlayerDisconnected;
+            LLCon.ReceivedData += LLCon_ReceivedData;
+        }
+
+        ~Connection()
+        {
+            LLCon.AnotherPlayerConnected -= LLCon_AnotherPlayerConnected;
+            LLCon.AnotherPlayerDisconnected -= LLCon_AnotherPlayerDisconnected;
+            LLCon.ReceivedData -= LLCon_ReceivedData;
+        }
+
+        private void LLCon_ReceivedData(object sender, LowLevelConnection.ReceivedDataEventArgs e)
+        {
+            string Data = e.Data;
+
+            switch(Data.Substring(0,3))
+            {
+                case "TRN": // Ход
+                    ReceivedTurn?.Invoke(this, null); // заменить null на ход
+                    break;
+                case "CHT": // Сообщение в чате
+                    ReceivedChat?.Invoke(this, null); // заменить
+                    break;
+                case "SYS": // Системные данные
+                    //???
+                    break;
+                case "IAM": // Представление
+                    ReceivedIAM?.Invoke(this, new IAMEventArgs(Data));
+                    break;
+                case "GAM": // Game - начало игры
+                    //Start Game
+                    //state = State.Game;
+                    break;
+                default:
+                    throw new Exception("Неверный заголовой данных: " + Data.Substring(0, 3));
+            }
+        }
+
+        private void LLCon_AnotherPlayerDisconnected(object sender, EventArgs e)
+        {
+            AnotherPlayerDisconnected?.Invoke(this, e);
+        }
+        private void LLCon_AnotherPlayerConnected(object sender, EventArgs e)
+        {
+            AnotherPlayerConnected?.Invoke(this, e);
+        }
+
+        public void SendTurn(Position Turn)
+        {
+            string Data = "TRN" + Turn.x.ToString() + Turn.y.ToString();
+            LLCon.Send(Data);
+        }
+        public void SendIAM(string Nick, Color Color)
+        {
+            string Data = "IAM" + '\n' + Nick + '\n' + Color.ToArgb();
+            LLCon.Send(Data);
+        }
+
+        // Пересылаемые на подключение методы
+        public void ConnectToServer(string IP, int port)
+        {
+            LLCon.ConnectToServer(IP, port);
+            state = (State)(byte)LLCon.state;
+        }
+        public void StopServerListening()
+        {
+            LLCon.StopServerListening();
+            state = (State)(byte)LLCon.state;
+        }
+        public void Disconnect()
+        {
+            LLCon.Disconnect();
+            state = (State)(byte)LLCon.state;
+        }
+        public void StartServerListening(int Port)
+        {
+            try
+            {
+                LLCon.StartServerListening(Port);
+                state = State.Listening;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
     }
 
