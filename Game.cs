@@ -742,7 +742,7 @@ namespace TTTM
         public override event EventHandler<Player> ChangeTurn;
         public override event EventHandler<Position> IncorrectTurn;
         public override event EventHandler NobodyWins;
-        public GameManagerWithBot(string player1, string player2, int botType) : base(player1, player2)
+        public GameManagerWithBot(string player1, string player2, int botType = 2) : base(player1, player2)
         {
             // BASE CTOR HERE
             switch (botType)
@@ -977,7 +977,7 @@ namespace TTTM
         public void Load(string State)
         {
             game.UpdateFromStateCode(State, Player1, Player2, ref CurrentPlayer);
-            ChangeTurn(this, CurrentPlayer);
+            //ChangeTurn(this, CurrentPlayer);
         }
     }
 
@@ -1089,7 +1089,7 @@ namespace TTTM
             bool full = true;
             for (int i = 0; i < 3 && full; i++)
                 for (int j = 0; j < 3 && full; j++)
-                    if (Fields[i, j].Owner == null)
+                    if (Fields[i, j].Owner == null && !Fields[i,j].Full)
                         full = false;
 
             if (full)

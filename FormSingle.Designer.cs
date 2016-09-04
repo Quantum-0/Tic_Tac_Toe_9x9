@@ -96,7 +96,6 @@
             // buttonLoadGame
             // 
             this.buttonLoadGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonLoadGame.Enabled = false;
             this.buttonLoadGame.Location = new System.Drawing.Point(93, 344);
             this.buttonLoadGame.Name = "buttonLoadGame";
             this.buttonLoadGame.Size = new System.Drawing.Size(75, 23);
@@ -137,7 +136,7 @@
             this.MinimumSize = new System.Drawing.Size(357, 418);
             this.Name = "FormSingle";
             this.Text = "Одиночная игра";
-            this.Load += new System.EventHandler(this.FormSingle_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSingle_FormClosing);
             this.ResizeEnd += new System.EventHandler(this.FormSingle_ResizeEnd_And_SizeChanged);
             this.SizeChanged += new System.EventHandler(this.FormSingle_ResizeEnd_And_SizeChanged);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.FormSingle_Paint);
