@@ -37,6 +37,7 @@
             this.buttonLoadGame = new System.Windows.Forms.Button();
             this.buttonSaveGame = new System.Windows.Forms.Button();
             this.timerBotTurn = new System.Windows.Forms.Timer(this.components);
+            this.timerRefreshView = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -122,6 +123,11 @@
             this.timerBotTurn.Interval = 500;
             this.timerBotTurn.Tick += new System.EventHandler(this.timerBotTurn_Tick);
             // 
+            // timerRefreshView
+            // 
+            this.timerRefreshView.Interval = 50;
+            this.timerRefreshView.Tick += new System.EventHandler(this.timerRefreshView_Tick);
+            // 
             // FormSingle
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -156,5 +162,6 @@
         private System.Windows.Forms.Button buttonLoadGame;
         private System.Windows.Forms.Button buttonSaveGame;
         private System.Windows.Forms.Timer timerBotTurn;
+        private System.Windows.Forms.Timer timerRefreshView;
     }
 }

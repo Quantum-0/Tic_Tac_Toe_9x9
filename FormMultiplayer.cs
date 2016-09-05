@@ -67,6 +67,17 @@ namespace TTTM
             e.Handled = true;
         }
 
+        private void FormMultiplayer_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (MessageBox.Show("Вы действительно хотите выйти?", "Выход", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                e.Cancel = true;
+            else
+            {
+                connection.SendEndGame();
+                connection.Disconnect();
+            }
+        }
+
         private void textBoxChatInput_Enter(object sender, EventArgs e)
         {
             textBoxChatInput.ForeColor = Color.Black;

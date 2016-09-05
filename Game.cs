@@ -202,6 +202,7 @@ namespace TTTM
         public event EventHandler AnotherPlayerConnected; // Серверное
         public event EventHandler AnotherPlayerDisconnected; // Серверное
         public event EventHandler GameStarts;
+        public event EventHandler GameEnds;
 
         public event EventHandler<string> ReceivedChat;
         public event EventHandler<string> ReceivedTurn;
@@ -262,6 +263,9 @@ namespace TTTM
                         GameStarts(this, new EventArgs());
                     }
                     break;
+                case "END": // Противник прервал игру
+                    GameEnds(this, new EventArgs());
+                    break;
                 case "RJC":
                     ConnectingRejected(this, new EventArgs());
                     break;
@@ -304,6 +308,10 @@ namespace TTTM
             }
             else if (state == State.Connected)
                 state = State.WaitForStartFromAnother;
+        }
+        public void SendEndGame()
+        {
+            LLCon.Send("END");
         }
         public void SendReject()
         {
@@ -617,6 +625,7 @@ namespace TTTM
         public int HelpCellsAlpha;
         public int HelpLinesAlpha;
         public int HelpShow; //(bool)
+        public int GraphicsLevel;
 
 
         // Сохранение настроек в файл
@@ -714,6 +723,7 @@ namespace TTTM
             HelpCellsAlpha = 180;
             HelpLinesAlpha = 40;
             HelpShow = 1;
+            GraphicsLevel = 1;
         }
     }
 

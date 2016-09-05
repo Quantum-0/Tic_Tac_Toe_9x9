@@ -37,18 +37,32 @@ namespace TTTM
         Rectangle[,] FieldZones = new Rectangle[3, 3];
         Point CellUnderMouse;
         event EventHandler MouseMovedToAnotherCell;
-             
+
+        int IncorrectTurnAlpha = 255;
+        int HelpAlpha = 255;
+
         // Конструктор
         public FormSingle(Settings settings)
         {
             InitializeComponent();
             this.settings = settings;
-            this.MouseMovedToAnotherCell += delegate { RedrawGame(); };
+            if (settings.GraphicsLevel == 2)
+            { 
+                this.MouseMovedToAnotherCell += delegate { HelpAlpha = 255; };
+                timerRefreshView.Start();
+            }
+            else
+            {
+                this.MouseMovedToAnotherCell += delegate { RedrawGame(); };
+            }
         }
         
         // Перерисовка игры
         private void RedrawGame(bool refreshGraphics = false)
         {
+            if (gfx == null && !refreshGraphics)
+                return;
+
             // Обновление графики (нужно при ресайзе)
             if (refreshGraphics)
             {
@@ -64,10 +78,10 @@ namespace TTTM
             Brush Background = new SolidBrush(settings.BackgroundColor);
             Pen SmallGrid = new Pen(settings.SmallGrid);
             Pen BigGrid = new Pen(settings.BigGrid, 3);
-            Pen pIncorrectTurn = new Pen(settings.IncorrectTurn, 4);
+            Pen pIncorrectTurn = new Pen(Color.FromArgb(IncorrectTurnAlpha,settings.IncorrectTurn), 4);
             Pen FilledField = new Pen(settings.FilledField);
-            Pen HelpPen = new Pen(Color.FromArgb(settings.HelpCellsAlpha, settings.HelpColor));
-            Pen HelpLinesPen = new Pen(Color.FromArgb(settings.HelpLinesAlpha, settings.HelpColor));
+            Pen HelpPen = new Pen(Color.FromArgb(settings.HelpCellsAlpha * HelpAlpha / 255, settings.HelpColor));
+            Pen HelpLinesPen = new Pen(Color.FromArgb(settings.HelpLinesAlpha * HelpAlpha / 255, settings.HelpColor));
 
             // Ширина Высота
             float w = pictureBox1.Width;
@@ -116,7 +130,9 @@ namespace TTTM
 
             // Выделение поля, куда нужно ходить, при попытке пойти нетуда
             if (IncorrectTurn != null)
+            {
                 gfx.DrawRectangle(pIncorrectTurn, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3 / 11f), (int)(h * 3 / 11f)));
+            }
 
             // Соответствие ячеек и полей
             if (settings.HelpShow == 1)
@@ -223,6 +239,8 @@ namespace TTTM
         }
         private void Game_IncorrectTurn(object sender, Position e)
         {
+            if (settings.GraphicsLevel == 2)
+                IncorrectTurnAlpha = 255;
             if (e != null)
                 IncorrectTurn = e;
         }
@@ -354,6 +372,16 @@ namespace TTTM
 
             return new Point(x, y);
         }
+
+        private void timerRefreshView_Tick(object sender, EventArgs e)
+        {
+            if (IncorrectTurnAlpha > 0)
+                IncorrectTurnAlpha -= 5;
+            if (HelpAlpha > 0)
+                HelpAlpha -= 5;
+            RedrawGame();
+        }
+
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             var p = MouseOnGameBoard();
@@ -371,9 +399,10 @@ namespace TTTM
             else // Иначе выполнение хода
             {
                 var p = MouseOnGameBoard();
-                game.ClickOn(p.X, p.Y);
                 RedrawGame();
-                IncorrectTurn = null;
+                if (settings.GraphicsLevel < 2)
+                    IncorrectTurn = null;
+                game.ClickOn(p.X, p.Y);
             }
         }
     }

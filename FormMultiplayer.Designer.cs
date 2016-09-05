@@ -75,6 +75,7 @@
             this.Controls.Add(this.textBoxChatInput);
             this.Name = "FormMultiplayer";
             this.Text = "Мультиплеерная игра";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMultiplayer_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
