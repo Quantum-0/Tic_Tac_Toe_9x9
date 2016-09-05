@@ -65,7 +65,9 @@ namespace TTTM
             Pen SmallGrid = new Pen(settings.SmallGrid);
             Pen BigGrid = new Pen(settings.BigGrid, 3);
             Pen pIncorrectTurn = new Pen(settings.IncorrectTurn, 4);
-            Pen FilledField = new Pen(settings.FilledField);          
+            Pen FilledField = new Pen(settings.FilledField);
+            Pen HelpPen = new Pen(Color.FromArgb(settings.HelpCellsAlpha, settings.HelpColor));
+            Pen HelpLinesPen = new Pen(Color.FromArgb(settings.HelpLinesAlpha, settings.HelpColor));
 
             // Ширина Высота
             float w = pictureBox1.Width;
@@ -117,17 +119,17 @@ namespace TTTM
                 gfx.DrawRectangle(pIncorrectTurn, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3 / 11f), (int)(h * 3 / 11f)));
 
             // Соответствие ячеек и полей
-            //if (ShowHelpTurn)
-            Pen HelpPen = new Pen(Color.FromArgb(250, Color.Aqua));
-            Pen HelpLinesPen = new Pen(Color.FromArgb(60, Color.Aqua));
-            var r1 = new RectangleF(w * (CellUnderMouse.X + 1) / 11f, h * (CellUnderMouse.Y + 1) / 11f, w / 11f, h / 11f);
-            var r2 = new RectangleF(w * (((CellUnderMouse.X % 3 * 3) / 3 * 3) + 1) / 11f, h * (((CellUnderMouse.Y % 3 * 3) / 3 * 3) + 1) / 11f, 3 * w / 11f, 3 * h / 11f);
-            gfx.DrawRectangle(HelpPen, r1);
-            gfx.DrawRectangle(HelpPen, r2);
-            gfx.DrawLine(HelpLinesPen, r1.Location, r2.Location);
-            gfx.DrawLine(HelpLinesPen, r1.Left, r1.Bottom, r2.Left, r2.Bottom);
-            gfx.DrawLine(HelpLinesPen, r1.Right, r1.Bottom, r2.Right, r2.Bottom);
-            gfx.DrawLine(HelpLinesPen, r1.Right, r1.Top, r2.Right, r2.Top);
+            if (settings.HelpShow == 1)
+            {
+                var r1 = new RectangleF(w * (CellUnderMouse.X + 1) / 11f, h * (CellUnderMouse.Y + 1) / 11f, w / 11f, h / 11f);
+                var r2 = new RectangleF(w * (((CellUnderMouse.X % 3 * 3) / 3 * 3) + 1) / 11f, h * (((CellUnderMouse.Y % 3 * 3) / 3 * 3) + 1) / 11f, 3 * w / 11f, 3 * h / 11f);
+                gfx.DrawRectangle(HelpPen, r1);
+                gfx.DrawRectangle(HelpPen, r2);
+                gfx.DrawLine(HelpLinesPen, r1.Location, r2.Location);
+                gfx.DrawLine(HelpLinesPen, r1.Left, r1.Bottom, r2.Left, r2.Bottom);
+                gfx.DrawLine(HelpLinesPen, r1.Right, r1.Bottom, r2.Right, r2.Bottom);
+                gfx.DrawLine(HelpLinesPen, r1.Right, r1.Top, r2.Right, r2.Top);
+            }
 
             // Рендеринг полученной графики
             BufGFX.Render();

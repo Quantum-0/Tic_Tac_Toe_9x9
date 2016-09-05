@@ -282,7 +282,7 @@ namespace TTTM
             if (Host.Value)
                 state = State.Listening;
             else
-                state = State.Off
+                state = State.Off;
         }
         private void LLCon_AnotherPlayerConnected(object sender, EventArgs e)
         {
@@ -615,6 +615,11 @@ namespace TTTM
         public string DefaultName2 = "";
         public string MpIP = "";
         public int MpPort = 0;
+        public Color HelpColor;
+        public int HelpCellsAlpha;
+        public int HelpLinesAlpha;
+        public int HelpShow; //(bool)
+
 
         // Сохранение настроек в файл
         public static bool Save(string fname, Settings settings)
@@ -693,7 +698,7 @@ namespace TTTM
             }
         }
 
-        private void SetDefaults()
+        public void SetDefaults()
         {
             // Сделать выполнение этого в настройках
             BackgroundColor = Color.Black;
@@ -707,6 +712,10 @@ namespace TTTM
             DefaultName2 = "Игрок 2";
             MpIP = "127.0.0.1";
             MpPort = 7890;
+            HelpColor = Color.Aqua;
+            HelpCellsAlpha = 180;
+            HelpLinesAlpha = 40;
+            HelpShow = 1;
         }
     }
 

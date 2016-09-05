@@ -37,6 +37,10 @@ namespace TTTM
             panel5.BackColor = settings.IncorrectTurn;
             panel6.BackColor = settings.BackgroundColor;
             panel7.BackColor = settings.FilledField;
+            panel8.BackColor = settings.HelpColor;
+            trackBar1.Value = settings.HelpCellsAlpha;
+            trackBar2.Value = settings.HelpLinesAlpha;
+            checkBox1.Checked = (settings.HelpShow == 1);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -52,6 +56,11 @@ namespace TTTM
             settings.PlayerColor1 = panel2.BackColor;
             settings.PlayerColor2 = panel1.BackColor;
             settings.FilledField = panel7.BackColor;
+            settings.HelpColor = panel8.BackColor;
+            settings.HelpCellsAlpha = trackBar1.Value;
+            settings.HelpLinesAlpha = trackBar2.Value;
+            settings.HelpShow = checkBox1.Checked ? 1 : 0;
+
             DialogResult = DialogResult.OK;
         }
 
@@ -69,17 +78,25 @@ namespace TTTM
 
         private void button2_Click(object sender, EventArgs e)
         {
-            textBox1.Text = "Игрок 1";
-            textBox3.Text = "Игрок 2";
-            panel2.BackColor = Color.Red;
-            panel1.BackColor = Color.FromArgb(0, 192, 0);
-            panel3.BackColor = Color.DodgerBlue;
-            panel4.BackColor = Color.FromArgb(255, 128, 0);
-            panel5.BackColor = Color.Yellow;
-            panel6.BackColor = Color.White;
-            panel7.BackColor = Color.LightGray;
-            textBox2.Text = "127.0.0.1";
-            textBox4.Text = "7890";
+            Settings DefaultSettings = new Settings();
+            DefaultSettings.SetDefaults();
+
+            textBox1.Text = DefaultSettings.DefaultName1;
+            textBox3.Text = DefaultSettings.DefaultName2;
+            textBox2.Text = DefaultSettings.MpIP;
+            textBox4.Text = DefaultSettings.MpPort.ToString();
+            panel1.BackColor = DefaultSettings.PlayerColor2;
+            panel2.BackColor = DefaultSettings.PlayerColor1;
+            panel3.BackColor = DefaultSettings.SmallGrid;
+            panel4.BackColor = DefaultSettings.BigGrid;
+            panel5.BackColor = DefaultSettings.IncorrectTurn;
+            panel6.BackColor = DefaultSettings.BackgroundColor;
+            panel7.BackColor = DefaultSettings.FilledField;
+            panel8.BackColor = DefaultSettings.HelpColor;
+            trackBar1.Value = DefaultSettings.HelpCellsAlpha;
+            trackBar2.Value = DefaultSettings.HelpLinesAlpha;
+            checkBox1.Checked = (DefaultSettings.HelpShow == 1);
+
         }
 
         private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
@@ -125,6 +142,13 @@ namespace TTTM
                 textBox1.Text = "Игрок 2";
                 textBox1.SelectAll();
             }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            trackBar1.Enabled = checkBox1.Checked;
+            trackBar2.Enabled = checkBox1.Checked;
+            panel8.Enabled = checkBox1.Checked;
         }
     }
 }
