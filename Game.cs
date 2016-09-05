@@ -27,12 +27,6 @@ namespace TTTM
      * - указан шанс что бот будет выбирать лучшее значение (например 50% что наилучший ход, 30% что второй, 15% что третий, 5% что последний)
      */
     
-    class continuingAction
-    {
-        Action Action;
-        Timer Timer;
-    }
-    
     class LowLevelConnection
     {
         // Состояние
@@ -209,8 +203,8 @@ namespace TTTM
         public event EventHandler AnotherPlayerDisconnected; // Серверное
         public event EventHandler GameStarts;
 
-        public event EventHandler ReceivedChat;
-        public event EventHandler ReceivedTurn;
+        public event EventHandler<string> ReceivedChat;
+        public event EventHandler<string> ReceivedTurn;
         public event EventHandler ConnectingRejected;
         public event EventHandler<IAMEventArgs> ReceivedIAM;
 
@@ -252,7 +246,7 @@ namespace TTTM
                     ReceivedTurn?.Invoke(this, null); // заменить null на ход
                     break;
                 case "CHT": // Сообщение в чате
-                    ReceivedChat?.Invoke(this, null); // заменить
+                    ReceivedChat?.Invoke(this, Data.Substring(3)); // заменить
                     break;
                 case "SYS": // Системные данные
                     break;
@@ -314,6 +308,10 @@ namespace TTTM
         public void SendReject()
         {
             LLCon.Send("RJC");
+        }
+        public void SendChat(string Text)
+        {
+            LLCon.Send("CHT" + Text);
         }
 
         // Пересылаемые на подключение методы

@@ -35,7 +35,7 @@ namespace TTTM
             // Открытие формы одиночной игры, подписка на событие о её закрытии и скрывание текущей формы
             FormSingle GameForm = new FormSingle(settings);
             Hide();
-            GameForm.Closed += (sndr, args) => { Show(); };
+            GameForm.Closed += delegate { this.Show(); };
             GameForm.Show();
         }
 
@@ -59,11 +59,10 @@ namespace TTTM
 
         private void buttonMulti_Click(object sender, EventArgs e)
         {
-            // Открытие формы одиночной игры, подписка на событие о её закрытии и скрывание текущей формы
             StartMultiplayerGame smg = new StartMultiplayerGame(settings);
             Hide();
-            smg.ShowDialog();
-            Show();
+            smg.FormClosed += delegate { this.Show(); };
+            smg.Show();
         }
     }
 }

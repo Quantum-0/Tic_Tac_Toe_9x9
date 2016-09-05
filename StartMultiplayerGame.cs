@@ -154,8 +154,15 @@ namespace TTTM
 
         private void Connection_GameStarts(object sender, EventArgs e)
         {
-            MessageBox.Show("Тут открывается окно игры и начинается игра \\о/");
-            toolStripStatusLabel.Text = "Игра началась";
+            CallbackDelegate d = new CallbackDelegate(delegate
+            {
+                toolStripStatusLabel.Text = "Игра началась";
+                FormMultiplayer MPForm = new FormMultiplayer(settings, connection, textBoxNick.Text, labelConnectedPlayerNick.Text, panel1.BackColor, panel2.BackColor);
+                MPForm.Show();
+                MPForm.FormClosed += delegate { this.Visible = true; };
+                this.Visible = false;
+            });
+            Invoke(d);
         }
 
         private void Connection_ReceivedIAM(object sender, Connection.IAMEventArgs e)
@@ -174,8 +181,6 @@ namespace TTTM
             });
 
             Invoke(d);
-
-
             // Проверять, если e.Nick == ник сервера или e.Color близко к цвет сервера => Reject и StartListening снова
         }
 
