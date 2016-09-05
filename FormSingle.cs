@@ -15,21 +15,9 @@ using System.Windows.Forms;
 /*
  * TODO:
  * 
- * Add settings +
- * Replace panel by picturebox +
- * Incorrect turn +
- * Buffered Rendering +
- * Field Scalling +
- * Comments +/-
- * Сохранять в GameState айдишник текущего хода +
- * Доделать сохранение/загрузку в логике (в файл)
- * Доделать сохранение/загрузку в форме
- * Глючит последний столбец / протестить и понять что с ним было не так
- * И если заполнено ходить в другую +
- * Make settings +
- * Сделать мультиплеер
- * Отрисовывать нормально, а не как сейчас +/-
- * Нормально отрисовывать диагональные линии
+ * Сделать мультиплеер +/-
+ * HelpLinesPen, HelpPen, ShowHelpTurn -> в настройки
+ * Сделать более плавную отрисовку (например переход ячейки из прошлой в текущую с плавным переходом (синус^2 мб?) и небольшим изменением размера (тоже по синусоиде можно)
  */
 
 namespace TTTM
@@ -37,7 +25,6 @@ namespace TTTM
     public partial class FormSingle : Form
     {
         ABot Bot;
-        bool WithBot;
         Settings settings;
         GameManagerWthFriend game;
         Position IncorrectTurn;
@@ -48,12 +35,15 @@ namespace TTTM
         string pl1, pl2;
         Rectangle[,] Zones = new Rectangle[9, 9];
         Rectangle[,] FieldZones = new Rectangle[3, 3];
-
+        Point CellUnderMouse;
+        event EventHandler MouseMovedToAnotherCell;
+             
         // Конструктор
         public FormSingle(Settings settings)
         {
             InitializeComponent();
             this.settings = settings;
+            this.MouseMovedToAnotherCell += delegate { RedrawGame(); };
         }
         
         // Перерисовка игры
@@ -125,6 +115,19 @@ namespace TTTM
             // Выделение поля, куда нужно ходить, при попытке пойти нетуда
             if (IncorrectTurn != null)
                 gfx.DrawRectangle(pIncorrectTurn, new Rectangle((int)((w * (IncorrectTurn.x * 3 + 1)) / 11f), (int)((h * (IncorrectTurn.y * 3 + 1)) / 11f), (int)(w * 3 / 11f), (int)(h * 3 / 11f)));
+
+            // Соответствие ячеек и полей
+            //if (ShowHelpTurn)
+            Pen HelpPen = new Pen(Color.FromArgb(250, Color.Aqua));
+            Pen HelpLinesPen = new Pen(Color.FromArgb(60, Color.Aqua));
+            var r1 = new RectangleF(w * (CellUnderMouse.X + 1) / 11f, h * (CellUnderMouse.Y + 1) / 11f, w / 11f, h / 11f);
+            var r2 = new RectangleF(w * (((CellUnderMouse.X % 3 * 3) / 3 * 3) + 1) / 11f, h * (((CellUnderMouse.Y % 3 * 3) / 3 * 3) + 1) / 11f, 3 * w / 11f, 3 * h / 11f);
+            gfx.DrawRectangle(HelpPen, r1);
+            gfx.DrawRectangle(HelpPen, r2);
+            gfx.DrawLine(HelpLinesPen, r1.Location, r2.Location);
+            gfx.DrawLine(HelpLinesPen, r1.Left, r1.Bottom, r2.Left, r2.Bottom);
+            gfx.DrawLine(HelpLinesPen, r1.Right, r1.Bottom, r2.Right, r2.Bottom);
+            gfx.DrawLine(HelpLinesPen, r1.Right, r1.Top, r2.Right, r2.Top);
 
             // Рендеринг полученной графики
             BufGFX.Render();
@@ -330,20 +333,6 @@ namespace TTTM
                 }
             }
         }
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            // Создание новой игры если игра не была создана
-            if (game == null)
-                NewGame();
-            else // Иначе выполнение хода
-            {
-                Point pnt = new Point(PointToClient(MousePosition).X - pictureBox1.Left, PointToClient(MousePosition).Y - pictureBox1.Top);
-                PointF pntf = new PointF(pnt.X * 11f / pictureBox1.Width - 1, pnt.Y * 11f / pictureBox1.Height - 1);
-                game.ClickOn((int)pntf.X, (int)pntf.Y);
-                RedrawGame();
-                IncorrectTurn = null;
-            }
-        }
         private void FormSingle_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Спрашиваем подтверждение на выход
@@ -351,6 +340,39 @@ namespace TTTM
             if (game != null)
                 if (MessageBox.Show("Вы действительно хотите выйти?", "Выход", MessageBoxButtons.YesNo) != DialogResult.Yes)
                     e.Cancel = true;
+        }
+
+        private Point MouseOnGameBoard()
+        {
+            var x = PointToClient(MousePosition).X - pictureBox1.Left;
+            x = (int)(x * 11f / pictureBox1.Width - 1);
+
+            var y = PointToClient(MousePosition).Y - pictureBox1.Top;
+            y = (int)(y * 11f / pictureBox1.Height - 1);
+
+            return new Point(x, y);
+        }
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            var p = MouseOnGameBoard();
+            if (p != CellUnderMouse && p.X >= 0 && p.Y >= 0 && p.X < 9 && p.Y < 9)
+            {
+                CellUnderMouse = p;
+                MouseMovedToAnotherCell(this, new EventArgs());
+            }
+        }
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            // Создание новой игры если игра не была создана
+            if (game == null)
+                NewGame();
+            else // Иначе выполнение хода
+            {
+                var p = MouseOnGameBoard();
+                game.ClickOn(p.X, p.Y);
+                RedrawGame();
+                IncorrectTurn = null;
+            }
         }
     }
 
@@ -370,9 +392,15 @@ namespace TTTM
         {
             try
             {
+                if (!socket.Connected)
+                    return false;
                 return !(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
             }
             catch (SocketException) { return false; }
+        }
+        public static void DrawRectangle(this Graphics gfx, Pen pen, RectangleF Rect)
+        {
+            gfx.DrawRectangle(pen, Rect.X, Rect.Y, Rect.Width, Rect.Height);
         }
     }
 }

@@ -42,6 +42,9 @@
             this.buttonStart = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.labelConnectedPlayer = new System.Windows.Forms.Label();
+            this.labelConnectedPlayerNick = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -111,9 +114,9 @@
             this.statusStrip1.TabIndex = 7;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel1
+            // toolStripStatusLabel
             // 
-            this.toolStripStatusLabel.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
             this.toolStripStatusLabel.Size = new System.Drawing.Size(106, 17);
             this.toolStripStatusLabel.Text = "Нет подключения";
             // 
@@ -163,11 +166,42 @@
             this.buttonCancel.Visible = false;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
+            // labelConnectedPlayer
+            // 
+            this.labelConnectedPlayer.AutoSize = true;
+            this.labelConnectedPlayer.Location = new System.Drawing.Point(15, 113);
+            this.labelConnectedPlayer.Name = "labelConnectedPlayer";
+            this.labelConnectedPlayer.Size = new System.Drawing.Size(59, 13);
+            this.labelConnectedPlayer.TabIndex = 13;
+            this.labelConnectedPlayer.Text = "Соперник:";
+            this.labelConnectedPlayer.Visible = false;
+            // 
+            // labelConnectedPlayerNick
+            // 
+            this.labelConnectedPlayerNick.AutoSize = true;
+            this.labelConnectedPlayerNick.Location = new System.Drawing.Point(48, 133);
+            this.labelConnectedPlayerNick.Name = "labelConnectedPlayerNick";
+            this.labelConnectedPlayerNick.Size = new System.Drawing.Size(78, 13);
+            this.labelConnectedPlayerNick.TabIndex = 14;
+            this.labelConnectedPlayerNick.Text = "Тут будет Ник";
+            this.labelConnectedPlayerNick.Visible = false;
+            // 
+            // panel2
+            // 
+            this.panel2.Location = new System.Drawing.Point(20, 130);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(22, 20);
+            this.panel2.TabIndex = 15;
+            this.panel2.Visible = false;
+            // 
             // StartMultiplayerGame
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(311, 261);
+            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.labelConnectedPlayerNick);
+            this.Controls.Add(this.labelConnectedPlayer);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonStart);
             this.Controls.Add(this.panel1);
@@ -182,6 +216,7 @@
             this.Controls.Add(this.radioButtonServer);
             this.Name = "StartMultiplayerGame";
             this.Text = "Мультиплеер";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.StartMultiplayerGame_FormClosed);
             this.Load += new System.EventHandler(this.StartMultiplayerGame_Load);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -205,5 +240,8 @@
         private System.Windows.Forms.Button buttonStart;
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.Label labelConnectedPlayer;
+        private System.Windows.Forms.Label labelConnectedPlayerNick;
+        private System.Windows.Forms.Panel panel2;
     }
 }

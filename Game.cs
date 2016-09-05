@@ -27,6 +27,12 @@ namespace TTTM
      * - указан шанс что бот будет выбирать лучшее значение (например 50% что наилучший ход, 30% что второй, 15% что третий, 5% что последний)
      */
     
+    class continuingAction
+    {
+        Action Action;
+        Timer Timer;
+    }
+    
     class LowLevelConnection
     {
         // Состояние
@@ -40,6 +46,8 @@ namespace TTTM
         private TcpListener Listener; // Прослушивание порта для ожидания противника
         private Thread WorkWithClient; // Поток обрабатывающий приходящие от клиента/сервера данные
         private Socket Handler; // Противник
+        
+        bool stoping = false;
 
         // События
         public event EventHandler AnotherPlayerConnected; // Серверное
@@ -106,7 +114,6 @@ namespace TTTM
 
             Handler.ReceiveBufferSize = 1024;
             state = State.Connected;
-            
             WorkWithClient = new Thread(new ParameterizedThreadStart(ProccessReceivedData));
             WorkWithClient.Start(Handler);
         }
@@ -115,7 +122,9 @@ namespace TTTM
         {
             if (state == State.Connected)
             {
+                //WorkWithClient.Abort();
                 Handler.Close();
+                stoping = true;
                 state = State.Off;
             }
         }
@@ -141,10 +150,10 @@ namespace TTTM
         // Обработка приходящих данных
         private void ProccessReceivedData(object ohandler)
         {
-            // Принимает хэндлер
+            // Принимаем хэндлер
             Socket handler = (Socket)ohandler;
-            bool stoping = false;
             string data = "";
+            stoping = false;
 
             // Зацикливаем, пока приходят данные
             while (!stoping && handler != null)
@@ -166,13 +175,13 @@ namespace TTTM
                         data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
 
                         ReceivedData?.Invoke(this, new ReceivedDataEventArgs(data));
+                        data = "";
                     }
                     else
                         Thread.Sleep(100);
                 }
             }
-            handler.Shutdown(SocketShutdown.Both);
-            handler.Close();
+            handler?.Close();
             AnotherPlayerDisconnected(this, new EventArgs());
         }
 
@@ -189,19 +198,20 @@ namespace TTTM
         // Состояние
         public enum State : int
         {
-            Off, Listening, Connected
+            Off, Listening, Connected, WaitForStartFromAnother, WaitForStartFromMe, Game
         }
         public State state { private set; get; } // Текущее состояние
-
+        public bool? Host { private set; get; }
         LowLevelConnection LLCon = new LowLevelConnection();
 
         // События
         public event EventHandler AnotherPlayerConnected; // Серверное
         public event EventHandler AnotherPlayerDisconnected; // Серверное
-
+        public event EventHandler GameStarts;
 
         public event EventHandler ReceivedChat;
         public event EventHandler ReceivedTurn;
+        public event EventHandler ConnectingRejected;
         public event EventHandler<IAMEventArgs> ReceivedIAM;
 
         public class IAMEventArgs : EventArgs
@@ -229,13 +239,14 @@ namespace TTTM
             LLCon.AnotherPlayerConnected -= LLCon_AnotherPlayerConnected;
             LLCon.AnotherPlayerDisconnected -= LLCon_AnotherPlayerDisconnected;
             LLCon.ReceivedData -= LLCon_ReceivedData;
+            LLCon.StopServerListening();
         }
 
         private void LLCon_ReceivedData(object sender, LowLevelConnection.ReceivedDataEventArgs e)
         {
             string Data = e.Data;
 
-            switch(Data.Substring(0,3))
+            switch (Data.Substring(0, 3))
             {
                 case "TRN": // Ход
                     ReceivedTurn?.Invoke(this, null); // заменить null на ход
@@ -244,14 +255,21 @@ namespace TTTM
                     ReceivedChat?.Invoke(this, null); // заменить
                     break;
                 case "SYS": // Системные данные
-                    //???
                     break;
                 case "IAM": // Представление
                     ReceivedIAM?.Invoke(this, new IAMEventArgs(Data));
                     break;
                 case "GAM": // Game - начало игры
-                    //Start Game
-                    //state = State.Game;
+                    if (state == State.Connected)
+                        state = State.WaitForStartFromMe;
+                    else if (state == State.WaitForStartFromAnother)
+                    {
+                        state = State.Game;
+                        GameStarts(this, new EventArgs());
+                    }
+                    break;
+                case "RJC":
+                    ConnectingRejected(this, new EventArgs());
                     break;
                 default:
                     throw new Exception("Неверный заголовой данных: " + Data.Substring(0, 3));
@@ -261,10 +279,15 @@ namespace TTTM
         private void LLCon_AnotherPlayerDisconnected(object sender, EventArgs e)
         {
             AnotherPlayerDisconnected?.Invoke(this, e);
+            if (Host.Value)
+                state = State.Listening;
+            else
+                state = State.Off
         }
         private void LLCon_AnotherPlayerConnected(object sender, EventArgs e)
         {
             AnotherPlayerConnected?.Invoke(this, e);
+            state = State.Connected;
         }
 
         public void SendTurn(Position Turn)
@@ -274,15 +297,31 @@ namespace TTTM
         }
         public void SendIAM(string Nick, Color Color)
         {
-            string Data = "IAM" + '\n' + Nick + '\n' + Color.ToArgb();
+            string Data = "IAM" + '\n' + Nick + '\n' + Color.ToArgb() + '\n';
             LLCon.Send(Data);
+        }
+        public void SendStartGame()
+        {
+            LLCon.Send("GAM");
+            if (state == State.WaitForStartFromMe)
+            {
+                state = State.Game;
+                GameStarts(this, new EventArgs());
+            }
+            else if (state == State.Connected)
+                state = State.WaitForStartFromAnother;
+        }
+        public void SendReject()
+        {
+            LLCon.Send("RJC");
         }
 
         // Пересылаемые на подключение методы
         public void ConnectToServer(string IP, int port)
         {
             LLCon.ConnectToServer(IP, port);
-            state = (State)(byte)LLCon.state;
+            state = State.Connected;
+            Host = false;
         }
         public void StopServerListening()
         {
@@ -300,6 +339,7 @@ namespace TTTM
             {
                 LLCon.StartServerListening(Port);
                 state = State.Listening;
+                Host = true;
             }
             catch(Exception e)
             {

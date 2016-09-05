@@ -132,14 +132,51 @@ namespace TTTM
             this.settings = settings;
             connection = new Connection();
             connection.ReceivedIAM += Connection_ReceivedIAM;
+            connection.GameStarts += Connection_GameStarts;
+            connection.ConnectingRejected += Connection_ConnectingRejected;
+        }
+
+        private void Connection_ConnectingRejected(object sender, EventArgs e)
+        {
+            CallbackDelegate d = new CallbackDelegate(delegate
+            {
+                labelConnectedPlayer.Visible = false;
+                labelConnectedPlayerNick.Visible = false;
+                panel2.Visible = false;
+                toolStripStatusLabel.Text = "Владелец сервера отклонил запрос";
+                buttonCancel.Visible = false;
+                buttonStart.Text = "Подключится";
+                buttonStart.Enabled = true;
+            });
+            Invoke(d);
+            connection.Disconnect();
+        }
+
+        private void Connection_GameStarts(object sender, EventArgs e)
+        {
+            MessageBox.Show("Тут открывается окно игры и начинается игра \\о/");
+            toolStripStatusLabel.Text = "Игра началась";
         }
 
         private void Connection_ReceivedIAM(object sender, Connection.IAMEventArgs e)
         {
-            // Исправить на изменения в интерфейсе (подпись подключённого
-            // игрока и кнопки "принять и пойти с ним играть" и "отклонить"
-            // после того как приеду из СП !!!
-            MessageBox.Show(e.Nick);
+            CallbackDelegate d = new CallbackDelegate(delegate
+            {
+                labelConnectedPlayer.Visible = true;
+                labelConnectedPlayerNick.Text = e.Nick;
+                labelConnectedPlayerNick.Visible = true;
+                panel2.BackColor = e.Color;
+                panel2.Visible = true;
+                buttonStart.Enabled = true;
+                buttonStart.Text = "Начать игру";
+
+                if (connection.Host.Value) buttonCancel.Text = "Отклонить";
+            });
+
+            Invoke(d);
+
+
+            // Проверять, если e.Nick == ник сервера или e.Color близко к цвет сервера => Reject и StartListening снова
         }
 
         private void radioButtonServer_CheckedChanged(object sender, EventArgs e)
@@ -164,14 +201,26 @@ namespace TTTM
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            interfaceNetConfig = interfaceNetConfigState.AllDisabled;
-            interfacePlayerSettings = false;
-            interfaceServerClientSwitcher = false;
+            if (connection.state == Connection.State.Off)
+            {
+                interfaceNetConfig = interfaceNetConfigState.AllDisabled;
+                interfacePlayerSettings = false;
+                interfaceServerClientSwitcher = false;
 
-            if (radioButtonServer.Checked)
-                startServer();
-            else
-                startClient();
+                if (radioButtonServer.Checked)
+                {
+                    startServer();
+                    buttonStart.Text = "Начать игру";
+                }
+                else
+                    startClient();
+            }
+            else if (connection.state == Connection.State.Connected || connection.state == Connection.State.WaitForStartFromMe)
+            {
+                connection.SendStartGame();
+                buttonStart.Enabled = false;
+                toolStripStatusLabel.Text = "Ожидание начала игры от другого игрока.";
+            }
         }
 
         private void startClient()
@@ -185,6 +234,7 @@ namespace TTTM
                 connection.SendIAM(textBoxNick.Text, panel1.BackColor);
                 interfaceBtnCancel = interfaceButtonState.Enabled;
                 buttonCancel.Text = "Отключиться";
+                buttonStart.Text = "Начать игру";
                 toolStripStatusLabel.Text = "Подключено к серверу";
             }
             catch (SocketException e)
@@ -192,10 +242,9 @@ namespace TTTM
                 stopConnecting();
                 if (e.ErrorCode == 10061)
                     toolStripStatusLabel.Text = "Сервер отверг подключение";
+                else
+                    toolStripStatusLabel.Text = "Ошибка " + e.ErrorCode;
             }
-
-
-            // После этого ждём чтоб сервер прислал ник/цвет игрока с сервера
         }
 
         private void stopConnecting()
@@ -215,10 +264,22 @@ namespace TTTM
             }
 
 
-            if (connection.state == Connection.State.Connected)
+            else if (connection.state == Connection.State.Connected || connection.state == Connection.State.WaitForStartFromAnother || connection.state == Connection.State.WaitForStartFromMe)
             {
-                connection.Disconnect();
-                toolStripStatusLabel.Text = "Отключено";
+                // Если сервер
+                if (connection.Host.Value)
+                {
+                    connection.AnotherPlayerDisconnected -= ConnectionServer_AnotherPlayerDisconnected;
+                    connection.SendReject();
+                    connection.Disconnect();
+                    startServer();
+                }
+                else // Если клиент
+                {
+                    connection.Disconnect();
+                    toolStripStatusLabel.Text = "Отключено";
+                    buttonStart.Text = "Подключиться";
+                }
             }
         }
 
@@ -226,13 +287,12 @@ namespace TTTM
         {
             try
             {
-                connection.StopServerListening(); // ?
+                connection.StopServerListening();
                 toolStripStatusLabel.Text = "Запуск сервера";
                 connection.StartServerListening(7890);
                 connection.AnotherPlayerConnected += ConnectionServer_AnotherPlayerConnected;
                 toolStripStatusLabel.Text = "Ожидание входящего подключения";
                 interfaceBtnCancel = interfaceButtonState.Enabled;
-                buttonStart.Text = "Начать игру";
                 interfaceBtnStart = interfaceButtonState.Disabled;
                 buttonCancel.Text = "Отключить сервер";
                 Refresh();
@@ -252,9 +312,17 @@ namespace TTTM
             toolStripStatusLabel.Text = "Клиент отключился";
             connection.AnotherPlayerDisconnected -= ConnectionServer_AnotherPlayerDisconnected;
 
-            CallbackDelegate d = new CallbackDelegate(startServer);
+            CallbackDelegate d = new CallbackDelegate(delegate
+            {
+                labelConnectedPlayer.Visible = false;
+                labelConnectedPlayerNick.Visible = false;
+                panel2.Visible = false;
+                buttonStart.Enabled = false;
+            });
+            this?.Invoke(d);
 
-            Invoke(d);
+            d = new CallbackDelegate(startServer);
+            this?.Invoke(d);
         }
 
         private void ConnectionServer_AnotherPlayerConnected(object sender, EventArgs e)
@@ -273,7 +341,16 @@ namespace TTTM
 
         private void buttonCancel_Click(object sender, EventArgs e)
         {
+            labelConnectedPlayer.Visible = false;
+            labelConnectedPlayerNick.Visible = false;
+            panel2.Visible = false;
             stopConnecting();
+        }
+
+        private void StartMultiplayerGame_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            connection.Disconnect();
+            connection.StopServerListening();
         }
     }
 }
