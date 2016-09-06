@@ -15,7 +15,6 @@ namespace TTTM
     {
         Connection connection;
         Settings settings;
-        delegate void CallbackDelegate();
 
         private enum interfaceNetConfigState : byte
         {
@@ -138,7 +137,7 @@ namespace TTTM
 
         private void Connection_ConnectingRejected(object sender, EventArgs e)
         {
-            CallbackDelegate d = new CallbackDelegate(delegate
+            Action d = delegate
             {
                 labelConnectedPlayer.Visible = false;
                 labelConnectedPlayerNick.Visible = false;
@@ -147,27 +146,27 @@ namespace TTTM
                 buttonCancel.Visible = false;
                 buttonStart.Text = "Подключится";
                 buttonStart.Enabled = true;
-            });
+            };
             Invoke(d);
             connection.Disconnect();
         }
 
         private void Connection_GameStarts(object sender, EventArgs e)
         {
-            CallbackDelegate d = new CallbackDelegate(delegate
+            Action d = delegate
             {
                 toolStripStatusLabel.Text = "Игра началась";
                 FormMultiplayer MPForm = new FormMultiplayer(settings, connection, textBoxNick.Text, labelConnectedPlayerNick.Text, panel1.BackColor, panel2.BackColor);
                 MPForm.Show();
                 MPForm.FormClosed += delegate { this.Visible = true; };
                 this.Visible = false;
-            });
+            };
             Invoke(d);
         }
 
         private void Connection_ReceivedIAM(object sender, Connection.IAMEventArgs e)
         {
-            CallbackDelegate d = new CallbackDelegate(delegate
+            Action d = delegate
             {
                 labelConnectedPlayer.Visible = true;
                 labelConnectedPlayerNick.Text = e.Nick;
@@ -178,7 +177,7 @@ namespace TTTM
                 buttonStart.Text = "Начать игру";
 
                 if (connection.Host.Value) buttonCancel.Text = "Отклонить";
-            });
+            };
 
             Invoke(d);
             // Проверять, если e.Nick == ник сервера или e.Color близко к цвет сервера => Reject и StartListening снова
@@ -317,16 +316,16 @@ namespace TTTM
             toolStripStatusLabel.Text = "Клиент отключился";
             connection.AnotherPlayerDisconnected -= ConnectionServer_AnotherPlayerDisconnected;
 
-            CallbackDelegate d = new CallbackDelegate(delegate
+            Action d = delegate
             {
                 labelConnectedPlayer.Visible = false;
                 labelConnectedPlayerNick.Visible = false;
                 panel2.Visible = false;
                 buttonStart.Enabled = false;
-            });
+            };
             this?.Invoke(d);
 
-            d = new CallbackDelegate(startServer);
+            d = startServer;
             this?.Invoke(d);
         }
 

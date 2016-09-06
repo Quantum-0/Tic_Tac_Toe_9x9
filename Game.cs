@@ -249,8 +249,6 @@ namespace TTTM
                 case "CHT": // Сообщение в чате
                     ReceivedChat?.Invoke(this, Data.Substring(3)); // заменить
                     break;
-                case "SYS": // Системные данные
-                    break;
                 case "IAM": // Представление
                     ReceivedIAM?.Invoke(this, new IAMEventArgs(Data));
                     break;
@@ -267,7 +265,7 @@ namespace TTTM
                     GameEnds(this, new EventArgs());
                     break;
                 case "RJC":
-                    ConnectingRejected(this, new EventArgs());
+                    ConnectingRejected.Invoke(this, new EventArgs());
                     break;
                 default:
                     throw new Exception("Неверный заголовой данных: " + Data.Substring(0, 3));
@@ -511,60 +509,157 @@ namespace TTTM
         }
     }
 
-    public class Bot3 : ABot
+    public class Bot3 : SomeMoreCleverBot
     {
-        public Bot3(Player player, Game game)
+        public Bot3(Player player, Player hplayer, Game game) : base(player, hplayer, game)
         {
-            Player = player;
-            Game = game;
         }
-        
-        private Position check3(Position p1, Position p2, Position p3)
+
+        private Position check3(Position p1, Position p2, Position p3, Player Plr, Position Field = null)
         {
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == null)
+            if (Field == null)
+                Field = Game.CurrentField;
+            if (Game.Fields[Field.x, Field.y].Cells[p1.x, p1.y].Owner == Plr &&
+                Game.Fields[Field.x, Field.y].Cells[p2.x, p2.y].Owner == Plr &&
+                Game.Fields[Field.x, Field.y].Cells[p3.x, p3.y].Owner == null)
                 return p3;
 
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+            if (Game.Fields[Field.x, Field.y].Cells[p1.x, p1.y].Owner == Plr &&
+                Game.Fields[Field.x, Field.y].Cells[p2.x, p2.y].Owner == null &&
+                Game.Fields[Field.x, Field.y].Cells[p3.x, p3.y].Owner == Plr)
                 return p2;
 
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Player &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Player)
+            if (Game.Fields[Field.x, Field.y].Cells[p1.x, p1.y].Owner == null &&
+                Game.Fields[Field.x, Field.y].Cells[p2.x, p2.y].Owner == Plr &&
+                Game.Fields[Field.x, Field.y].Cells[p3.x, p3.y].Owner == Plr)
                 return p1;
 
             return null;
         }
 
-        protected virtual Position findBetterPos()
+        private float[] CalculateScores(Position Field = null, int Depth = 0)
         {
-            Dictionary<Position, int> Scores = new Dictionary<Position, int>();
+            if (Field == null)
+                Field = Game.CurrentField;
 
-            for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                    if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[i, j].Owner == null)
-                        Scores.Add(new Position(i, j), 0);
+            // Инициализируем массив 9 элементов для ячеек
+            float[] Scores = new float[9];
+            bool[] StepDeny = new bool[9];
 
+            // Ценность центра и углов выше
+            /*Scores[0] = 0.1f;
+            Scores[2] = 0.1f;
+            Scores[6] = 0.1f;
+            Scores[8] = 0.1f;
+            Scores[4] = 0.3f;*/
+
+            // Создаём список позиций куда надо поставить чтоб было 3 подряд
             Position Current;
+            List<Position> AddScores = new List<Position>();
             for (int i = 0; i < 3; i++)
             {
-                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i));
-                if (Current != null) Scores[Current] += 10;
-                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2));
-                if (Current != null) Scores[Current] += 10;
+                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), Player, Field);
+                if (Current != null) AddScores.Add(Current);
+                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), HumanPlayer, Field);
+                if (Current != null) AddScores.Add(Current);
+                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), Player, Field);
+                if (Current != null) AddScores.Add(Current);
+                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), HumanPlayer, Field);
+                if (Current != null) AddScores.Add(Current);
             }
-            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2));
-            if (Current != null) Scores[Current] += 10;
-            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2));
-            if (Current != null) Scores[Current] += 10;
+            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), Player, Field);
+            if (Current != null) AddScores.Add(Current);
+            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), Player, Field);
+            if (Current != null) AddScores.Add(Current);
+            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), HumanPlayer, Field);
+            if (Current != null) AddScores.Add(Current);
+            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), HumanPlayer, Field);
+            if (Current != null) AddScores.Add(Current);
 
-            if (Scores.Count > 0)
-                return Scores.OrderBy(p => p.Value).Last().Key;
-            else
+            // Добавляем к очкам ячеек позиции из списка выше
+            foreach (var item in AddScores)
+                Scores[item.x + item.y * 3] += 10;
+
+            // ЗАМЕНИТЬ
+            for (int i = 0; i < 9; i++)
+            {
+                if (Game[Field.x, Field.y, i % 3, i / 3].Owner != null)
+                    StepDeny[i] = true;
+            }
+
+            // Оценка свободных ячеек в следующем поле
+            for (int i = 0; i < 9; i++)
+            {
+                var FreeCells = 0;
+                for (int j = 0; j < 9; j++)
+                {
+                    if (Game.Fields[i % 3, i / 3].Cells[j % 3, j / 3].Owner == null)
+                        FreeCells += 1;
+                }
+
+                if (Game.Fields[i % 3, i / 3].Owner == null)
+                {
+                    if (FreeCells != 0)
+                        Scores[i] += (9 - FreeCells) / 4f; // Чем меньше в поле противника свободных ячеек тем лучше
+                    else
+                        Scores[i] -= 5; // Если заняты все - то это плохая идея
+                }
+                else //Owner != null
+                {
+                    if (FreeCells != 0)
+                        Scores[i] += 15;
+                    else
+                        Scores[i] -= 5;
+                }
+            }
+
+            float[] MaxScoresFromRecursion = new float[9];
+            float[] MidScoresFromRecursion = new float[9];
+            if (Depth < 5)
+            {
+                //Action<int> Recursion = delegate(int i)
+                for (int i = 0; i < 9; i++)
+                {
+                    if (!StepDeny[i])
+                    {
+                        var CalculatedScores = CalculateScores(new Position(i % 3, i / 3), Depth + 1);
+                        MaxScoresFromRecursion[i] = CalculatedScores.Max();
+                        MidScoresFromRecursion[i] = CalculatedScores.Sum() / 9f;
+                    }
+                    if (Depth == 0 && StepDeny[i])
+                        Scores[i] -= 1000;
+                    Scores[i] -= MaxScoresFromRecursion[i] * 0.75f + MidScoresFromRecursion[i] / 10f;
+                }
+            }
+            // Заполнить лучше чем закрыть
+            if (Depth == 0)
+                ;
+            return Scores;
+        }
+
+        protected override Position findBetterPos()
+        {
+            var Scores = CalculateScores();
+
+            // Ищем индекс с максимальным счётом
+            int MaxIndex = 0;
+            float Max = Scores[0], Min = Scores[0];
+            for (int i = 0; i < 9; i++)
+            {
+                if (Max < Scores[i])
+                    Max = Scores[i];
+                if (Min > Scores[i])
+                    Min = Scores[i];
+                if (Scores[i] > Scores[MaxIndex])
+                    MaxIndex = i;
+            }
+
+            // Если разницы между ячейками нет то возвращаем null
+            if (Max == Min)
                 return null;
+
+            // Возвращаем его
+            return new Position(MaxIndex % 3, MaxIndex / 3);
         }
 
         public override void makeTurn()
@@ -600,7 +695,7 @@ namespace TTTM
                     if (Game.Fields[x / 3, y / 3].Owner != null)
                         continue;
                 }
-                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
+                while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
             }
             if (!Game.Turn(new Position(x, y), Player))
                 throw new Exception("Бот не смог сделать ход");
@@ -799,7 +894,7 @@ namespace TTTM
         public override event EventHandler<Player> ChangeTurn;
         public override event EventHandler<Position> IncorrectTurn;
         public override event EventHandler NobodyWins;
-        public GameManagerWithBot(string player1, string player2, int botType = 2) : base(player1, player2)
+        public GameManagerWithBot(string player1, string player2, int botType = 3) : base(player1, player2)
         {
             // BASE CTOR HERE
             switch (botType)
@@ -811,7 +906,7 @@ namespace TTTM
                     Bot = new SomeMoreCleverBot(Player2, Player1, game);
                     break;
                 case 3:
-                    Bot = new Bot3(Player2, game);
+                    Bot = new Bot3(Player2, Player1, game);
                     break;
                 default:
                     break;

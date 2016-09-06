@@ -38,6 +38,7 @@ namespace TTTM
         Point CellUnderMouse;
         event EventHandler MouseMovedToAnotherCell;
 
+        // Для графики > 1
         int IncorrectTurnAlpha = 255;
         int HelpAlpha = 255;
 
@@ -233,7 +234,7 @@ namespace TTTM
             // Запуск таймера хода бота
             if (game is GameManagerWithBot)
             {
-                timerBotTurn.Interval = new Random().Next(500, 2500);
+                timerBotTurn.Interval = 1;// new Random().Next(500, 1000);
                 timerBotTurn.Start();
             }
         }
