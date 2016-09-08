@@ -614,7 +614,6 @@ namespace TTTM
                 {
                     if (FreeCells != 0)
                         Scores[i] += (9 - FreeCells) / 10f; // Чем меньше в поле противника свободных ячеек тем лучше
-                        //Scores[i] += (FreeCells) / 4f; // Чем больше в поле противника свободных ячеек тем лучше
                     else
                         Scores[i] -= 20; // Если заняты все - то это плохая идея
                 }
@@ -635,6 +634,7 @@ namespace TTTM
                 {
                     if (!StepDeny[i])
                     {
+                        // Оценка происходит БЕЗ учёта ходов, просматриваемых рекурсией, в следствии чего оценка не совсем верна
                         var CalculatedScores = CalculateScores(new Position(i % 3, i / 3), Depth + 1);
                         MaxScoresFromRecursion[i] = CalculatedScores.Max();
                         MidScoresFromRecursion[i] = CalculatedScores.Sum() / 9f;

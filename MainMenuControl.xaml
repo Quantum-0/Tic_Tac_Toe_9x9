@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="TTTM.MainMenuControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TTTM"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid UseLayoutRounding="True">
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <LinearGradientBrush.RelativeTransform>
+                    <TransformGroup>
+                        <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                        <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                        <RotateTransform Angle="14.036" CenterY="0.5" CenterX="0.5"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </LinearGradientBrush.RelativeTransform>
+                <GradientStop Color="#FF939090" Offset="0"/>
+                <GradientStop Color="White" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Button x:Name="buttonSingleplayer" Content="Одиночная игра" HorizontalAlignment="Right" Margin="0,0,10,110" VerticalAlignment="Bottom" Width="119" IsDefault="True">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                    <GradientStop Color="#FFD64F4F"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.Effect>
+                <DropShadowEffect Opacity="0.15"/>
+            </Button.Effect>
+        </Button>
+        <Button x:Name="buttonMultiplayer" Content="Играть по сети" HorizontalAlignment="Right" Margin="0,0,10,85" VerticalAlignment="Bottom" Width="119">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF71B230" Offset="0"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.Effect>
+                <DropShadowEffect Opacity="0.15"/>
+            </Button.Effect>
+        </Button>
+        <Button x:Name="buttonSettings" Content="Настройки" HorizontalAlignment="Right" Margin="0,0,10,60" VerticalAlignment="Bottom" Width="119">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF316BBF" Offset="0"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.Effect>
+                <DropShadowEffect Opacity="0.15"/>
+            </Button.Effect>
+        </Button>
+        <Button x:Name="buttonHelp" Content="Помощь" HorizontalAlignment="Right" Margin="0,0,10,35" VerticalAlignment="Bottom" Width="119">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFC3CB24" Offset="0"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.Effect>
+                <DropShadowEffect Opacity="0.15"/>
+            </Button.Effect>
+        </Button>
+        <Button x:Name="buttonExit" Content="Выход" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="119" IsCancel="True">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF280538" Offset="0"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Button.Effect>
+                <DropShadowEffect Opacity="0.15"/>
+            </Button.Effect>
+        </Button>
+
+    </Grid>
+</UserControl>

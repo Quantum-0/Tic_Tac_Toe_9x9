@@ -303,7 +303,10 @@ namespace TTTM
             }
             catch (SocketException e)
             {
-                toolStripStatusLabel.Text = "Порт уже занят";
+                if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
+                    toolStripStatusLabel.Text = "Порт уже занят";
+                else
+                    toolStripStatusLabel.Text = "Неизвестная ошибка";
                 interfacePlayerSettings = true;
                 interfaceServerClientSwitcher = true;
                 interfaceNetConfig = (radioButtonClient.Checked) ?

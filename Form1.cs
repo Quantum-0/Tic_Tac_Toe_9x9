@@ -25,6 +25,11 @@ namespace TTTM
         public FormMainMenu()
         {
             InitializeComponent();
+            mainMenuControl.buttonSingleplayer.Click += buttonSingle_Click;
+            mainMenuControl.buttonMultiplayer.Click += buttonMulti_Click;
+            mainMenuControl.buttonSettings.Click += buttonSettings_Click;
+            //mainMenuControl.buttonHelp.Click += buttonHelp_Click;
+            mainMenuControl.buttonExit.Click += buttonExit_Click;
 
             // Создаём настройки
             Settings.Load("Settings.cfg", out settings);
