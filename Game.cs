@@ -555,30 +555,43 @@ namespace TTTM
 
             // Создаём список позиций куда надо поставить чтоб было 3 подряд
             Position Current;
-            List<Position> AddScores = new List<Position>();
+            List<Position> AddScoresBot = new List<Position>();
+            List<Position> AddScoresHuman = new List<Position>();
             for (int i = 0; i < 3; i++)
             {
                 Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), Player, Field);
-                if (Current != null) AddScores.Add(Current);
+                if (Current != null) AddScoresBot.Add(Current);
                 Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), HumanPlayer, Field);
-                if (Current != null) AddScores.Add(Current);
+                if (Current != null) AddScoresHuman.Add(Current);
                 Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), Player, Field);
-                if (Current != null) AddScores.Add(Current);
+                if (Current != null) AddScoresBot.Add(Current);
                 Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), HumanPlayer, Field);
-                if (Current != null) AddScores.Add(Current);
+                if (Current != null) AddScoresHuman.Add(Current);
             }
             Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), Player, Field);
-            if (Current != null) AddScores.Add(Current);
+            if (Current != null) AddScoresBot.Add(Current);
             Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), Player, Field);
-            if (Current != null) AddScores.Add(Current);
+            if (Current != null) AddScoresBot.Add(Current);
             Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), HumanPlayer, Field);
-            if (Current != null) AddScores.Add(Current);
+            if (Current != null) AddScoresHuman.Add(Current);
             Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), HumanPlayer, Field);
-            if (Current != null) AddScores.Add(Current);
+            if (Current != null) AddScoresHuman.Add(Current);
 
-            // Добавляем к очкам ячеек позиции из списка выше
-            foreach (var item in AddScores)
-                Scores[item.x + item.y * 3] += 10;
+            // Добавляем к очкам ячеек позиции из списка выше (Заполнить поле лучше чем помещать противнику)
+            foreach (var item in AddScoresBot)
+            {
+                if (Depth % 2 == 0)
+                    Scores[item.x + item.y * 3] += 10;
+                else
+                    Scores[item.x + item.y * 3] += 8;
+            }
+            foreach (var item in AddScoresHuman)
+            {
+                if (Depth % 2 == 1)
+                    Scores[item.x + item.y * 3] += 10;
+                else
+                    Scores[item.x + item.y * 3] += 8;
+            }
 
             // ЗАМЕНИТЬ
             for (int i = 0; i < 9; i++)
@@ -600,16 +613,17 @@ namespace TTTM
                 if (Game.Fields[i % 3, i / 3].Owner == null)
                 {
                     if (FreeCells != 0)
-                        Scores[i] += (9 - FreeCells) / 4f; // Чем меньше в поле противника свободных ячеек тем лучше
+                        Scores[i] += (9 - FreeCells) / 10f; // Чем меньше в поле противника свободных ячеек тем лучше
+                        //Scores[i] += (FreeCells) / 4f; // Чем больше в поле противника свободных ячеек тем лучше
                     else
-                        Scores[i] -= 5; // Если заняты все - то это плохая идея
+                        Scores[i] -= 20; // Если заняты все - то это плохая идея
                 }
                 else //Owner != null
                 {
                     if (FreeCells != 0)
-                        Scores[i] += 15;
+                        Scores[i] += 22;
                     else
-                        Scores[i] -= 5;
+                        Scores[i] -= 40;
                 }
             }
 
@@ -617,7 +631,6 @@ namespace TTTM
             float[] MidScoresFromRecursion = new float[9];
             if (Depth < 5)
             {
-                //Action<int> Recursion = delegate(int i)
                 for (int i = 0; i < 9; i++)
                 {
                     if (!StepDeny[i])
@@ -631,9 +644,6 @@ namespace TTTM
                     Scores[i] -= MaxScoresFromRecursion[i] * 0.75f + MidScoresFromRecursion[i] / 10f;
                 }
             }
-            // Заполнить лучше чем закрыть
-            if (Depth == 0)
-                ;
             return Scores;
         }
 
@@ -642,24 +652,31 @@ namespace TTTM
             var Scores = CalculateScores();
 
             // Ищем индекс с максимальным счётом
-            int MaxIndex = 0;
-            float Max = Scores[0], Min = Scores[0];
+            List<int> Max = new List<int>();
+            Max.Add(0);
+            int Min = 0;
             for (int i = 0; i < 9; i++)
             {
-                if (Max < Scores[i])
-                    Max = Scores[i];
-                if (Min > Scores[i])
-                    Min = Scores[i];
-                if (Scores[i] > Scores[MaxIndex])
-                    MaxIndex = i;
+                if (Scores[i] < Scores[Min])
+                    Min = i;
+                if (Scores[i] == Scores[Max[0]])
+                    Max.Add(i);
+                if (Scores[i] > Scores[Max[0]])
+                {
+                    Max.Clear();
+                    Max.Add(i);
+                }
             }
 
             // Если разницы между ячейками нет то возвращаем null
-            if (Max == Min)
+            if (Scores[Max[0]] == Scores[Min])
                 return null;
 
+            // Из получившегося списка берём рандомный элемент
+            var TurnIndex = Max[rnd.Next(Max.Count)];
+
             // Возвращаем его
-            return new Position(MaxIndex % 3, MaxIndex / 3);
+            return new Position(TurnIndex % 3, TurnIndex / 3);
         }
 
         public override void makeTurn()
