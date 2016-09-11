@@ -32,7 +32,7 @@ namespace TTTM
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            if (panel1.BackColor == panel2.BackColor || textBox1.Text == textBox2.Text || string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
+            if (panel1.BackColor == panel2.BackColor || textBox1.Text == textBox2.Text || string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text) || (comboBox1.SelectedIndex == -1 && checkBox1.Checked))
                 return;
             
             DialogResult = DialogResult.OK;
@@ -42,6 +42,11 @@ namespace TTTM
         private void panel2_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            comboBox1.Enabled = checkBox1.Checked;
         }
     }
 }

@@ -509,9 +509,10 @@ namespace TTTM
         }
     }
 
-    public class Bot3 : SomeMoreCleverBot
+    // Класс бота рекурсивно оценивающее ходы
+    public class RecursionAnalizerBot : SomeMoreCleverBot
     {
-        public Bot3(Player player, Player hplayer, Game game) : base(player, hplayer, game)
+        public RecursionAnalizerBot(Player player, Player hplayer, Game game) : base(player, hplayer, game)
         {
         }
 
@@ -537,7 +538,7 @@ namespace TTTM
             return null;
         }
 
-        private float[] CalculateScores(Position Field = null, int Depth = 0)
+        private float[] CalculateScores(Position Field = null, int Depth = 0, int MaxDepth = 5)
         {
             if (Field == null)
                 Field = Game.CurrentField;
@@ -546,59 +547,63 @@ namespace TTTM
             float[] Scores = new float[9];
             bool[] StepDeny = new bool[9];
 
-            // Ценность центра и углов выше
-            /*Scores[0] = 0.1f;
-            Scores[2] = 0.1f;
-            Scores[6] = 0.1f;
-            Scores[8] = 0.1f;
-            Scores[4] = 0.3f;*/
-
             // Создаём список позиций куда надо поставить чтоб было 3 подряд
             Position Current;
             List<Position> AddScoresBot = new List<Position>();
             List<Position> AddScoresHuman = new List<Position>();
-            for (int i = 0; i < 3; i++)
-            {
-                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), Player, Field);
-                if (Current != null) AddScoresBot.Add(Current);
-                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), HumanPlayer, Field);
-                if (Current != null) AddScoresHuman.Add(Current);
-                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), Player, Field);
-                if (Current != null) AddScoresBot.Add(Current);
-                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), HumanPlayer, Field);
-                if (Current != null) AddScoresHuman.Add(Current);
-            }
-            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), Player, Field);
-            if (Current != null) AddScoresBot.Add(Current);
-            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), Player, Field);
-            if (Current != null) AddScoresBot.Add(Current);
-            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), HumanPlayer, Field);
-            if (Current != null) AddScoresHuman.Add(Current);
-            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), HumanPlayer, Field);
-            if (Current != null) AddScoresHuman.Add(Current);
 
-            // Добавляем к очкам ячеек позиции из списка выше (Заполнить поле лучше чем помещать противнику)
-            foreach (var item in AddScoresBot)
+            if (Game.Fields[Field.x, Field.y].Owner == null)
             {
-                if (Depth % 2 == 0)
-                    Scores[item.x + item.y * 3] += 10;
-                else
-                    Scores[item.x + item.y * 3] += 8;
-            }
-            foreach (var item in AddScoresHuman)
-            {
-                if (Depth % 2 == 1)
-                    Scores[item.x + item.y * 3] += 10;
-                else
-                    Scores[item.x + item.y * 3] += 8;
+                for (int i = 0; i < 3; i++)
+                {
+                    Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), Player, Field);
+                    if (Current != null) AddScoresBot.Add(Current);
+                    Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), HumanPlayer, Field);
+                    if (Current != null) AddScoresHuman.Add(Current);
+                    Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), Player, Field);
+                    if (Current != null) AddScoresBot.Add(Current);
+                    Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), HumanPlayer, Field);
+                    if (Current != null) AddScoresHuman.Add(Current);
+                }
+                Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), Player, Field);
+                if (Current != null) AddScoresBot.Add(Current);
+                Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), Player, Field);
+                if (Current != null) AddScoresBot.Add(Current);
+                Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), HumanPlayer, Field);
+                if (Current != null) AddScoresHuman.Add(Current);
+                Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), HumanPlayer, Field);
+                if (Current != null) AddScoresHuman.Add(Current);
+
+
+                // Добавляем к очкам ячеек позиции из списка выше (Заполнить поле лучше чем помещать противнику)
+                foreach (var item in AddScoresBot)
+                {
+                    if (Depth % 2 == 0)
+                        Scores[item.x + item.y * 3] += 10;
+                    else
+                        Scores[item.x + item.y * 3] += 8;
+                }
+                foreach (var item in AddScoresHuman)
+                {
+                    if (Depth % 2 == 1)
+                        Scores[item.x + item.y * 3] += 10;
+                    else
+                        Scores[item.x + item.y * 3] += 8;
+                }
             }
 
-            // ЗАМЕНИТЬ
+            var AllowedCellsHere = 0;
             for (int i = 0; i < 9; i++)
             {
                 if (Game[Field.x, Field.y, i % 3, i / 3].Owner != null)
                     StepDeny[i] = true;
+                else
+                    AllowedCellsHere++;
             }
+            if (AllowedCellsHere > 6)
+                MaxDepth--;
+            if (AllowedCellsHere < 4)
+                MaxDepth++;
 
             // Оценка свободных ячеек в следующем поле
             for (int i = 0; i < 9; i++)
@@ -609,41 +614,56 @@ namespace TTTM
                     if (Game.Fields[i % 3, i / 3].Cells[j % 3, j / 3].Owner == null)
                         FreeCells += 1;
                 }
-
-                if (Game.Fields[i % 3, i / 3].Owner == null)
+                
+                if (FreeCells == 0)
+                    Scores[i] -= 20;
+                else
                 {
-                    if (FreeCells != 0)
+                    if (Game.Fields[i % 3, i / 3].Owner == null)
+                    {
                         Scores[i] += (9 - FreeCells) / 10f; // Чем меньше в поле противника свободных ячеек тем лучше
-                    else
-                        Scores[i] -= 20; // Если заняты все - то это плохая идея
-                }
-                else //Owner != null
-                {
-                    if (FreeCells != 0)
-                        Scores[i] += 22;
-                    else
-                        Scores[i] -= 40;
+                    }
+                    else //Owner != null
+                    {
+                        Scores[i] += 25;
+                    }
                 }
             }
 
+            Game.SilentMode = true;
             float[] MaxScoresFromRecursion = new float[9];
             float[] MidScoresFromRecursion = new float[9];
-            if (Depth < 5)
+            if (Depth < MaxDepth)
             {
+                var GameState = Game.GetStateCode();
                 for (int i = 0; i < 9; i++)
                 {
                     if (!StepDeny[i])
                     {
                         // Оценка происходит БЕЗ учёта ходов, просматриваемых рекурсией, в следствии чего оценка не совсем верна
+                        var TurnPos = new Position(Field.x * 3 + i % 3, Field.y * 3 + i / 3);
+                        Game.Turn(TurnPos, Depth % 2 == 0 ? Player : HumanPlayer);
                         var CalculatedScores = CalculateScores(new Position(i % 3, i / 3), Depth + 1);
-                        MaxScoresFromRecursion[i] = CalculatedScores.Max();
-                        MidScoresFromRecursion[i] = CalculatedScores.Sum() / 9f;
+                        foreach (var value in CalculatedScores)
+                        {
+                            if (value != int.MinValue)
+                            {
+                                if (MaxScoresFromRecursion[i] < value)
+                                    MaxScoresFromRecursion[i] = value;
+                                MidScoresFromRecursion[i] += value / 9f;
+                            }
+                        }
                     }
-                    if (Depth == 0 && StepDeny[i])
-                        Scores[i] -= 1000;
-                    Scores[i] -= MaxScoresFromRecursion[i] * 0.75f + MidScoresFromRecursion[i] / 10f;
+                    if (StepDeny[i])
+                        Scores[i] = int.MinValue;
+                    else
+                        Scores[i] -= MaxScoresFromRecursion[i] * 0.8f + MidScoresFromRecursion[i] * 0.1f;
                 }
+                Game.UpdateFromStateCode(GameState, HumanPlayer, Player, Player);
             }
+            
+            if (Depth == 0)
+                Game.SilentMode = false;
             return Scores;
         }
 
@@ -819,7 +839,6 @@ namespace TTTM
 
         public void SetDefaults()
         {
-            // Сделать выполнение этого в настройках
             BackgroundColor = Color.Black;
             SmallGrid = Color.FromArgb(0, 200, 0);
             BigGrid = Color.Lime;
@@ -835,7 +854,7 @@ namespace TTTM
             HelpCellsAlpha = 180;
             HelpLinesAlpha = 40;
             HelpShow = 1;
-            GraphicsLevel = 1;
+            GraphicsLevel = 2;
         }
     }
 
@@ -923,19 +942,20 @@ namespace TTTM
                     Bot = new SomeMoreCleverBot(Player2, Player1, game);
                     break;
                 case 3:
-                    Bot = new Bot3(Player2, Player1, game);
+                    Bot = new RecursionAnalizerBot(Player2, Player1, game);
                     break;
                 default:
-                    break;
+                    throw new Exception("Не удалось создать бота");
             }
         }
 
-        public void BotTurn()
+        public async void BotTurn()
         {
             // Вылет если ход не бота
             if (CurrentPlayer != Player2)
                 return;
 
+            //await Task.Run((Action)Bot.makeTurn);
             Bot.makeTurn();
             CurrentPlayer = Player1;
 
@@ -1145,7 +1165,7 @@ namespace TTTM
         }
         public void Load(string State)
         {
-            game.UpdateFromStateCode(State, Player1, Player2, ref CurrentPlayer);
+            game.UpdateFromStateCode(State, Player1, Player2, CurrentPlayer);
             //ChangeTurn(this, CurrentPlayer);
         }
     }
@@ -1154,6 +1174,7 @@ namespace TTTM
     public class Game
     {
         // Свойства
+        public bool SilentMode = false;
         public bool Finished = false;
         public GameField[,] Fields { private set; get; }
         public Position CurrentField { private set; get; }
@@ -1221,10 +1242,10 @@ namespace TTTM
             Position Cell = Position.GetCellFrom9x9(pos);
             Position Field = Position.GetFieldFrom9x9(pos);
 
-            bool notSameField = !Field.Equals(CurrentField); //Зачем?
+            bool notThatField = !Field.Equals(CurrentField);
             bool fieldIsNotFull = (CurrentField != null) ? !Fields[CurrentField.x, CurrentField.y].Full : true;
 
-            if (notSameField && CurrentField != null && fieldIsNotFull)
+            if (notThatField && CurrentField != null && fieldIsNotFull)
                 return false;
             
             // Ход
@@ -1261,7 +1282,7 @@ namespace TTTM
                     if (Fields[i, j].Owner == null && !Fields[i,j].Full)
                         full = false;
 
-            if (full)
+            if (full && !SilentMode)
             {
                 // Конец игры из-за заполненности всех полей
                 Finished = true;
@@ -1270,6 +1291,9 @@ namespace TTTM
         }
         private void FieldChanged(object sender, EventArgs e)
         {
+            if (SilentMode)
+                return;
+
             if (checkNeighbors(((GameField)sender).Pos))
             {
                 // Конец игры из-за победы одного из игроков
@@ -1310,25 +1334,30 @@ namespace TTTM
                 for (int j = 0; j < 9; j++)
                     res.Append(Fields[i / 3, j / 3][i % 3, j % 3].Owner?.Id ?? 0);
 
-            // Куда должен совершаться ход
-            if (CurrentField == null)
-                res.Append('X');
+            // Последний ход
+            if (History.Count == 0)
+                res.Append("XX");
             else
-                res.Append(CurrentField.x * 3 + CurrentField.y);
+            {
+                res.Append(History.Last().x);
+                res.Append(History.Last().y);
+            }
 
             // ID игрока сделавшего последний ход
-            if (CurrentField == null)
+            /*if (CurrentField == null)
                 res.Append('X');
             else
             {
-                Position lastfield = Position.GetFieldFrom9x9(History.Last());
-                int lastPlayerID = Fields[lastfield.x, lastfield.y].Cells[CurrentField.x, CurrentField.y].Owner.Id;
+                var LastPos = History.Last();
+                var LastField = LastPos / 3;
+                var LastCell = LastPos % 3;
+                var lastPlayerID = Fields[LastField.x, LastField.y].Cells[LastCell.x, LastCell.y].Owner.Id;
                 res.Append(lastPlayerID);
-            }
+            }*/
 
             return res.ToString();
         }
-        public bool UpdateFromStateCode(string State, Player p1, Player p2, ref Player currentPlayer)
+        public bool UpdateFromStateCode(string State, Player p1, Player p2, Player currentPlayer)
         {
             string Backup = GetStateCode();
 
@@ -1361,25 +1390,26 @@ namespace TTTM
                             Fields[i / 3, j / 3][i % 3, j % 3].Bind(p2);
                     }
 
+                History.Clear();
+
                 if (State[90] == 'X')
                     CurrentField = null;
                 else
                 {
-                    int temp = int.Parse(State[90].ToString());
-                    CurrentField = new Position(temp / 3, temp % 3);
+                    var LastPos = new Position(int.Parse(State[90].ToString()), int.Parse(State[91].ToString()));
+                    CurrentField = LastPos % 3;
+                    if (Fields[(LastPos / 3).x, (LastPos / 3).y].Cells[CurrentField.x, CurrentField.y].Owner?.Id == 2)
+                        currentPlayer = p2;
+                    else
+                        currentPlayer = p1;
                 }
-
-                if (State[91] == '1')
-                    currentPlayer = p2;
-                else if (State[91] == '2')
-                    currentPlayer = p1;
 
                 Finished = false;
                 return true;
             }
             catch
             {
-                UpdateFromStateCode(Backup, p1, p2, ref currentPlayer);
+                UpdateFromStateCode(Backup, p1, p2, currentPlayer);
                 return false;
             }
         }

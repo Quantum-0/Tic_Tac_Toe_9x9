@@ -41,6 +41,7 @@ namespace TTTM
             trackBar1.Value = settings.HelpCellsAlpha;
             trackBar2.Value = settings.HelpLinesAlpha;
             checkBox1.Checked = (settings.HelpShow == 1);
+            numericUpDown1.Value = settings.GraphicsLevel;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -60,6 +61,7 @@ namespace TTTM
             settings.HelpCellsAlpha = trackBar1.Value;
             settings.HelpLinesAlpha = trackBar2.Value;
             settings.HelpShow = checkBox1.Checked ? 1 : 0;
+            settings.GraphicsLevel = (int)numericUpDown1.Value;
 
             DialogResult = DialogResult.OK;
         }
@@ -96,7 +98,7 @@ namespace TTTM
             trackBar1.Value = DefaultSettings.HelpCellsAlpha;
             trackBar2.Value = DefaultSettings.HelpLinesAlpha;
             checkBox1.Checked = (DefaultSettings.HelpShow == 1);
-
+            numericUpDown1.Value = DefaultSettings.GraphicsLevel;
         }
 
         private void textBox4_KeyPress(object sender, KeyPressEventArgs e)

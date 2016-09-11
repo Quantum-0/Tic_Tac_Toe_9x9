@@ -54,19 +54,22 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.panel8 = new System.Windows.Forms.Panel();
-            this.label8 = new System.Windows.Forms.Label();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.label8 = new System.Windows.Forms.Label();
+            this.panel8 = new System.Windows.Forms.Panel();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.label11 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // label2
@@ -241,7 +244,7 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(15, 382);
+            this.button1.Location = new System.Drawing.Point(15, 400);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(77, 23);
             this.button1.TabIndex = 0;
@@ -252,7 +255,7 @@
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button2.Location = new System.Drawing.Point(98, 382);
+            this.button2.Location = new System.Drawing.Point(98, 400);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(92, 23);
             this.button2.TabIndex = 1;
@@ -264,7 +267,7 @@
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button3.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button3.Location = new System.Drawing.Point(196, 382);
+            this.button3.Location = new System.Drawing.Point(196, 400);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(68, 23);
             this.button3.TabIndex = 2;
@@ -279,9 +282,9 @@
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.textBox2);
-            this.groupBox2.Location = new System.Drawing.Point(15, 305);
+            this.groupBox2.Location = new System.Drawing.Point(15, 324);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(249, 71);
+            this.groupBox2.Size = new System.Drawing.Size(249, 70);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Сеть";
@@ -343,32 +346,32 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Подсказки хода";
             // 
-            // panel8
+            // trackBar2
             // 
-            this.panel8.BackColor = System.Drawing.Color.Aqua;
-            this.panel8.Location = new System.Drawing.Point(181, 35);
-            this.panel8.Name = "panel8";
-            this.panel8.Size = new System.Drawing.Size(54, 13);
-            this.panel8.TabIndex = 0;
-            this.panel8.Click += new System.EventHandler(this.panel_Click);
+            this.trackBar2.Location = new System.Drawing.Point(150, 69);
+            this.trackBar2.Maximum = 255;
+            this.trackBar2.Name = "trackBar2";
+            this.trackBar2.Size = new System.Drawing.Size(89, 45);
+            this.trackBar2.TabIndex = 18;
+            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.None;
             // 
-            // label8
+            // label10
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(9, 35);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(89, 13);
-            this.label8.TabIndex = 13;
-            this.label8.Text = "Цвет подсказок";
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(9, 70);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(112, 13);
+            this.label10.TabIndex = 17;
+            this.label10.Text = "Прозрачность линий";
             // 
-            // trackBar1
+            // label9
             // 
-            this.trackBar1.Location = new System.Drawing.Point(150, 49);
-            this.trackBar1.Maximum = 255;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(89, 45);
-            this.trackBar1.TabIndex = 14;
-            this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(9, 50);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(135, 13);
+            this.label9.TabIndex = 16;
+            this.label9.Text = "Прозрачность квадратов";
             // 
             // checkBox1
             // 
@@ -381,32 +384,64 @@
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // label9
+            // trackBar1
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(9, 50);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(135, 13);
-            this.label9.TabIndex = 16;
-            this.label9.Text = "Прозрачность квадратов";
+            this.trackBar1.Location = new System.Drawing.Point(150, 49);
+            this.trackBar1.Maximum = 255;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(89, 45);
+            this.trackBar1.TabIndex = 14;
+            this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.None;
             // 
-            // label10
+            // label8
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(9, 70);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(112, 13);
-            this.label10.TabIndex = 17;
-            this.label10.Text = "Прозрачность линий";
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(9, 35);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(89, 13);
+            this.label8.TabIndex = 13;
+            this.label8.Text = "Цвет подсказок";
             // 
-            // trackBar2
+            // panel8
             // 
-            this.trackBar2.Location = new System.Drawing.Point(150, 69);
-            this.trackBar2.Maximum = 255;
-            this.trackBar2.Name = "trackBar2";
-            this.trackBar2.Size = new System.Drawing.Size(89, 45);
-            this.trackBar2.TabIndex = 18;
-            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.panel8.BackColor = System.Drawing.Color.Aqua;
+            this.panel8.Location = new System.Drawing.Point(181, 35);
+            this.panel8.Name = "panel8";
+            this.panel8.Size = new System.Drawing.Size(54, 13);
+            this.panel8.TabIndex = 0;
+            this.panel8.Click += new System.EventHandler(this.panel_Click);
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Enabled = false;
+            this.numericUpDown1.Location = new System.Drawing.Point(152, 304);
+            this.numericUpDown1.Maximum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(98, 20);
+            this.numericUpDown1.TabIndex = 14;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(15, 306);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(100, 13);
+            this.label11.TabIndex = 15;
+            this.label11.Text = "Уровень графики:";
             // 
             // FormSettings
             // 
@@ -414,7 +449,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button3;
-            this.ClientSize = new System.Drawing.Size(274, 413);
+            this.ClientSize = new System.Drawing.Size(274, 431);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -436,9 +473,11 @@
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -476,5 +515,7 @@
         private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Panel panel8;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Label label11;
     }
 }

@@ -176,11 +176,12 @@ namespace TTTM
             penc1 = new Pen(frm.panel1.BackColor);
             penc2 = new Pen(frm.panel2.BackColor);
             labelCurrentTurn.Text = pl1;
+            var BotLevel = frm.comboBox1.SelectedIndex + 1;
 
             // Создание GameManeger'a
             if (frm.checkBox1.Checked)
             {
-                game = new GameManagerWithBot(pl1, pl2);
+                game = new GameManagerWithBot(pl1, pl2, BotLevel);
                 Bot = (game as GameManagerWithBot).Bot;
             }
             else
@@ -234,6 +235,7 @@ namespace TTTM
             // Запуск таймера хода бота
             if (game is GameManagerWithBot)
             {
+                // Изменить, чтоб время на ход было фиксированным, а не уменьшалось
                 timerBotTurn.Interval = 1;// new Random().Next(500, 1000);
                 timerBotTurn.Start();
             }
@@ -285,11 +287,11 @@ namespace TTTM
                     pl1 = sr.ReadLine();
                     pl2 = sr.ReadLine();
                     var type = sr.ReadLine();
-                    if (type == "WF")
+                    if (type == "WF ")
                         game = new GameManagerWthFriend(pl1, pl2);
-                    else if (type == "WB")
+                    else if (type.Substring(0,2) == "WB")
                     {
-                        game = new GameManagerWithBot(pl1, pl2);
+                        game = new GameManagerWithBot(pl1, pl2, int.Parse(type[3].ToString()));
                         Bot = (game as GameManagerWithBot).Bot;
                     }
                     else
@@ -343,9 +345,17 @@ namespace TTTM
                     sw.WriteLine(pl1); // Имена
                     sw.WriteLine(pl2);
                     if (game is GameManagerWithBot) // Тип игры
-                        sw.WriteLine("WB");
+                    {
+                        sw.Write("WB");
+                        if (Bot is StupidBot)
+                            sw.Write("1\n");
+                        if (Bot is SomeMoreCleverBot)
+                            sw.Write("2\n");
+                        if (Bot is RecursionAnalizerBot)
+                            sw.Write("3\n");
+                    }
                     else
-                        sw.WriteLine("WF");
+                        sw.WriteLine("WF ");
                     sw.Write(penc1.Color.ToArgb()); // Цвет игроков
                     sw.WriteLine();
                     sw.Write(penc2.Color.ToArgb());
