@@ -371,6 +371,9 @@ namespace TTTM
             if (game != null)
                 if (MessageBox.Show("Вы действительно хотите выйти?", "Выход", MessageBoxButtons.YesNo) != DialogResult.Yes)
                     e.Cancel = true;
+
+            // Сохранять тут и при запуске новой игры спрашивать, восстановить ли предыдущую
+            game.Dispose();
         }
 
         private Point MouseOnGameBoard()
