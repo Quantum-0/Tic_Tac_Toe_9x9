@@ -203,7 +203,7 @@ namespace TTTM
         public event EventHandler GameEnds;
 
         public event EventHandler<string> ReceivedChat;
-        public event EventHandler<string> ReceivedTurn;
+        public event EventHandler<ReceivedTurnEventArgs> ReceivedTurn;
         public event EventHandler ConnectingRejected;
         public event EventHandler<IAMEventArgs> ReceivedIAM;
 
@@ -217,6 +217,19 @@ namespace TTTM
                 string[] Strings = Data.Split('\n');
                 Nick = Strings[1];
                 Color = Color.FromArgb(int.Parse(Strings[2]));
+            }
+        }
+
+        public class ReceivedTurnEventArgs : EventArgs
+        {
+            public Position Turn { private set; get; }
+
+            public ReceivedTurnEventArgs(char X, char Y)
+            {
+                if (!char.IsDigit(X) || !char.IsDigit(Y))
+                    throw new Exception("Получена неверная информация о ходе соперника");
+
+                Turn = new Position(int.Parse(X.ToString()), int.Parse(Y.ToString()));
             }
         }
 
@@ -242,7 +255,7 @@ namespace TTTM
             switch (Data.Substring(0, 3))
             {
                 case "TRN": // Ход
-                    ReceivedTurn?.Invoke(this, null); // заменить null на ход
+                    ReceivedTurn?.Invoke(this, new ReceivedTurnEventArgs(Data[3], Data[4])); // заменить null на ход
                     break;
                 case "CHT": // Сообщение в чате
                     ReceivedChat?.Invoke(this, Data.Substring(3)); // заменить
@@ -260,7 +273,7 @@ namespace TTTM
                     }
                     break;
                 case "END": // Противник прервал игру
-                    GameEnds(this, new EventArgs());
+                    GameEnds?.Invoke(this, new EventArgs());
                     break;
                 case "RJC":
                     ConnectingRejected.Invoke(this, new EventArgs());

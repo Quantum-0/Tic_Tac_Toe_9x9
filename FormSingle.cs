@@ -240,6 +240,7 @@ namespace TTTM
                 timerBotTurn.Start();
             }
         }
+
         private void Game_IncorrectTurn(object sender, Position e)
         {
             if (settings.GraphicsLevel == 2)
