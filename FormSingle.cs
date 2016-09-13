@@ -172,7 +172,7 @@ namespace TTTM
 
             // Чтение информации из формы настроек новой игры
             pl1 = frm.textBox1.Text;
-            pl2 = frm.textBox2.Text;
+            pl2 = frm.textBox2.Text + (frm.checkBox1.Checked ? " [Бот]" : "");
             penc1 = new Pen(frm.panel1.BackColor);
             penc2 = new Pen(frm.panel2.BackColor);
             labelCurrentTurn.Text = pl1;
@@ -373,7 +373,7 @@ namespace TTTM
                     e.Cancel = true;
 
             // Сохранять тут и при запуске новой игры спрашивать, восстановить ли предыдущую
-            game.Dispose();
+            game?.Dispose();
         }
 
         private Point MouseOnGameBoard()

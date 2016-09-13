@@ -16,18 +16,15 @@ using System.Xml.Serialization;
 namespace TTTM
 {
     /*
-     * 3-его бота доделать норм
-     * TODO для ботов:
-     * - сделать анализ ячеек и оценивание их (в виде дерева)
-     * - каждой ячейке соответствует количество очков
-     * - выигрыш при ходе в ту ячейку + к очкам
-     * - закрытие выигрыша противнику + к очкам
-     * задать настройку бота которую можно взять из файла:
-     * - указаны в проценташ шансы того что он прибавит к очкам за то или иное соответствие
-     * - указано количество очков
-     * - указан шанс что бот будет выбирать лучшее значение (например 50% что наилучший ход, 30% что второй, 15% что третий, 5% что последний)
+     * добавить правила к игре, чтоб убрать гарантированный способ победить в самом начале игры
+     * 1)ставим в ячейке ход обратно в неё
+     * 2)до заполнения кидаем туда противника
+     * 3)когда кончаются ячейик - ходим в центр
+     * 4)повторяем до заполнения
+     * 5)провоцируем дать ход в любое место и закрываем чтоб не дать 3 в ряд
+     * 6)доигрываем игру
      */
-    
+
     class LowLevelConnection
     {
         // Состояние
@@ -513,10 +510,28 @@ namespace TTTM
     // Класс бота рекурсивно оценивающее ходы
     public class RecursionAnalizerBot : SomeMoreCleverBot
     {
+        #region Константные значения приоритета действий
+
+        const float CostMake3InField = 10f;
+        const float CostPrevent3InField = 8f;
+        const float CostMake3InGame = 20f;
+        const byte MinFreeCellsToNarrowRecursion = 7;
+        const byte MaxFreeCellsToExtandRecursion = 3;
+        const float WeightMaxScoresFromRecursion = 0.85f;
+        const float WeightMidScoresFromRecursion = 0.075f;
+        const float CostNoFreeCellsWithWhenCommonFieldContainsTrue = -35f;
+        const float CostNoFreeCellsWithWhenCommonFieldDontContainsTrue = -20f;
+        const float CostFreeCellInNextField = 0.5f;
+        const float CostSendPlayerToOwnedField = 12f; //10f;
+
+        #endregion
+
+        // Конструктор
         public RecursionAnalizerBot(Player player, Player hplayer, Game game) : base(player, hplayer, game)
         {
         }
 
+        // Проверка 3 позиций на наличие нужной для заполнения (2 из них = Plr, 1 = null)
         private Position check3(Position p1, Position p2, Position p3, Player Plr, Position Field = null)
         {
             if (Field == null)
@@ -539,6 +554,7 @@ namespace TTTM
             return null;
         }
 
+        // Возвращает булевую матрицу (развёрнутую в массив) полей, которые достаточно заполнить Plr'у дл победы
         private bool[] check3F(Player Plr)
         {
             Position Current;
@@ -566,6 +582,7 @@ namespace TTTM
             return Result;
         }
 
+        // Проверка 3 полей в указанных позициях, аналогично check3
         private Position _check3F(Position p1, Position p2, Position p3, Player Plr)
         {
             if (Game.Fields[p1.x, p1.y].Owner == Plr &&
@@ -586,6 +603,7 @@ namespace TTTM
             return null;
         }
         
+        // РЕКУРСИВНЫЙ ПОДСЧЁТ ОЧКОВ В ПОЛЕ ДЛЯ КАЖДОЙ КЛЕТКИ
         private Tuple<float[], bool[], byte> CalculateScores(Position Field = null, int Depth = 0, int MaxDepth = 5)
         {
             // Item1 - количество очков, Item2 - нельзя ходить, Item3 - количество ячеек, куда можно ходить
@@ -613,7 +631,7 @@ namespace TTTM
             for (int i = 0; i < 9; i++)
             {
                 if (CommonField[i])
-                    Scores[i] -= 15;
+                    Scores[i] -= CostMake3InGame;
             }
             
             // Рекурсивно подсчитываем для каждого поля куда можем послать противника количество очков
@@ -643,18 +661,24 @@ namespace TTTM
                             }
                         }
                         // Вычитаем из очков каждой ячейки взвешенные максимальное и среднее значения очков по этому полю
-                        Scores[i] -= MaxScoresFromRecursion[i] * 0.8f + MidScoresFromRecursion[i] * 0.1f;
+                        Scores[i] -= MaxScoresFromRecursion[i] * WeightMaxScoresFromRecursion
+                            + MidScoresFromRecursion[i] * WeightMidScoresFromRecursion;
 
                         // Вычисляем количество свободных ячеек и занятость поля, и учитываем это в очках ячейки
                         var FreeCells = CalculatedScores.Item3;
                         if (FreeCells == 0)
-                            Scores[i] -= 20;
+                        {
+                            if (CommonField.Contains(true))
+                                Scores[i] += CostNoFreeCellsWithWhenCommonFieldContainsTrue;
+                            else
+                                Scores[i] += CostNoFreeCellsWithWhenCommonFieldDontContainsTrue;
+                        }
                         else
                         {
                             if (Game.Fields[i % 3, i / 3].Owner == null)
-                                Scores[i] += (9 - FreeCells) / 10f; // Чем меньше в поле противника свободных ячеек тем лучше
+                                Scores[i] += (9 - FreeCells) / 9f * CostFreeCellInNextField; // Чем меньше в поле противника свободных ячеек тем лучше
                             else //Owner != null
-                                Scores[i] += 25; // Если ячейка уже занята, то посылаем туда противника
+                                Scores[i] += CostSendPlayerToOwnedField; // Если ячейка уже занята, то посылаем туда противника
                         }
                     }
                 }
@@ -669,6 +693,7 @@ namespace TTTM
             return new Tuple<float[], bool[], byte>(Scores, StepDeny, AllowedCellsHere);
         }
 
+        // Подсчёт количества свободных ячеек, куда можно ходить с изменением максимальной глубины рекурсии
         private byte CalculateAllowedCells(Position Field, ref bool[] StepDeny, ref int MaxDepth)
         {
             // Подсчитываем количество свободных ячеек
@@ -682,14 +707,15 @@ namespace TTTM
             }
 
             // Изменяем максимальную глубину рекурсии если ячеек слишком много или слишком мало
-            if (AllowedCellsHere > 6)
+            if (AllowedCellsHere >= MinFreeCellsToNarrowRecursion)
                 MaxDepth--;
-            else if (AllowedCellsHere < 4)
+            else if (AllowedCellsHere <= MaxFreeCellsToExtandRecursion)
                 MaxDepth++;
 
             return AllowedCellsHere;
         }
 
+        // Находит где можно сделать третью для 3 в ряд и добавляет очков к этой ячейке
         private void find3RowOrColumn(Position Field, ref float[] Scores, int Depth)
         {
             // Создаём список позиций куда надо поставить чтоб было 3 подряд
@@ -721,19 +747,20 @@ namespace TTTM
             for (int i = 0; i < AddScoresBot.Count; i++)
             {
                 if (Depth % 2 == 0)
-                    Scores[AddScoresBot[i].x + AddScoresBot[i].y * 3] += 10;
+                    Scores[AddScoresBot[i].x + AddScoresBot[i].y * 3] += CostMake3InField;
                 else
-                    Scores[AddScoresBot[i].x + AddScoresBot[i].y * 3] += 8;
+                    Scores[AddScoresBot[i].x + AddScoresBot[i].y * 3] += CostPrevent3InField;
             }
             for (int i = 0; i < AddScoresHuman.Count; i++)
             {
                 if (Depth % 2 == 1)
-                    Scores[AddScoresHuman[i].x + AddScoresHuman[i].y * 3] += 10;
+                    Scores[AddScoresHuman[i].x + AddScoresHuman[i].y * 3] += CostMake3InField;
                 else
-                    Scores[AddScoresHuman[i].x + AddScoresHuman[i].y * 3] += 8;
+                    Scores[AddScoresHuman[i].x + AddScoresHuman[i].y * 3] += CostPrevent3InField;
             }
         }
 
+        // Поиск лучшей позиции для хода
         protected override Position findBetterPos()
         {
             // Получает очки для всех ячеек и выкидываем те, куда ходить нельзя
@@ -773,6 +800,7 @@ namespace TTTM
             return new Position(TurnIndex % 3, TurnIndex / 3);
         }
 
+        // Сделать ход
         public override void makeTurn()
         {
             if (Game.Finished)
