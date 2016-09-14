@@ -12,11 +12,15 @@ namespace TTTM
 {
     public partial class FormMultiplayer : Form
     {
+        /* TODO:
+         * Добавить обработку обрыва соединения
+         * Вынести код из MP и SP в обдельный класс (может быть создать родительскую форму?)
+         */
+
         Settings settings;
         Connection connection;
         string MyNick, OpponentNick;
         Pen penc1, penc2;
-        bool IsMyTurn = false;
         GameManagerWthFriend game;
         Position IncorrectTurn;
         private BufferedGraphicsContext context = BufferedGraphicsManager.Current;
@@ -83,12 +87,12 @@ namespace TTTM
             {
                 MessageBox.Show("Противник вышел из игры");
                 game.Dispose();
+                connection.Disconnect();
                 Close();
             };
 
             this.Invoke(act);
         }
-
         private void timerRefreshView_Tick(object sender, EventArgs e)
         {
             if (IncorrectTurnAlpha > 0)
@@ -101,11 +105,13 @@ namespace TTTM
         // Игровые события
         private void Game_NobodyWins(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Игра окончена. Ничья");
+            AddMessageToChat("System", "Игра окончена. Ничья.");
         }
         private void Game_SomebodyWins(object sender, Game.GameEndArgs e)
         {
-            throw new NotImplementedException();
+            MessageBox.Show("Игра окончена.\nПобедитель: " + e.Winner.Name);
+            AddMessageToChat("System", "Игра окончена.\n     Победитель: " + e.Winner.Name);
         }
         private void Game_IncorrectTurn(object sender, Position e)
         {
@@ -288,6 +294,20 @@ namespace TTTM
             }
         }
 
+        private void FormMultiplayer_Paint(object sender, PaintEventArgs e)
+        {
+            RedrawGame();
+        }
+
+        private void FormMultiplayer_ResizeEnd_And_SizeChanged(object sender, EventArgs e)
+        {
+            // Чтоб при разворачивании окна оно сперва обновило размер элементов, а затем уже прорисовало графику на них
+            if (WindowState == FormWindowState.Maximized)
+                Refresh();
+
+            RedrawGame(true);
+        }
+
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             if (connection.Host.Value ^ game.CurrentPlayer.Id == 1)
@@ -297,8 +317,9 @@ namespace TTTM
             RedrawGame();
             if (settings.GraphicsLevel < 2)
                 IncorrectTurn = null;
-            game.ClickOn(p.X, p.Y);
+
             connection.SendTurn(new Position(p.X, p.Y));
+            game.ClickOn(p.X, p.Y);
         }
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {

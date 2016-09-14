@@ -336,6 +336,7 @@ namespace TTTM
         {
             connection.SendIAM(textBoxNick.Text, panel1.BackColor);
             toolStripStatusLabel.Text = "Клиент подключён";
+            this.Activate();
             connection.AnotherPlayerDisconnected += ConnectionServer_AnotherPlayerDisconnected;
             connection.AnotherPlayerConnected -= ConnectionServer_AnotherPlayerConnected;
         }

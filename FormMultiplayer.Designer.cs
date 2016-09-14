@@ -53,6 +53,7 @@
             // 
             this.textBoxChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxChat.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.textBoxChat.Location = new System.Drawing.Point(337, 31);
             this.textBoxChat.Multiline = true;
             this.textBoxChat.Name = "textBoxChat";
@@ -90,6 +91,7 @@
             this.pictureBox1.TabIndex = 4;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             // 
             // timerRefreshView
             // 
@@ -109,6 +111,9 @@
             this.Name = "FormMultiplayer";
             this.Text = "Мультиплеерная игра";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMultiplayer_FormClosing);
+            this.ResizeEnd += new System.EventHandler(this.FormMultiplayer_ResizeEnd_And_SizeChanged);
+            this.SizeChanged += new System.EventHandler(this.FormMultiplayer_ResizeEnd_And_SizeChanged);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.FormMultiplayer_Paint);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

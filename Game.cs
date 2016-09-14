@@ -16,6 +16,13 @@ using System.Xml.Serialization;
 namespace TTTM
 {
     /*
+     * Ник в мультиплеере выделять жирным (и шрифт поменять)
+     * Предлагать в мп сыграть ещё раз
+     * Пофиксить клик вне поня
+     * сделать штриховку полупрозрачной
+     * звук приходящих сообщений
+     * мб немного изменить кружок?
+     * 
      * добавить правила к игре, чтоб убрать гарантированный способ победить в самом начале игры
      * 1)ставим в ячейке ход обратно в неё
      * 2)до заполнения кидаем туда противника
@@ -386,6 +393,9 @@ namespace TTTM
 
         public override void makeTurn()
         {
+            if (Game.Finished)
+                return;
+
             Position Field = Game.CurrentField;
             int x, y;
             if (!Game.Fields[Field.x, Field.y].Full)
@@ -405,8 +415,10 @@ namespace TTTM
                 {
                     x = rnd.Next(0, 9);
                     y = rnd.Next(0, 9);
+                    if (Game.Fields[x / 3, y / 3].Owner != null)
+                        continue;
                 }
-                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
+                while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
             }
             if (!Game.Turn(new Position(x, y), Player))
                 throw new Exception("Бот не смог сделать ход");
@@ -482,6 +494,9 @@ namespace TTTM
 
         public override void makeTurn()
         {
+            if (Game.Finished)
+                return;
+
             Position Field = Game.CurrentField;
             int x = 0, y = 0;
             if (!Game.Fields[Field.x, Field.y].Full)
