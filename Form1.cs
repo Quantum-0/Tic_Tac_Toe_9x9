@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 
 namespace TTTM
@@ -28,11 +29,16 @@ namespace TTTM
             mainMenuControl.buttonSingleplayer.Click += buttonSingle_Click;
             mainMenuControl.buttonMultiplayer.Click += buttonMulti_Click;
             mainMenuControl.buttonSettings.Click += buttonSettings_Click;
-            //mainMenuControl.buttonHelp.Click += buttonHelp_Click;
+            mainMenuControl.buttonHelp.Click += buttonHelp_Click;
             mainMenuControl.buttonExit.Click += buttonExit_Click;
 
             // Создаём настройки
             Settings.Load("Settings.cfg", out settings);
+        }
+
+        private void buttonHelp_Click(object sender, RoutedEventArgs e)
+        {
+            (new FormAbout()).ShowDialog();
         }
 
         private void buttonSingle_Click(object sender, EventArgs e)
@@ -58,7 +64,6 @@ namespace TTTM
 
         private void buttonSettings_Click(object sender, EventArgs e)
         {
-            // Открытие настроек
             (new FormSettings(settings)).ShowDialog();
         }
 

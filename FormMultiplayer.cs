@@ -158,7 +158,7 @@ namespace TTTM
             Pen SmallGrid = new Pen(settings.SmallGrid);
             Pen BigGrid = new Pen(settings.BigGrid, 3);
             Pen pIncorrectTurn = new Pen(Color.FromArgb(IncorrectTurnAlpha, settings.IncorrectTurn), 4);
-            Pen FilledField = new Pen(settings.FilledField);
+            Pen FilledField = new Pen(Color.FromArgb(192, settings.FilledField));
             Pen HelpPen = new Pen(Color.FromArgb(settings.HelpCellsAlpha * HelpAlpha / 255, settings.HelpColor));
             Pen HelpLinesPen = new Pen(Color.FromArgb(settings.HelpLinesAlpha * HelpAlpha / 255, settings.HelpColor));
 
@@ -191,6 +191,8 @@ namespace TTTM
             }
 
             // Закрашивание полей
+            var alphaPenC1 = new Pen(Color.FromArgb(192, penc1.Color));
+            var alphaPenC2 = new Pen(Color.FromArgb(192, penc2.Color));
             FieldState[,] FState = game.FieldsState();
             for (int i = 0; i < 3; i++)
             {
@@ -201,9 +203,9 @@ namespace TTTM
                     if (FState[i, j].Filled)
                         gfx.DrawDiagonalyLines(FilledField, rect);
                     if (FState[i, j].OwnerID == 1)
-                        gfx.DrawDiagonalyLines(penc1, rect);
+                        gfx.DrawDiagonalyLines(alphaPenC1, rect);
                     if (FState[i, j].OwnerID == 2)
-                        gfx.DrawDiagonalyLines(penc2, rect);
+                        gfx.DrawDiagonalyLines(alphaPenC2, rect);
                 }
             }
 

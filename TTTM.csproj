@@ -51,11 +51,19 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI.cs" />
+    <Compile Include="Connection.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAbout.Designer.cs">
+      <DependentUpon>FormAbout.cs</DependentUpon>
     </Compile>
     <Compile Include="FormMultiplayer.cs">
       <SubType>Form</SubType>
@@ -101,6 +109,9 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormAbout.resx">
+      <DependentUpon>FormAbout.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormMultiplayer.resx">
       <DependentUpon>FormMultiplayer.cs</DependentUpon>
     </EmbeddedResource>
@@ -141,6 +152,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="help3.png" />
+    <None Include="help2.png" />
+    <None Include="help1.png" />
     <Content Include="Resources\SmileMoon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
