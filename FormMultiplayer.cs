@@ -88,7 +88,7 @@ namespace TTTM
                 MessageBox.Show("Противник вышел из игры");
                 game.Dispose();
                 connection.Disconnect();
-                Close();
+                this.FormClosing -= FormMultiplayer_FormClosing;
             };
 
             this.Invoke(act);
@@ -107,11 +107,15 @@ namespace TTTM
         {
             MessageBox.Show("Игра окончена. Ничья");
             AddMessageToChat("System", "Игра окончена. Ничья.");
+            Action again = AskToPlayAgain;
+            Invoke(again);
         }
         private void Game_SomebodyWins(object sender, Game.GameEndArgs e)
         {
             MessageBox.Show("Игра окончена.\nПобедитель: " + e.Winner.Name);
             AddMessageToChat("System", "Игра окончена.\n     Победитель: " + e.Winner.Name);
+            Action again = AskToPlayAgain;
+            Invoke(again);
         }
         private void Game_IncorrectTurn(object sender, Position e)
         {
@@ -242,7 +246,26 @@ namespace TTTM
         }
         private void AddMessageToChat(string PlayerName, string Text)
         {
-            textBoxChat.AppendText('[' + DateTime.Now.ToShortTimeString() + "] " + PlayerName + ": " + Text + "\r\n");
+            richTextBoxChat.SelectionStart = richTextBoxChat.TextLength;
+            richTextBoxChat.SelectionLength = 0;
+            richTextBoxChat.SelectionColor = Color.Gray;
+            richTextBoxChat.AppendText('[' + DateTime.Now.ToShortTimeString() + "] ");
+
+            richTextBoxChat.SelectionColor = Color.Black;
+            richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, FontStyle.Bold);
+
+            richTextBoxChat.AppendText(PlayerName + ": ");
+            richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, 0);
+
+            richTextBoxChat.AppendText(Text + "\r\n");
+
+            while (richTextBoxChat.Text.Contains("_moon_"))
+            {
+                int ind = richTextBoxChat.Text.IndexOf("_moon_");
+                richTextBoxChat.Select(ind, "_moon_".Length);
+                Clipboard.SetImage((Image)Properties.Resources.SmileMoon);
+                richTextBoxChat.Paste();
+            }
         }
         private void textBoxChatInput_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -272,13 +295,21 @@ namespace TTTM
         }
         #endregion
 
+        private void AskToPlayAgain()
+        {
+            if (MessageBox.Show("Хотите сыграть ещё раз?", "Ещё раз?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                throw new NotImplementedException("Повтор игры ещё не реализован");
+        }
+
         private Point MouseOnGameBoard()
         {
-            var x = PointToClient(MousePosition).X - pictureBox1.Left;
-            x = (int)(x * 11f / pictureBox1.Width - 1);
-
-            var y = PointToClient(MousePosition).Y - pictureBox1.Top;
-            y = (int)(y * 11f / pictureBox1.Height - 1);
+            var m = PointToClient(MousePosition);
+            var x = m.X - pictureBox1.Left;
+            var y = m.Y - pictureBox1.Top;
+            if (x < 0 || x > pictureBox1.Width || y < 0 || y > pictureBox1.Height)
+                return new Point(-1, -1);
+            x = (int)Math.Floor(x * 11f / pictureBox1.Width - 1);
+            y = (int)Math.Floor(y * 11f / pictureBox1.Height - 1);
 
             return new Point(x, y);
         }
@@ -298,7 +329,6 @@ namespace TTTM
         {
             RedrawGame();
         }
-
         private void FormMultiplayer_ResizeEnd_And_SizeChanged(object sender, EventArgs e)
         {
             // Чтоб при разворачивании окна оно сперва обновило размер элементов, а затем уже прорисовало графику на них

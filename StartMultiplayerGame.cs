@@ -158,7 +158,14 @@ namespace TTTM
                 toolStripStatusLabel.Text = "Игра началась";
                 FormMultiplayer MPForm = new FormMultiplayer(settings, connection, textBoxNick.Text, labelConnectedPlayerNick.Text, panel1.BackColor, panel2.BackColor);
                 MPForm.Show();
-                MPForm.FormClosed += delegate { this.Visible = true; };
+                MPForm.FormClosed += delegate
+                {
+                    this.Visible = true;
+                    labelConnectedPlayer.Visible = false;
+                    labelConnectedPlayerNick.Visible = false;
+                    panel2.Visible = false;
+                    stopConnecting();
+                };
                 this.Visible = false;
             };
             Invoke(d);
@@ -285,6 +292,24 @@ namespace TTTM
                     buttonStart.Text = "Подключиться";
                 }
             }
+
+            else if (connection.state == Connection.State.Game)
+            {
+                connection.AnotherPlayerDisconnected -= ConnectionServer_AnotherPlayerDisconnected;
+                connection.Disconnect();
+                toolStripStatusLabel.Text = "Игра завершена";
+                // Если сервер
+                if (connection.Host.Value)
+                {
+                    interfaceNetConfig = interfaceNetConfigState.OnlyPort;
+                    buttonStart.Text = "Создать сервер";
+                }
+                else // Если клиент
+                {
+                    interfaceNetConfig = interfaceNetConfigState.AllEnabled;
+                    buttonStart.Text = "Подключится";
+                }
+            }
         }
 
         private void startServer()
@@ -334,11 +359,16 @@ namespace TTTM
 
         private void ConnectionServer_AnotherPlayerConnected(object sender, EventArgs e)
         {
-            connection.SendIAM(textBoxNick.Text, panel1.BackColor);
-            toolStripStatusLabel.Text = "Клиент подключён";
-            this.Activate();
-            connection.AnotherPlayerDisconnected += ConnectionServer_AnotherPlayerDisconnected;
-            connection.AnotherPlayerConnected -= ConnectionServer_AnotherPlayerConnected;
+            Action act = delegate
+            {
+                connection.SendIAM(textBoxNick.Text, panel1.BackColor);
+                toolStripStatusLabel.Text = "Клиент подключён";
+                this.Activate();
+                connection.AnotherPlayerDisconnected += ConnectionServer_AnotherPlayerDisconnected;
+                connection.AnotherPlayerConnected -= ConnectionServer_AnotherPlayerConnected;
+            };
+
+            Invoke(act);
         }
 
         private void panel1_Click(object sender, EventArgs e)

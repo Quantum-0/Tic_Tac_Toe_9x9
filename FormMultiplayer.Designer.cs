@@ -30,11 +30,11 @@
         {
             this.components = new System.ComponentModel.Container();
             this.textBoxChatInput = new System.Windows.Forms.TextBox();
-            this.textBoxChat = new System.Windows.Forms.TextBox();
             this.labelCurrentTurn = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.timerRefreshView = new System.Windows.Forms.Timer(this.components);
+            this.richTextBoxChat = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -49,18 +49,6 @@
             this.textBoxChatInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxChatInput_KeyPress);
             this.textBoxChatInput.Leave += new System.EventHandler(this.textBoxChatInput_Leave);
             // 
-            // textBoxChat
-            // 
-            this.textBoxChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxChat.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.textBoxChat.Location = new System.Drawing.Point(337, 31);
-            this.textBoxChat.Multiline = true;
-            this.textBoxChat.Name = "textBoxChat";
-            this.textBoxChat.Size = new System.Drawing.Size(260, 272);
-            this.textBoxChat.TabIndex = 1;
-            this.textBoxChat.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxChat_KeyPress);
-            // 
             // labelCurrentTurn
             // 
             this.labelCurrentTurn.AutoSize = true;
@@ -72,6 +60,7 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(334, 12);
             this.label1.Name = "label1";
@@ -98,15 +87,26 @@
             this.timerRefreshView.Interval = 50;
             this.timerRefreshView.Tick += new System.EventHandler(this.timerRefreshView_Tick);
             // 
+            // richTextBoxChat
+            // 
+            this.richTextBoxChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxChat.Location = new System.Drawing.Point(337, 28);
+            this.richTextBoxChat.Name = "richTextBoxChat";
+            this.richTextBoxChat.Size = new System.Drawing.Size(260, 275);
+            this.richTextBoxChat.TabIndex = 5;
+            this.richTextBoxChat.Text = "";
+            this.richTextBoxChat.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxChat_KeyPress);
+            // 
             // FormMultiplayer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(609, 341);
+            this.Controls.Add(this.richTextBoxChat);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.labelCurrentTurn);
-            this.Controls.Add(this.textBoxChat);
             this.Controls.Add(this.textBoxChatInput);
             this.Name = "FormMultiplayer";
             this.Text = "Мультиплеерная игра";
@@ -123,10 +123,10 @@
         #endregion
 
         private System.Windows.Forms.TextBox textBoxChatInput;
-        private System.Windows.Forms.TextBox textBoxChat;
         private System.Windows.Forms.Label labelCurrentTurn;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Timer timerRefreshView;
+        private System.Windows.Forms.RichTextBox richTextBoxChat;
     }
 }

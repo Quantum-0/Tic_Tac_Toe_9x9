@@ -379,11 +379,13 @@ namespace TTTM
 
         private Point MouseOnGameBoard()
         {
-            var x = PointToClient(MousePosition).X - pictureBox1.Left;
-            x = (int)(x * 11f / pictureBox1.Width - 1);
-
-            var y = PointToClient(MousePosition).Y - pictureBox1.Top;
-            y = (int)(y * 11f / pictureBox1.Height - 1);
+            var m = PointToClient(MousePosition);
+            var x = m.X - pictureBox1.Left;
+            var y = m.Y - pictureBox1.Top;
+            if (x < 0 || x > pictureBox1.Width || y < 0 || y > pictureBox1.Height)
+                return new Point(-1, -1);
+            x = (int)Math.Floor(x * 11f / pictureBox1.Width - 1);
+            y = (int)Math.Floor(y * 11f / pictureBox1.Height - 1);
 
             return new Point(x, y);
         }
