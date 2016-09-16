@@ -32,7 +32,12 @@ namespace TTTM
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            if (panel1.BackColor.DifferenceWith(panel2.BackColor) < 69)
+            if (settings.BackgroundColor.DifferenceWith(panel2.BackColor) < 50 || settings.BackgroundColor.DifferenceWith(panel1.BackColor) < 50)
+            {
+                MessageBox.Show("Цвета не должны быть близки к фоновому цвету", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (panel1.BackColor.DifferenceWith(panel2.BackColor) < 100)
             {
                 MessageBox.Show("Слишком похожие цвета, выберите другие", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;

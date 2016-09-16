@@ -438,7 +438,7 @@ namespace TTTM
     {
         public static void DrawDiagonalyLines(this Graphics gfx, Pen pen, Rectangle Rect)
         {
-            for (int i = 0; i <= Rect.Width + Rect.Height; i += 12)
+            for (int i = 0; i <= Rect.Width + Rect.Height; i += 8)
             {
                 PointF p1 = new PointF(Math.Min(i, Rect.Width) + Rect.Left, Math.Max(i - Rect.Width, 0) + Rect.Top);
                 PointF p2 = new PointF(Math.Max(i - Rect.Height, 0) + Rect.Left, Math.Min(i, Rect.Height) + Rect.Top);

@@ -315,6 +315,7 @@ namespace TTTM
         {
             Player1?.Dispose();
             Player2?.Dispose();
+            Player1 = Player2 = null;
         }
 
         // Обработка конца игры

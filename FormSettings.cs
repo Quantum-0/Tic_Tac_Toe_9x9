@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -26,26 +27,45 @@ namespace TTTM
         {
             InitializeComponent();
             this.settings = settings;
-            textBox1.Text = settings.DefaultName1;
-            textBox3.Text = settings.DefaultName2;
-            textBox2.Text = settings.MpIP;
-            textBox4.Text = settings.MpPort.ToString();
-            panel1.BackColor = settings.PlayerColor2;
-            panel2.BackColor = settings.PlayerColor1;
-            panel3.BackColor = settings.SmallGrid;
-            panel4.BackColor = settings.BigGrid;
-            panel5.BackColor = settings.IncorrectTurn;
-            panel6.BackColor = settings.BackgroundColor;
-            panel7.BackColor = settings.FilledField;
-            panel8.BackColor = settings.HelpColor;
-            trackBar1.Value = settings.HelpCellsAlpha;
-            trackBar2.Value = settings.HelpLinesAlpha;
-            checkBox1.Checked = (settings.HelpShow == 1);
-            numericUpDown1.Value = settings.GraphicsLevel;
+            ReadValuesFromSettings(settings);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (panel1.BackColor.DifferenceWith(panel2.BackColor) < 100)
+            {
+                MessageBox.Show("Слишком похожие цвета, выберите другие", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (textBox1.Text == textBox2.Text)
+            {
+                MessageBox.Show("Имена игроков не могут совпадать", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
+            {
+                MessageBox.Show("Имена игроков не могут быть пустыми", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (settings.BackgroundColor.DifferenceWith(panel2.BackColor) < 50 || settings.BackgroundColor.DifferenceWith(panel1.BackColor) < 50)
+            {
+                MessageBox.Show("Цвета не должны быть близки к фоновому цвету", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            IPAddress ip;
+            if (!IPAddress.TryParse(textBox2.Text, out ip))
+            { 
+                MessageBox.Show("Некорректный IP", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            ushort port;
+            if (!ushort.TryParse(' ' + textBox4.Text + ' ', out port))
+            {
+                MessageBox.Show("Некорректный порт", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             settings.DefaultName1 = textBox1.Text;
             settings.DefaultName2 = textBox3.Text;
             settings.MpIP = textBox2.Text;
@@ -82,23 +102,27 @@ namespace TTTM
         {
             Settings DefaultSettings = new Settings();
             DefaultSettings.SetDefaults();
+            ReadValuesFromSettings(DefaultSettings);
+        }
 
-            textBox1.Text = DefaultSettings.DefaultName1;
-            textBox3.Text = DefaultSettings.DefaultName2;
-            textBox2.Text = DefaultSettings.MpIP;
-            textBox4.Text = DefaultSettings.MpPort.ToString();
-            panel1.BackColor = DefaultSettings.PlayerColor2;
-            panel2.BackColor = DefaultSettings.PlayerColor1;
-            panel3.BackColor = DefaultSettings.SmallGrid;
-            panel4.BackColor = DefaultSettings.BigGrid;
-            panel5.BackColor = DefaultSettings.IncorrectTurn;
-            panel6.BackColor = DefaultSettings.BackgroundColor;
-            panel7.BackColor = DefaultSettings.FilledField;
-            panel8.BackColor = DefaultSettings.HelpColor;
-            trackBar1.Value = DefaultSettings.HelpCellsAlpha;
-            trackBar2.Value = DefaultSettings.HelpLinesAlpha;
-            checkBox1.Checked = (DefaultSettings.HelpShow == 1);
-            numericUpDown1.Value = DefaultSettings.GraphicsLevel;
+        private void ReadValuesFromSettings(Settings s)
+        {
+            textBox1.Text = s.DefaultName1;
+            textBox3.Text = s.DefaultName2;
+            textBox2.Text = s.MpIP;
+            textBox4.Text = s.MpPort.ToString();
+            panel1.BackColor = s.PlayerColor2;
+            panel2.BackColor = s.PlayerColor1;
+            panel3.BackColor = s.SmallGrid;
+            panel4.BackColor = s.BigGrid;
+            panel5.BackColor = s.IncorrectTurn;
+            panel6.BackColor = s.BackgroundColor;
+            panel7.BackColor = s.FilledField;
+            panel8.BackColor = s.HelpColor;
+            trackBar1.Value = s.HelpCellsAlpha;
+            trackBar2.Value = s.HelpLinesAlpha;
+            checkBox1.Checked = (s.HelpShow == 1);
+            numericUpDown1.Value = s.GraphicsLevel;
         }
 
         private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
@@ -124,7 +148,7 @@ namespace TTTM
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
-            if (textBox3.Text == textBox1.Text || textBox3.Text.Contains('='))
+            if (textBox3.Text.Contains('='))
                 textBox3.Undo();
 
             if (string.IsNullOrWhiteSpace(textBox3.Text))
@@ -136,7 +160,7 @@ namespace TTTM
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (textBox3.Text == textBox1.Text || textBox1.Text.Contains('='))
+            if (textBox1.Text.Contains('='))
                 textBox1.Undo();
 
             if (string.IsNullOrWhiteSpace(textBox1.Text))
