@@ -32,21 +32,44 @@ namespace TTTM
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            if (panel1.BackColor == panel2.BackColor || textBox1.Text == textBox2.Text || string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text) || (comboBox1.SelectedIndex == -1 && checkBox1.Checked))
+            if (panel1.BackColor.DifferenceWith(panel2.BackColor) < 69)
+            {
+                MessageBox.Show("Слишком похожие цвета, выберите другие", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
+            }
+            if (textBox1.Text == textBox2.Text)
+            {
+                MessageBox.Show("Имена игроков не могут совпадать", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
+            {
+                MessageBox.Show("Имена игроков не могут быть пустыми", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (comboBox1.SelectedIndex == -1 && checkBox1.Checked)
+            {
+                MessageBox.Show("Выберите сложность", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             
             DialogResult = DialogResult.OK;
             Close();
         }
-
-        private void panel2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
+        
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             comboBox1.Enabled = checkBox1.Checked;
+        }
+
+        private void comboBox1_Click(object sender, EventArgs e)
+        {
+            comboBox1.DroppedDown = true;
+        }
+
+        private void comboBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
         }
     }
 }

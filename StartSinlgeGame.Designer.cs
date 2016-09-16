@@ -89,7 +89,6 @@
             this.panel2.Size = new System.Drawing.Size(69, 20);
             this.panel2.TabIndex = 5;
             this.panel2.Click += new System.EventHandler(this.panel_Click);
-            this.panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
             // 
             // button1
             // 
@@ -125,6 +124,8 @@
             this.comboBox1.Size = new System.Drawing.Size(131, 21);
             this.comboBox1.TabIndex = 8;
             this.comboBox1.Text = "Выберите сложность";
+            this.comboBox1.Click += new System.EventHandler(this.comboBox1_Click);
+            this.comboBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.comboBox1_KeyPress);
             // 
             // StartSinlgeGame
             // 

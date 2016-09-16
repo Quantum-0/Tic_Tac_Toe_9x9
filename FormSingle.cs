@@ -459,5 +459,30 @@ namespace TTTM
         {
             gfx.DrawRectangle(pen, Rect.X, Rect.Y, Rect.Width, Rect.Height);
         }
+        public static double DifferenceWith(this Color clr1, Color clr2)
+        {
+            /*double h1 = clr1.GetHue() / 360d;
+            double h2 = clr2.GetHue() / 360d;
+            double b1 = clr1.GetBrightness() / 1d;
+            double b2 = clr2.GetBrightness() / 1d;
+            double s1 = clr1.GetSaturation() / 1d;
+            double s2 = clr2.GetSaturation() / 1d;
+
+            double diff = Math.Abs(h1 * Math.Abs(4*b1*(b1-1) * s1) - h2 * Math.Abs(4 * b2 * (b2 - 1) * s2));
+            diff = Math.Min(diff, Math.Abs(1 + h1 * Math.Abs(4 * b1 * (b1 - 1) * s1) - h2 * Math.Abs(4 * b2 * (b2 - 1) * s2)));
+            diff = Math.Min(diff, Math.Abs(-1 + h1 * Math.Abs(4 * b1 * (b1 - 1) * s1) - h2 * Math.Abs(4 * b2 * (b2 - 1) * s2)));
+            */
+
+            double r1 = clr1.R;
+            double r2 = clr2.R;
+            double g1 = clr1.G;
+            double g2 = clr2.G;
+            double b1 = clr1.B;
+            double b2 = clr2.B;
+
+            double diff = Math.Sqrt((r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2));
+
+            return diff;
+        }
     }
 }
