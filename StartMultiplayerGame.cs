@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 
 namespace TTTM
@@ -15,6 +18,7 @@ namespace TTTM
     {
         Connection connection;
         Settings settings;
+        List<ServerRecord> Servers;
 
         private enum interfaceNetConfigState : byte
         {
@@ -182,6 +186,7 @@ namespace TTTM
                 panel2.Visible = true;
                 buttonStart.Enabled = true;
                 buttonStart.Text = "Начать игру";
+                this.Activate();
 
                 if (connection.Host.Value) buttonCancel.Text = "Отклонить";
             };
@@ -208,6 +213,49 @@ namespace TTTM
         {
             interfaceNetConfig = interfaceNetConfigState.AllEnabled;
             buttonStart.Text = "Подключится";
+            Servers = GetServers();
+            var servers = Servers.Select(s => s.Name);
+            comboBox1.Items.Clear();
+            comboBox1.Items.AddRange(servers.ToArray());
+        }
+
+        private struct ServerRecord
+        {
+            public string IP;
+            public int Port;
+            public string Name;
+            public string Time;
+
+            public ServerRecord(string ip, string port, string name, string time)
+            {
+                IP = ip;
+                Port = int.Parse(port);
+                Name = name;
+                Time = time;
+            }
+        }
+
+        private List<ServerRecord> GetServers()
+        {
+            var ReqUrl = "http://quantum0.netau.net/get.php";
+            var resp = WebRequest.CreateHttp(ReqUrl).GetResponse();
+            var Result = new List<ServerRecord>();
+            using (var reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
+            {
+                var value = reader.ReadToEnd();
+                var values = value.Split('&').ToArray();
+                for (int i = 1; i < values.Length-1; i+=3)
+                {
+                    Result.Add(new ServerRecord(values[i + 1], "7890", values[i], values[i + 2]));
+                }
+            }
+            return Result;
+        }
+
+        private void RegisterOnTheWeb()
+        {
+            var ReqUrl = "http://quantum0.netau.net/add.php?Name=" + HttpUtility.UrlEncode(textBoxNick.Text);
+            WebRequest.CreateHttp(ReqUrl).GetResponse().Close();
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -325,6 +373,7 @@ namespace TTTM
                 interfaceBtnStart = interfaceButtonState.Disabled;
                 buttonCancel.Text = "Отключить сервер";
                 Refresh();
+                RegisterOnTheWeb();
             }
             catch (SocketException e)
             {
@@ -363,7 +412,6 @@ namespace TTTM
             {
                 connection.SendIAM(textBoxNick.Text, panel1.BackColor);
                 toolStripStatusLabel.Text = "Клиент подключён";
-                this.Activate();
                 connection.AnotherPlayerDisconnected += ConnectionServer_AnotherPlayerDisconnected;
                 connection.AnotherPlayerConnected -= ConnectionServer_AnotherPlayerConnected;
             };
@@ -389,6 +437,12 @@ namespace TTTM
         {
             connection.Disconnect();
             connection.StopServerListening();
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            textBoxIP.Text = Servers[comboBox1.SelectedIndex].IP;
+            textBoxPort.Text = Servers[comboBox1.SelectedIndex].Port.ToString();
         }
     }
 }

@@ -12,13 +12,6 @@ using System.Windows.Forms;
 
 namespace TTTM
 {
-    /*
-     * TODO:
-     * 
-     * Форматировать порт (tryParse), форматировать IP
-     * Запрещать одинаковые цвета и ники
-     */
-
     public partial class FormSettings : Form
     {
         Settings settings;
