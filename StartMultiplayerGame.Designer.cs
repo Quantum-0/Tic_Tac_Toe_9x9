@@ -124,7 +124,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 77);
+            this.label3.Location = new System.Drawing.Point(12, 105);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(30, 13);
             this.label3.TabIndex = 8;
@@ -132,7 +132,7 @@
             // 
             // textBoxNick
             // 
-            this.textBoxNick.Location = new System.Drawing.Point(48, 74);
+            this.textBoxNick.Location = new System.Drawing.Point(48, 102);
             this.textBoxNick.Name = "textBoxNick";
             this.textBoxNick.Size = new System.Drawing.Size(100, 20);
             this.textBoxNick.TabIndex = 9;
@@ -140,7 +140,7 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.Black;
-            this.panel1.Location = new System.Drawing.Point(159, 74);
+            this.panel1.Location = new System.Drawing.Point(159, 102);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(22, 20);
             this.panel1.TabIndex = 10;
@@ -170,7 +170,7 @@
             // labelConnectedPlayer
             // 
             this.labelConnectedPlayer.AutoSize = true;
-            this.labelConnectedPlayer.Location = new System.Drawing.Point(15, 113);
+            this.labelConnectedPlayer.Location = new System.Drawing.Point(15, 132);
             this.labelConnectedPlayer.Name = "labelConnectedPlayer";
             this.labelConnectedPlayer.Size = new System.Drawing.Size(59, 13);
             this.labelConnectedPlayer.TabIndex = 13;
@@ -180,7 +180,7 @@
             // labelConnectedPlayerNick
             // 
             this.labelConnectedPlayerNick.AutoSize = true;
-            this.labelConnectedPlayerNick.Location = new System.Drawing.Point(48, 133);
+            this.labelConnectedPlayerNick.Location = new System.Drawing.Point(48, 152);
             this.labelConnectedPlayerNick.Name = "labelConnectedPlayerNick";
             this.labelConnectedPlayerNick.Size = new System.Drawing.Size(78, 13);
             this.labelConnectedPlayerNick.TabIndex = 14;
@@ -189,7 +189,7 @@
             // 
             // panel2
             // 
-            this.panel2.Location = new System.Drawing.Point(20, 130);
+            this.panel2.Location = new System.Drawing.Point(20, 149);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(22, 20);
             this.panel2.TabIndex = 15;
@@ -198,10 +198,12 @@
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(187, 63);
+            this.comboBox1.Location = new System.Drawing.Point(12, 63);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(114, 21);
+            this.comboBox1.Size = new System.Drawing.Size(289, 21);
             this.comboBox1.TabIndex = 16;
+            this.comboBox1.Text = "Выбрать сервер";
+            this.comboBox1.Visible = false;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // StartMultiplayerGame
@@ -225,6 +227,7 @@
             this.Controls.Add(this.textBoxIP);
             this.Controls.Add(this.radioButtonClient);
             this.Controls.Add(this.radioButtonServer);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "StartMultiplayerGame";
             this.Text = "Мультиплеер";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.StartMultiplayerGame_FormClosed);

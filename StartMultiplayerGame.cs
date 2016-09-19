@@ -70,18 +70,22 @@ namespace TTTM
                     case interfaceNetConfigState.AllDisabled:
                         textBoxPort.Enabled = false;
                         textBoxIP.Enabled = false;
+                        comboBox1.Visible = false;
                         break;
                     case interfaceNetConfigState.OnlyPort:
                         textBoxPort.Enabled = true;
                         textBoxIP.Enabled = false;
+                        comboBox1.Visible = false;
                         break;
                     case interfaceNetConfigState.OnlyIP:
                         textBoxPort.Enabled = false;
                         textBoxIP.Enabled = true;
+                        comboBox1.Visible = true;
                         break;
                     case interfaceNetConfigState.AllEnabled:
                         textBoxPort.Enabled = true;
                         textBoxIP.Enabled = true;
+                        comboBox1.Visible = true;
                         break;
                     default:
                         break;
@@ -214,7 +218,7 @@ namespace TTTM
             interfaceNetConfig = interfaceNetConfigState.AllEnabled;
             buttonStart.Text = "Подключится";
             Servers = GetServers();
-            var servers = Servers.Select(s => s.Name);
+            var servers = Servers.Select(s => s.Name.PadRight(16) + '[' + s.IP + ':' + s.Port +  ']');
             comboBox1.Items.Clear();
             comboBox1.Items.AddRange(servers.ToArray());
         }
@@ -222,15 +226,17 @@ namespace TTTM
         private struct ServerRecord
         {
             public string IP;
-            public int Port;
+            public string Port;
             public string Name;
+            public string Color;
             public string Time;
 
-            public ServerRecord(string ip, string port, string name, string time)
+            public ServerRecord(string ip, string port, string name, string color, string time)
             {
                 IP = ip;
-                Port = int.Parse(port);
+                Port = port;
                 Name = name;
+                Color = color;
                 Time = time;
             }
         }
@@ -244,9 +250,9 @@ namespace TTTM
             {
                 var value = reader.ReadToEnd();
                 var values = value.Split('&').ToArray();
-                for (int i = 1; i < values.Length-1; i+=3)
+                for (int i = 1; i < values.Length-1; i+=5)
                 {
-                    Result.Add(new ServerRecord(values[i + 1], "7890", values[i], values[i + 2]));
+                    Result.Add(new ServerRecord(values[i + 2], values[i + 3], values[i], values[i + 1], values[i + 4]));
                 }
             }
             return Result;
@@ -254,7 +260,7 @@ namespace TTTM
 
         private void RegisterOnTheWeb()
         {
-            var ReqUrl = "http://quantum0.netau.net/add.php?Name=" + HttpUtility.UrlEncode(textBoxNick.Text);
+            var ReqUrl = "http://quantum0.netau.net/add.php?Name=" + HttpUtility.UrlEncode(textBoxNick.Text) + "&Color=" + panel1.BackColor.ToArgb().ToString() + "&Port=" + textBoxPort.Text;
             WebRequest.CreateHttp(ReqUrl).GetResponse().Close();
         }
 
@@ -441,6 +447,9 @@ namespace TTTM
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (comboBox1.SelectedIndex == -1)
+                return;
+
             textBoxIP.Text = Servers[comboBox1.SelectedIndex].IP;
             textBoxPort.Text = Servers[comboBox1.SelectedIndex].Port.ToString();
         }
