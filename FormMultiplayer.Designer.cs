@@ -35,6 +35,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.timerRefreshView = new System.Windows.Forms.Timer(this.components);
             this.richTextBoxChat = new System.Windows.Forms.RichTextBox();
+            this.buttonRestart = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -51,6 +52,7 @@
             // 
             // labelCurrentTurn
             // 
+            this.labelCurrentTurn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelCurrentTurn.AutoSize = true;
             this.labelCurrentTurn.Location = new System.Drawing.Point(418, 12);
             this.labelCurrentTurn.Name = "labelCurrentTurn";
@@ -91,18 +93,28 @@
             // 
             this.richTextBoxChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBoxChat.Location = new System.Drawing.Point(337, 28);
+            this.richTextBoxChat.Location = new System.Drawing.Point(337, 57);
             this.richTextBoxChat.Name = "richTextBoxChat";
-            this.richTextBoxChat.Size = new System.Drawing.Size(260, 275);
+            this.richTextBoxChat.Size = new System.Drawing.Size(260, 246);
             this.richTextBoxChat.TabIndex = 5;
             this.richTextBoxChat.Text = "";
-            this.richTextBoxChat.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxChat_KeyPress);
+            // 
+            // buttonRestart
+            // 
+            this.buttonRestart.Location = new System.Drawing.Point(337, 28);
+            this.buttonRestart.Name = "buttonRestart";
+            this.buttonRestart.Size = new System.Drawing.Size(260, 23);
+            this.buttonRestart.TabIndex = 6;
+            this.buttonRestart.Text = "Сдаться / Начать заного";
+            this.buttonRestart.UseVisualStyleBackColor = true;
+            this.buttonRestart.Click += new System.EventHandler(this.buttonRestart_Click);
             // 
             // FormMultiplayer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(609, 341);
+            this.Controls.Add(this.buttonRestart);
             this.Controls.Add(this.richTextBoxChat);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
@@ -128,5 +140,6 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Timer timerRefreshView;
         private System.Windows.Forms.RichTextBox richTextBoxChat;
+        private System.Windows.Forms.Button buttonRestart;
     }
 }

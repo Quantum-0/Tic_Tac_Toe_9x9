@@ -186,6 +186,9 @@ namespace TTTM
         public event EventHandler AnotherPlayerDisconnected; // Серверное
         public event EventHandler GameStarts;
         public event EventHandler GameEnds;
+        
+        public event EventHandler RestartGame;
+        public event EventHandler RestartRejected;
 
         public event EventHandler<string> ReceivedChat;
         public event EventHandler<ReceivedTurnEventArgs> ReceivedTurn;
@@ -256,12 +259,17 @@ namespace TTTM
                         state = State.Game;
                         GameStarts(this, new EventArgs());
                     }
+                    else if (state == State.Game)
+                        RestartGame(this, new EventArgs());
                     break;
                 case "END": // Противник прервал игру
                     GameEnds?.Invoke(this, new EventArgs());
                     break;
                 case "RJC":
-                    ConnectingRejected.Invoke(this, new EventArgs());
+                    if (state == State.Game)
+                        RestartRejected.Invoke(this, new EventArgs());
+                    else
+                        ConnectingRejected.Invoke(this, new EventArgs());
                     break;
                 default:
                     throw new Exception("Неверный заголовой данных: " + Data.Substring(0, 3));

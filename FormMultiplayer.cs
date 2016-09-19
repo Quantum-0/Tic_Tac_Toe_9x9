@@ -30,6 +30,7 @@ namespace TTTM
         Rectangle[,] FieldZones = new Rectangle[3, 3];
         Point CellUnderMouse;
         event EventHandler MouseMovedToAnotherCell;
+        bool WantsToRestart = false;
         // Для графики > 1
         int IncorrectTurnAlpha = 255;
         int HelpAlpha = 255;
@@ -43,12 +44,18 @@ namespace TTTM
             this.connection = connection;
             this.MyNick = MyNick;
             this.OpponentNick = OpponentNick;
+            richTextBoxChat.ReadOnly = true;
+            richTextBoxChat.BackColor = SystemColors.Window;
             connection.ReceivedChat += Connection_ReceivedChat;
             connection.ReceivedTurn += Connection_ReceivedTurn;
             connection.GameEnds += Connection_GameEnds;
+            connection.AnotherPlayerDisconnected += Connection_AnotherPlayerDisconnected;
+            connection.RestartGame += Connection_ReceivedRestartGame;
+            connection.RestartRejected += Connection_RestartRejected;
             if (connection.Host.Value)
             {
                 game = new GameManagerWthFriend(MyNick, OpponentNick); // Я - первый, Он - второй
+                this.Text += " (Ваш ход)";
                 penc1 = new Pen(MyColor);
                 penc2 = new Pen(OpponentColor);
             }
@@ -77,18 +84,93 @@ namespace TTTM
 
             // Перерисовка графики и включение кнопок сохранения и загрузки
             RedrawGame(true);
+        }
 
-            this.Text += '(' + MyNick + ')';
+        private void Connection_RestartRejected(object sender, EventArgs e)
+        {
+            Action act = delegate
+            {
+                AddMessageToChat("System", "Противник отказался начинать игру заного");
+                WantsToRestart = false;
+            };
+
+            this.Invoke(act);
+        }
+
+        private void Connection_ReceivedRestartGame(object sender, EventArgs e)
+        {
+            Action act = delegate
+            {
+                if (!WantsToRestart)
+                {
+                    if (MessageBox.Show("Хотите начать игру сначала?", "Противник предложить начать игру заного", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        RestartGame();
+                        connection.SendStartGame();
+                    }
+                    else
+                    {
+                        connection.SendReject();
+                    }
+                }
+                else
+                {
+                    WantsToRestart = false;
+                    RestartGame();
+                }
+            };
+
+            this.Invoke(act);
+        }
+
+        private void RestartGame()
+        {
+            // Отписка от событий старой игры
+            game.ChangeTurn -= Game_ChangeTurn;
+            game.IncorrectTurn += Game_IncorrectTurn;
+            game.SomebodyWins += Game_SomebodyWins;
+            game.NobodyWins += Game_NobodyWins;
+
+            game.Dispose();
+            if (connection.Host.Value)
+                game = new GameManagerWthFriend(MyNick, OpponentNick); // Я - первый, Он - второй
+            else
+                game = new GameManagerWthFriend(OpponentNick, MyNick); // Я - второй, Он - первый
+
+            // Подписка на события новой игры
+            game.ChangeTurn += Game_ChangeTurn;
+            game.IncorrectTurn += Game_IncorrectTurn;
+            game.SomebodyWins += Game_SomebodyWins;
+            game.NobodyWins += Game_NobodyWins;
+
+            // Перерисовка графики и включение кнопок сохранения и загрузки
+            RedrawGame(true);
+        }
+
+        private void Connection_AnotherPlayerDisconnected(object sender, EventArgs e)
+        {
+            Action act = delegate
+            {
+                AddMessageToChat("System", "Соединение разорвано");
+                this.FormClosing -= FormMultiplayer_FormClosing;
+                textBoxChatInput.Enabled = false;
+                buttonRestart.Enabled = false;
+            };
+
+            this.Invoke(act);
         }
 
         private void Connection_GameEnds(object sender, EventArgs e)
         {
             Action act = delegate
             {
-                MessageBox.Show("Противник вышел из игры");
+                AddMessageToChat("System", "Противник вышел из игры");
                 game.Dispose();
+                connection.AnotherPlayerDisconnected -= Connection_AnotherPlayerDisconnected;
                 connection.Disconnect();
                 this.FormClosing -= FormMultiplayer_FormClosing;
+                textBoxChatInput.Enabled = false;
+                buttonRestart.Enabled = false;
             };
 
             this.Invoke(act);
@@ -105,17 +187,11 @@ namespace TTTM
         // Игровые события
         private void Game_NobodyWins(object sender, EventArgs e)
         {
-            MessageBox.Show("Игра окончена. Ничья");
-            AddMessageToChat("System", "Игра окончена. Ничья.");
-            Action again = AskToPlayAgain;
-            Invoke(again);
+            AddMessageToChat("System", "Игра окончена. Ничья");
         }
         private void Game_SomebodyWins(object sender, Game.GameEndArgs e)
         {
-            MessageBox.Show("Игра окончена.\nПобедитель: " + e.Winner.Name);
-            AddMessageToChat("System", "Игра окончена.\n     Победитель: " + e.Winner.Name);
-            Action again = AskToPlayAgain;
-            Invoke(again);
+            AddMessageToChat("System", "Игра окончена.\r\n   Победитель: " + e.Winner.Name);
         }
         private void Game_IncorrectTurn(object sender, Position e)
         {
@@ -131,6 +207,14 @@ namespace TTTM
             {
                 RedrawGame();
                 labelCurrentTurn.Text = e.Name;
+                if (e.Name == MyNick)
+                {
+                    this.Text += " (Ваш ход)";
+                    if (this.WindowState == FormWindowState.Minimized)
+                        this.Activate();
+                }
+                else
+                    this.Text = "Мультиплеерная игра";
             };
 
             this.Invoke(act);
@@ -261,13 +345,16 @@ namespace TTTM
 
             richTextBoxChat.AppendText(Text + "\r\n");
 
-            while (richTextBoxChat.Text.Contains("_moon_"))
+            richTextBoxChat.ReadOnly = false;
+            while (richTextBoxChat.Text.Contains("#луна"))
             {
-                int ind = richTextBoxChat.Text.IndexOf("_moon_");
-                richTextBoxChat.Select(ind, "_moon_".Length);
+                int ind = richTextBoxChat.Text.IndexOf("#луна");
+                richTextBoxChat.Select(ind, "#луна".Length);
                 Clipboard.SetImage((Image)Properties.Resources.SmileMoon);
                 richTextBoxChat.Paste();
             }
+            richTextBoxChat.ReadOnly = true;
+            richTextBoxChat.BackColor = SystemColors.Window;
         }
         private void textBoxChatInput_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -285,10 +372,6 @@ namespace TTTM
             if (textBoxChatInput.Text == "")
                 textBoxChatInput.Text = "Сообщение сопернику";
         }
-        private void textBoxChat_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = true;
-        }
         private void textBoxChatInput_Enter(object sender, EventArgs e)
         {
             textBoxChatInput.ForeColor = Color.Black;
@@ -296,12 +379,6 @@ namespace TTTM
                 textBoxChatInput.Text = "";
         }
         #endregion
-
-        private void AskToPlayAgain()
-        {
-            if (MessageBox.Show("Хотите сыграть ещё раз?", "Ещё раз?", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                throw new NotImplementedException("Повтор игры ещё не реализован");
-        }
 
         private Point MouseOnGameBoard()
         {
@@ -324,6 +401,12 @@ namespace TTTM
             {
                 connection.SendEndGame();
                 connection.Disconnect();
+                connection.ReceivedChat -= Connection_ReceivedChat;
+                connection.ReceivedTurn -= Connection_ReceivedTurn;
+                connection.GameEnds -= Connection_GameEnds;
+                connection.AnotherPlayerDisconnected -= Connection_AnotherPlayerDisconnected;
+                connection.RestartGame -= Connection_ReceivedRestartGame;
+                connection.RestartRejected -= Connection_RestartRejected;
             }
         }
 
@@ -338,6 +421,12 @@ namespace TTTM
                 Refresh();
 
             RedrawGame(true);
+        }
+
+        private void buttonRestart_Click(object sender, EventArgs e)
+        {
+            connection.SendStartGame();
+            WantsToRestart = true;
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
