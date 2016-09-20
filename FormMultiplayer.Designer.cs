@@ -36,6 +36,7 @@
             this.timerRefreshView = new System.Windows.Forms.Timer(this.components);
             this.richTextBoxChat = new System.Windows.Forms.RichTextBox();
             this.buttonRestart = new System.Windows.Forms.Button();
+            this.timerRefreshRestart = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -101,6 +102,7 @@
             // 
             // buttonRestart
             // 
+            this.buttonRestart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonRestart.Location = new System.Drawing.Point(337, 28);
             this.buttonRestart.Name = "buttonRestart";
             this.buttonRestart.Size = new System.Drawing.Size(260, 23);
@@ -108,6 +110,11 @@
             this.buttonRestart.Text = "Сдаться / Начать заного";
             this.buttonRestart.UseVisualStyleBackColor = true;
             this.buttonRestart.Click += new System.EventHandler(this.buttonRestart_Click);
+            // 
+            // timerRefreshRestart
+            // 
+            this.timerRefreshRestart.Interval = 60000;
+            this.timerRefreshRestart.Tick += new System.EventHandler(this.timerRefreshRestart_Tick);
             // 
             // FormMultiplayer
             // 
@@ -141,5 +148,6 @@
         private System.Windows.Forms.Timer timerRefreshView;
         private System.Windows.Forms.RichTextBox richTextBoxChat;
         private System.Windows.Forms.Button buttonRestart;
+        private System.Windows.Forms.Timer timerRefreshRestart;
     }
 }

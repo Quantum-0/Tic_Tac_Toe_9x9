@@ -93,6 +93,16 @@ namespace TTTM.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap menubg {
+            get {
+                object obj = ResourceManager.GetObject("menubg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap SmileMoon {
             get {
                 object obj = ResourceManager.GetObject("SmileMoon", resourceCulture);

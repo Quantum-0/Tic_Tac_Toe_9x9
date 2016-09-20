@@ -427,6 +427,14 @@ namespace TTTM
         {
             connection.SendStartGame();
             WantsToRestart = true;
+            buttonRestart.Enabled = false;
+            timerRefreshRestart.Start();
+        }
+
+        private void timerRefreshRestart_Tick(object sender, EventArgs e)
+        {
+            buttonRestart.Enabled = true;
+            timerRefreshRestart.Stop();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

@@ -159,10 +159,18 @@ namespace TTTM
             connection.Disconnect();
         }
 
+        private void RemoveFromTheWeb()
+        {
+            var ReqUrl = "http://quantum0.netau.net/remove.php?Name=" + HttpUtility.UrlEncode(textBoxNick.Text) + "&Port=" + textBoxPort.Text;
+            try { WebRequest.CreateHttp(ReqUrl).GetResponse().Close(); }
+            catch { }
+        }
+
         private void Connection_GameStarts(object sender, EventArgs e)
         {
             Action d = delegate
             {
+                RemoveFromTheWeb();
                 toolStripStatusLabel.Text = "Игра началась";
                 FormMultiplayer MPForm = new FormMultiplayer(settings, connection, textBoxNick.Text, labelConnectedPlayerNick.Text, panel1.BackColor, panel2.BackColor);
                 MPForm.Show();
@@ -201,6 +209,8 @@ namespace TTTM
 
         private void radioButtonServer_CheckedChanged(object sender, EventArgs e)
         {
+            if (!radioButtonServer.Checked)
+                return;
             interfaceNetConfig = interfaceNetConfigState.OnlyPort;
             buttonStart.Text = "Создать сервер";
         }
@@ -215,12 +225,33 @@ namespace TTTM
 
         private void radioButtonClient_CheckedChanged(object sender, EventArgs e)
         {
+            if (!radioButtonClient.Checked)
+                return;
+            
             interfaceNetConfig = interfaceNetConfigState.AllEnabled;
             buttonStart.Text = "Подключится";
-            Servers = GetServers();
-            var servers = Servers.Select(s => s.Name.PadRight(16) + '[' + s.IP + ':' + s.Port +  ']');
-            comboBox1.Items.Clear();
-            comboBox1.Items.AddRange(servers.ToArray());
+            try
+            {
+                Servers = GetServers();
+                var servers = Servers.Select(s => s.Name.PadRight(16) + '[' + s.IP + ':' + s.Port + ']');
+                comboBox1.Items.Clear();
+                if (servers.Count() == 0)
+                {
+                    comboBox1.Text = "Публичные запущенные сервера отсутствуют";
+                    comboBox1.Enabled = false;
+                }
+                else
+                {
+                    comboBox1.Items.AddRange(servers.ToArray());
+                    comboBox1.Enabled = true;
+                }
+
+            }
+            catch
+            {
+                comboBox1.Text = "Неудалось загрузить список серверов";
+                comboBox1.Enabled = false;
+            };
         }
 
         private struct ServerRecord
@@ -244,7 +275,9 @@ namespace TTTM
         private List<ServerRecord> GetServers()
         {
             var ReqUrl = "http://quantum0.netau.net/get.php";
-            var resp = WebRequest.CreateHttp(ReqUrl).GetResponse();
+            var req = WebRequest.CreateHttp(ReqUrl);
+            //req.Timeout = 5000;
+            var resp = req.GetResponse();
             var Result = new List<ServerRecord>();
             using (var reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
             {
@@ -261,7 +294,8 @@ namespace TTTM
         private void RegisterOnTheWeb()
         {
             var ReqUrl = "http://quantum0.netau.net/add.php?Name=" + HttpUtility.UrlEncode(textBoxNick.Text) + "&Color=" + panel1.BackColor.ToArgb().ToString() + "&Port=" + textBoxPort.Text;
-            WebRequest.CreateHttp(ReqUrl).GetResponse().Close();
+            try { WebRequest.CreateHttp(ReqUrl).GetResponse().Close(); }
+            catch { }
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -325,6 +359,7 @@ namespace TTTM
             {
                 toolStripStatusLabel.Text = "Сервер остановлен";
                 connection.StopServerListening();
+                RemoveFromTheWeb();
                 buttonStart.Text = "Создать сервер";
             }
 

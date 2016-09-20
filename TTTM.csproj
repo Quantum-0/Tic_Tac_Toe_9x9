@@ -156,6 +156,9 @@
     <None Include="help3.png" />
     <None Include="help2.png" />
     <None Include="help1.png" />
+    <Resource Include="Resources\menubg.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Content Include="Resources\SmileMoon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
