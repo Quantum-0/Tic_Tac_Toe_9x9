@@ -5,28 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TTTM"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid UseLayoutRounding="True">
+             d:DesignHeight="300" d:DesignWidth="475">
+    <UserControl.Background>
+        <ImageBrush ImageSource="Resources\menubg.jpg"/>
+    </UserControl.Background>
+    <Grid UseLayoutRounding="True" Margin="0,0,-175,0" HorizontalAlignment="Left" Width="475">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="CommonStates">
                 <VisualState x:Name="Normal"/>
                 <VisualState x:Name="MouseEnter"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        <Grid.Background>
-            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <LinearGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                        <ScaleTransform CenterY="0.5" CenterX="0.5"/>
-                        <SkewTransform CenterY="0.5" CenterX="0.5"/>
-                        <RotateTransform Angle="14.036" CenterY="0.5" CenterX="0.5"/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </LinearGradientBrush.RelativeTransform>
-                <GradientStop Color="#FF939090" Offset="0"/>
-                <GradientStop Color="White" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
         <Button x:Name="buttonSingleplayer" Content="Одиночная игра" HorizontalAlignment="Right" Margin="0,0,10,110" VerticalAlignment="Bottom" Width="119" IsDefault="True">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">

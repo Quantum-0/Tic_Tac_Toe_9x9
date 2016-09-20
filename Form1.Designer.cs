@@ -37,16 +37,17 @@
             this.elementHost.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elementHost.Location = new System.Drawing.Point(0, 0);
             this.elementHost.Name = "elementHost";
-            this.elementHost.Size = new System.Drawing.Size(284, 261);
+            this.elementHost.Size = new System.Drawing.Size(475, 300);
             this.elementHost.TabIndex = 6;
             this.elementHost.Text = "elementHost";
+            this.elementHost.ChildChanged += new System.EventHandler<System.Windows.Forms.Integration.ChildChangedEventArgs>(this.elementHost_ChildChanged);
             this.elementHost.Child = this.mainMenuControl;
             // 
             // FormMainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(475, 300);
             this.Controls.Add(this.elementHost);
             this.Name = "FormMainMenu";
             this.Text = "Менюшк";
