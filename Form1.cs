@@ -11,21 +11,15 @@ using System.Windows.Forms;
 
 namespace TTTM
 {
-    /*
-     * TODO:
-     * 
-     * Картинку для менюшки
-     * Попробовать переделать в WPF
-     * 
-     */
-
     public partial class FormMainMenu : Form
     {
         Settings settings;
+        int vSpeed = 0;
 
         public FormMainMenu()
         {
             InitializeComponent();
+            timerOpacity.Start();
             mainMenuControl.buttonSingleplayer.Click += buttonSingle_Click;
             mainMenuControl.buttonMultiplayer.Click += buttonMulti_Click;
             mainMenuControl.buttonSettings.Click += buttonSettings_Click;
@@ -53,7 +47,9 @@ namespace TTTM
         private void buttonExit_Click(object sender, EventArgs e)
         {
             // Закрытие формы и выход из игры
-            Close();
+            timerOpacity.Stop();
+            timerClosing.Start();
+            //Close();
         }
 
         private void FormMainMenu_FormClosing(object sender, FormClosingEventArgs e)
@@ -75,9 +71,28 @@ namespace TTTM
             smg.Show();
         }
 
-        private void elementHost_ChildChanged(object sender, System.Windows.Forms.Integration.ChildChangedEventArgs e)
+        private void timerOpacity_Tick(object sender, EventArgs e)
         {
+            this.Opacity += 0.02;
+            if (this.Opacity == 100)
+            {
+                timerOpacity.Stop();
+                timerOpacity.Tick -= timerOpacity_Tick;
+            }
+        }
 
+        private void timerClosing_Tick(object sender, EventArgs e)
+        {
+            this.Opacity -= 0.02;
+            this.SetDesktopLocation(this.Location.X, this.Location.Y + vSpeed);
+            if (Math.Round(Opacity * 100) % 4 == 0)
+                vSpeed += 1;
+            if (this.Opacity == 0)
+            {
+                timerClosing.Stop();
+                timerClosing.Tick -= timerClosing_Tick;
+                Close();
+            }
         }
     }
 }

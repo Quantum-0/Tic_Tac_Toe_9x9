@@ -5,21 +5,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TTTM"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="475">
+             d:DesignHeight="347" d:DesignWidth="600">
     <UserControl.Background>
         <ImageBrush ImageSource="Resources\menubg.jpg"/>
     </UserControl.Background>
-    <Grid UseLayoutRounding="True" Margin="0,0,-175,0" HorizontalAlignment="Left" Width="475">
+    <Grid UseLayoutRounding="True" HorizontalAlignment="Left" Width="600">
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="CommonStates">
                 <VisualState x:Name="Normal"/>
                 <VisualState x:Name="MouseEnter"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        <Button x:Name="buttonSingleplayer" Content="Одиночная игра" HorizontalAlignment="Right" Margin="0,0,10,110" VerticalAlignment="Bottom" Width="119" IsDefault="True">
+        <Button x:Name="buttonSingleplayer" Content="Одиночная игра" HorizontalAlignment="Right" Margin="0,0,15,170" VerticalAlignment="Bottom" Width="150" IsDefault="True" Height="27" FontSize="14">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
-                    <GradientStop Color="#FFD64F4F"/>
+                    <GradientStop Color="#FF99D64F"/>
                     <GradientStop Color="White" Offset="1"/>
                 </LinearGradientBrush>
             </Button.Background>
@@ -27,7 +27,7 @@
                 <DropShadowEffect Opacity="0.15"/>
             </Button.Effect>
         </Button>
-        <Button x:Name="buttonMultiplayer" Content="Играть по сети" HorizontalAlignment="Right" Margin="0,0,10,85" VerticalAlignment="Bottom" Width="119">
+        <Button x:Name="buttonMultiplayer" Content="Играть по сети" HorizontalAlignment="Right" Margin="0,0,15,132" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF71B230" Offset="0"/>
@@ -38,10 +38,10 @@
                 <DropShadowEffect Opacity="0.15"/>
             </Button.Effect>
         </Button>
-        <Button x:Name="buttonSettings" Content="Настройки" HorizontalAlignment="Right" Margin="0,0,10,60" VerticalAlignment="Bottom" Width="119">
+        <Button x:Name="buttonSettings" Content="Настройки" HorizontalAlignment="Right" Margin="0,0,15,95" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF316BBF" Offset="0"/>
+                    <GradientStop Color="#FF8BBF31" Offset="0"/>
                     <GradientStop Color="White" Offset="1"/>
                 </LinearGradientBrush>
             </Button.Background>
@@ -49,10 +49,10 @@
                 <DropShadowEffect Opacity="0.15"/>
             </Button.Effect>
         </Button>
-        <Button x:Name="buttonHelp" Content="Помощь" HorizontalAlignment="Right" Margin="0,0,10,35" VerticalAlignment="Bottom" Width="119">
+        <Button x:Name="buttonHelp" Content="Помощь" HorizontalAlignment="Right" Margin="0,0,15,57" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFC3CB24" Offset="0"/>
+                    <GradientStop Color="#FF88C123" Offset="0"/>
                     <GradientStop Color="White" Offset="1"/>
                 </LinearGradientBrush>
             </Button.Background>
@@ -60,10 +60,10 @@
                 <DropShadowEffect Opacity="0.15"/>
             </Button.Effect>
         </Button>
-        <Button x:Name="buttonExit" Content="Выход" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="119" IsCancel="True">
+        <Button x:Name="buttonExit" Content="Выход" HorizontalAlignment="Right" Margin="0,0,15,20" VerticalAlignment="Bottom" Width="150" IsCancel="True" Height="27" FontSize="14">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF280538" Offset="0"/>
+                    <GradientStop Color="#FF6FCB00" Offset="0"/>
                     <GradientStop Color="White" Offset="1"/>
                 </LinearGradientBrush>
             </Button.Background>
