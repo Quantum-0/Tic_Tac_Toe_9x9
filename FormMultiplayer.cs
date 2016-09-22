@@ -355,6 +355,9 @@ namespace TTTM
             }
             richTextBoxChat.ReadOnly = true;
             richTextBoxChat.BackColor = SystemColors.Window;
+
+            richTextBoxChat.SelectionStart = richTextBoxChat.Text.Length;
+            richTextBoxChat.ScrollToCaret();
         }
         private void textBoxChatInput_KeyPress(object sender, KeyPressEventArgs e)
         {
