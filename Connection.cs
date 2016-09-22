@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -180,6 +181,7 @@ namespace TTTM
         public State state { private set; get; } // Текущее состояние
         public bool? Host { private set; get; }
         LowLevelConnection LLCon = new LowLevelConnection();
+        private int? Port;
 
         // События
         public event EventHandler AnotherPlayerConnected; // Серверное
@@ -234,6 +236,67 @@ namespace TTTM
             LLCon.AnotherPlayerDisconnected -= LLCon_AnotherPlayerDisconnected;
             LLCon.ReceivedData -= LLCon_ReceivedData;
             LLCon.StopServerListening();
+        }
+
+        public bool TryToClosePort(int Port)
+        {
+            try
+            {
+                var upnpnat = new NATUPNPLib.UPnPNAT();
+                var mappings = upnpnat.StaticPortMappingCollection;
+                if (mappings == null)
+                    return false;
+                mappings.Remove(Port, "TCP");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool TryToOpenPort(int Port)
+        {
+            try
+            {
+                var upnpnat = new NATUPNPLib.UPnPNAT();
+                var mappings = upnpnat.StaticPortMappingCollection;
+                if (mappings == null)
+                    return false;
+                mappings.Add(Port, "TCP", Port, GetLocalAdress().ToString(), true, "Quantum0's Tic Tac Toe Server");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static IPAddress GetLocalAdress()
+        {
+            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            foreach (NetworkInterface network in networkInterfaces)
+            {
+
+                IPInterfaceProperties properties = network.GetIPProperties();
+
+                if (properties.GatewayAddresses.Count == 0)//вся магия вот в этой строке
+                    continue;
+
+                foreach (IPAddressInformation address in properties.UnicastAddresses)
+                {
+
+                    if (address.Address.AddressFamily != AddressFamily.InterNetwork)
+                        continue;
+
+                    if (IPAddress.IsLoopback(address.Address))
+                        continue;
+
+                    return address.Address;
+                }
+            }
+            return default(IPAddress);
         }
 
         private void LLCon_ReceivedData(object sender, LowLevelConnection.ReceivedDataEventArgs e)
@@ -292,6 +355,8 @@ namespace TTTM
 
         public void SendTurn(Position Turn)
         {
+            if (Turn.x < 0 || Turn.y < 0)
+                Turn = new Position(9, 9);
             string Data = "TRN" + Turn.x.ToString() + Turn.y.ToString();
             LLCon.Send(Data);
         }
@@ -338,6 +403,11 @@ namespace TTTM
         }
         public void Disconnect()
         {
+            if (Port.HasValue)
+            {
+                TryToClosePort(Port.Value);
+                Port = null;
+            }
             LLCon.Disconnect();
             state = (State)(byte)LLCon.state;
         }
@@ -345,9 +415,11 @@ namespace TTTM
         {
             try
             {
+                TryToOpenPort(Port);
                 LLCon.StartServerListening(Port);
                 state = State.Listening;
                 Host = true;
+                this.Port = Port;
             }
             catch (Exception e)
             {

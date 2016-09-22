@@ -476,6 +476,8 @@ namespace TTTM
 
         private void StartMultiplayerGame_FormClosed(object sender, FormClosedEventArgs e)
         {
+            if (connection.state != Connection.State.Off)
+                RemoveFromTheWeb();
             connection.Disconnect();
             connection.StopServerListening();
         }
