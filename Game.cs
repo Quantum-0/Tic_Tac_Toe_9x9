@@ -579,7 +579,7 @@ namespace TTTM
                     if (Fields[i, j].Owner == null && !Fields[i,j].Full)
                         full = false;
 
-            if (full && !SilentMode)
+            if (full && !SilentMode && !Finished)
             {
                 // Конец игры из-за заполненности всех полей
                 Finished = true;
