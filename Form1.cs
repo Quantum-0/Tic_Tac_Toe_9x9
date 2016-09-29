@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace TTTM
 {
@@ -25,9 +26,17 @@ namespace TTTM
             mainMenuControl.buttonSettings.Click += buttonSettings_Click;
             mainMenuControl.buttonHelp.Click += buttonHelp_Click;
             mainMenuControl.buttonExit.Click += buttonExit_Click;
+            mainMenuControl.rectTitle.MouseLeftButtonDown += startDrag;
 
             // Создаём настройки
             Settings.Load("Settings.cfg", out settings);
+        }
+        
+        private void startDrag(object sender, MouseButtonEventArgs e)
+        {
+            base.Capture = false;
+            Message m = Message.Create(base.Handle, 161, new IntPtr(2), IntPtr.Zero);
+            this.WndProc(ref m);
         }
 
         private void buttonHelp_Click(object sender, RoutedEventArgs e)
@@ -74,7 +83,7 @@ namespace TTTM
         private void timerOpacity_Tick(object sender, EventArgs e)
         {
             this.Opacity += 0.02;
-            if (this.Opacity == 100)
+            if (this.Opacity == 1)
             {
                 timerOpacity.Stop();
                 timerOpacity.Tick -= timerOpacity_Tick;

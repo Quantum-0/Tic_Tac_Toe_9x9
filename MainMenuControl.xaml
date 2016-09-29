@@ -71,6 +71,20 @@
                 <DropShadowEffect Opacity="0.15"/>
             </Button.Effect>
         </Button>
+        <Rectangle x:Name="rectTitle" Height="32" VerticalAlignment="Top">
+            <Rectangle.OpacityMask>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black"/>
+                    <GradientStop Color="White" Offset="1"/>
+                </LinearGradientBrush>
+            </Rectangle.OpacityMask>
+            <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0"/>
+                    <GradientStop Color="#002D2D2D" Offset="0.69"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
 
     </Grid>
 </UserControl>

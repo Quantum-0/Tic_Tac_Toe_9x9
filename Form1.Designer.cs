@@ -30,15 +30,20 @@
         {
             this.components = new System.ComponentModel.Container();
             this.timerOpacity = new System.Windows.Forms.Timer(this.components);
+            this.timerClosing = new System.Windows.Forms.Timer(this.components);
             this.elementHost = new System.Windows.Forms.Integration.ElementHost();
             this.mainMenuControl = new TTTM.MainMenuControl();
-            this.timerClosing = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // timerOpacity
             // 
             this.timerOpacity.Interval = 20;
             this.timerOpacity.Tick += new System.EventHandler(this.timerOpacity_Tick);
+            // 
+            // timerClosing
+            // 
+            this.timerClosing.Interval = 20;
+            this.timerClosing.Tick += new System.EventHandler(this.timerClosing_Tick);
             // 
             // elementHost
             // 
@@ -49,11 +54,6 @@
             this.elementHost.TabIndex = 6;
             this.elementHost.Text = "elementHost";
             this.elementHost.Child = this.mainMenuControl;
-            // 
-            // timerClosing
-            // 
-            this.timerClosing.Interval = 20;
-            this.timerClosing.Tick += new System.EventHandler(this.timerClosing_Tick);
             // 
             // FormMainMenu
             // 
