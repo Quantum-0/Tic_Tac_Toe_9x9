@@ -45,7 +45,7 @@
             this.labelConnectedPlayer = new System.Windows.Forms.Label();
             this.labelConnectedPlayerNick = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.comboBox1 = new AdvancedComboBox();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -257,6 +257,6 @@
         private System.Windows.Forms.Label labelConnectedPlayer;
         private System.Windows.Forms.Label labelConnectedPlayerNick;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private AdvancedComboBox comboBox1;
     }
 }

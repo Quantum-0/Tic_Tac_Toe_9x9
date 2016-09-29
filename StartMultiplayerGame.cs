@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace TTTM
 {
@@ -19,6 +20,7 @@ namespace TTTM
         Connection connection;
         Settings settings;
         List<ServerRecord> Servers;
+        string HostedServerAccessKey = "";
 
         private enum interfaceNetConfigState : byte
         {
@@ -161,8 +163,11 @@ namespace TTTM
 
         private void RemoveFromTheWeb()
         {
-            var ReqUrl = "http://quantum0.netau.net/remove.php?Name=" + HttpUtility.UrlEncode(textBoxNick.Text) + "&Port=" + textBoxPort.Text;
-            try { WebRequest.CreateHttp(ReqUrl).GetResponse().Close(); }
+            var xml = new XmlDocument();
+            try
+            {
+                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/Remove?AccessKey=" + HostedServerAccessKey);
+            }
             catch { }
         }
 
@@ -233,7 +238,7 @@ namespace TTTM
             try
             {
                 Servers = GetServers();
-                var servers = Servers.Select(s => s.Name.PadRight(16) + '[' + s.IP + ':' + s.Port + ']');
+                var servers = Servers.Select(s => new AdvancedComboBox.AdvancedComboBoxItem(s.Name.PadRight(16) + " [" + s.IP + ':' + s.Port + ']', Color.FromArgb(int.Parse(s.Color))));
                 comboBox1.Items.Clear();
                 if (servers.Count() == 0)
                 {
@@ -260,42 +265,51 @@ namespace TTTM
             public string Port;
             public string Name;
             public string Color;
-            public string Time;
 
-            public ServerRecord(string ip, string port, string name, string color, string time)
+            public ServerRecord(string ip, string port, string name, string color)
             {
                 IP = ip;
                 Port = port;
                 Name = name;
                 Color = color;
-                Time = time;
             }
         }
 
         private List<ServerRecord> GetServers()
         {
-            var ReqUrl = "http://quantum0.netau.net/get.php";
-            var req = WebRequest.CreateHttp(ReqUrl);
-            //req.Timeout = 5000;
-            var resp = req.GetResponse();
             var Result = new List<ServerRecord>();
-            using (var reader = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
+            try
             {
-                var value = reader.ReadToEnd();
-                var values = value.Split('&').ToArray();
-                for (int i = 1; i < values.Length-1; i+=5)
+                var xml = new XmlDocument();
+                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/Get");
+                var ServerList = xml.DocumentElement.ChildNodes;
+                foreach (XmlNode ServerNode in ServerList)
                 {
-                    Result.Add(new ServerRecord(values[i + 2], values[i + 3], values[i], values[i + 1], values[i + 4]));
+                    var ip = ServerNode["IP"].InnerText;
+                    var port = ServerNode["Port"].InnerText;
+                    var name = ServerNode["Name"].InnerText;
+                    var color = ServerNode["Color"].InnerText;
+                    Result.Add(new ServerRecord(ip, port, name, color));
                 }
-            }
+            } catch { }
             return Result;
         }
 
         private void RegisterOnTheWeb()
         {
-            var ReqUrl = "http://quantum0.netau.net/add.php?Name=" + HttpUtility.UrlEncode(textBoxNick.Text) + "&Color=" + panel1.BackColor.ToArgb().ToString() + "&Port=" + textBoxPort.Text;
-            try { WebRequest.CreateHttp(ReqUrl).GetResponse().Close(); }
-            catch { }
+            var parameters = "Name=" + HttpUtility.UrlEncode(textBoxNick.Text) + "&Color=" + panel1.BackColor.ToArgb().ToString() + "&Port=" + textBoxPort.Text;
+            var xml = new XmlDocument();
+            try
+            {
+                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/Add?" + parameters);
+                var CreatingResult = xml.DocumentElement;
+                HostedServerAccessKey = CreatingResult["AccessKey"].InnerText;
+                bool Ping = (CreatingResult["Ping"].InnerText == "true");
+            }
+            catch
+            {
+                throw new NotImplementedException("Доделай реализацию обработки ошибки от сервера регистрации серверов!");
+            }
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
