@@ -28,235 +28,339 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.radioButtonServer = new System.Windows.Forms.RadioButton();
-            this.radioButtonClient = new System.Windows.Forms.RadioButton();
-            this.textBoxIP = new System.Windows.Forms.TextBox();
+            this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textBoxPort = new System.Windows.Forms.TextBox();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBoxNick = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.buttonStart = new System.Windows.Forms.Button();
-            this.buttonCancel = new System.Windows.Forms.Button();
-            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
-            this.labelConnectedPlayer = new System.Windows.Forms.Label();
-            this.labelConnectedPlayerNick = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.comboBox1 = new AdvancedComboBox();
-            this.statusStrip1.SuspendLayout();
+            this.label2 = new System.Windows.Forms.Label();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.ColumnServerName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnPlayerName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
+            this.tabControl.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
-            // radioButtonServer
+            // tabControl
             // 
-            this.radioButtonServer.AutoSize = true;
-            this.radioButtonServer.Location = new System.Drawing.Point(12, 12);
-            this.radioButtonServer.Name = "radioButtonServer";
-            this.radioButtonServer.Size = new System.Drawing.Size(106, 17);
-            this.radioButtonServer.TabIndex = 1;
-            this.radioButtonServer.TabStop = true;
-            this.radioButtonServer.Text = "Создать сервер";
-            this.radioButtonServer.UseVisualStyleBackColor = true;
-            this.radioButtonServer.CheckedChanged += new System.EventHandler(this.radioButtonServer_CheckedChanged);
+            this.tabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+            this.tabControl.Controls.Add(this.tabPage1);
+            this.tabControl.Controls.Add(this.tabPage2);
+            this.tabControl.Controls.Add(this.tabPage3);
+            this.tabControl.Controls.Add(this.tabPage4);
+            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl.HotTrack = true;
+            this.tabControl.Location = new System.Drawing.Point(0, 0);
+            this.tabControl.Multiline = true;
+            this.tabControl.Name = "tabControl";
+            this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(423, 241);
+            this.tabControl.TabIndex = 0;
+            this.tabControl.TabStop = false;
             // 
-            // radioButtonClient
+            // tabPage1
             // 
-            this.radioButtonClient.AutoSize = true;
-            this.radioButtonClient.Location = new System.Drawing.Point(12, 35);
-            this.radioButtonClient.Name = "radioButtonClient";
-            this.radioButtonClient.Size = new System.Drawing.Size(146, 17);
-            this.radioButtonClient.TabIndex = 2;
-            this.radioButtonClient.TabStop = true;
-            this.radioButtonClient.Text = "Подключится к серверу";
-            this.radioButtonClient.UseVisualStyleBackColor = true;
-            this.radioButtonClient.CheckedChanged += new System.EventHandler(this.radioButtonClient_CheckedChanged);
+            this.tabPage1.Controls.Add(this.button6);
+            this.tabPage1.Controls.Add(this.label2);
+            this.tabPage1.Controls.Add(this.panel1);
+            this.tabPage1.Controls.Add(this.label1);
+            this.tabPage1.Controls.Add(this.textBox1);
+            this.tabPage1.Location = new System.Drawing.Point(4, 25);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(415, 212);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Общие настройки";
+            this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // textBoxIP
+            // tabPage2
             // 
-            this.textBoxIP.Location = new System.Drawing.Point(201, 11);
-            this.textBoxIP.Name = "textBoxIP";
-            this.textBoxIP.Size = new System.Drawing.Size(100, 20);
-            this.textBoxIP.TabIndex = 3;
+            this.tabPage2.Controls.Add(this.button3);
+            this.tabPage2.Controls.Add(this.button2);
+            this.tabPage2.Controls.Add(this.dataGridView1);
+            this.tabPage2.Location = new System.Drawing.Point(4, 25);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(415, 212);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Список серверов";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Location = new System.Drawing.Point(21, 29);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(386, 20);
+            this.textBox1.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(175, 14);
+            this.label1.Location = new System.Drawing.Point(8, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(20, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "IP:";
+            this.label1.Size = new System.Drawing.Size(30, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Ник:";
+            // 
+            // panel1
+            // 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Location = new System.Drawing.Point(21, 68);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(386, 20);
+            this.panel1.TabIndex = 2;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(175, 40);
+            this.label2.Location = new System.Drawing.Point(8, 52);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(35, 13);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Порт:";
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Цвет:";
             // 
-            // textBoxPort
+            // tabPage3
             // 
-            this.textBoxPort.Location = new System.Drawing.Point(216, 37);
-            this.textBoxPort.Name = "textBoxPort";
-            this.textBoxPort.Size = new System.Drawing.Size(85, 20);
-            this.textBoxPort.TabIndex = 5;
+            this.tabPage3.Controls.Add(this.button1);
+            this.tabPage3.Controls.Add(this.label3);
+            this.tabPage3.Controls.Add(this.textBox2);
+            this.tabPage3.Location = new System.Drawing.Point(4, 25);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(415, 212);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Создание сервера";
+            this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // statusStrip1
+            // tabPage4
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 239);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(311, 22);
-            this.statusStrip1.TabIndex = 7;
-            this.statusStrip1.Text = "statusStrip1";
-            // 
-            // toolStripStatusLabel
-            // 
-            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(106, 17);
-            this.toolStripStatusLabel.Text = "Нет подключения";
+            this.tabPage4.Controls.Add(this.button5);
+            this.tabPage4.Controls.Add(this.button4);
+            this.tabPage4.Controls.Add(this.label6);
+            this.tabPage4.Controls.Add(this.label5);
+            this.tabPage4.Controls.Add(this.label4);
+            this.tabPage4.Location = new System.Drawing.Point(4, 25);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Size = new System.Drawing.Size(415, 212);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Подключение";
+            this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 105);
+            this.label3.Location = new System.Drawing.Point(8, 11);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(30, 13);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "Ник:";
+            this.label3.Size = new System.Drawing.Size(105, 13);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "Название сервера:";
             // 
-            // textBoxNick
+            // textBox2
             // 
-            this.textBoxNick.Location = new System.Drawing.Point(48, 102);
-            this.textBoxNick.Name = "textBoxNick";
-            this.textBoxNick.Size = new System.Drawing.Size(100, 20);
-            this.textBoxNick.TabIndex = 9;
+            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox2.Location = new System.Drawing.Point(21, 27);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(386, 20);
+            this.textBox2.TabIndex = 6;
             // 
-            // panel1
+            // dataGridView1
             // 
-            this.panel1.BackColor = System.Drawing.Color.Black;
-            this.panel1.Location = new System.Drawing.Point(159, 102);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(22, 20);
-            this.panel1.TabIndex = 10;
-            this.panel1.Click += new System.EventHandler(this.panel1_Click);
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.dataGridView1.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.Sunken;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColumnServerName,
+            this.ColumnPlayerName,
+            this.ColumnIP});
+            this.dataGridView1.EnableHeadersVisualStyles = false;
+            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.Size = new System.Drawing.Size(409, 181);
+            this.dataGridView1.TabIndex = 0;
             // 
-            // buttonStart
+            // ColumnServerName
             // 
-            this.buttonStart.Location = new System.Drawing.Point(201, 203);
-            this.buttonStart.Name = "buttonStart";
-            this.buttonStart.Size = new System.Drawing.Size(100, 23);
-            this.buttonStart.TabIndex = 11;
-            this.buttonStart.Text = "Создать сервер";
-            this.buttonStart.UseVisualStyleBackColor = true;
-            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
+            this.ColumnServerName.HeaderText = "Название сервера";
+            this.ColumnServerName.Name = "ColumnServerName";
+            this.ColumnServerName.ReadOnly = true;
+            this.ColumnServerName.Width = 135;
             // 
-            // buttonCancel
+            // ColumnPlayerName
             // 
-            this.buttonCancel.Location = new System.Drawing.Point(92, 203);
-            this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(103, 23);
-            this.buttonCancel.TabIndex = 12;
-            this.buttonCancel.Text = "Отключит сервер";
-            this.buttonCancel.UseVisualStyleBackColor = true;
-            this.buttonCancel.Visible = false;
-            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+            this.ColumnPlayerName.HeaderText = "Имя игрока";
+            this.ColumnPlayerName.Name = "ColumnPlayerName";
+            this.ColumnPlayerName.ReadOnly = true;
+            this.ColumnPlayerName.Width = 135;
             // 
-            // labelConnectedPlayer
+            // ColumnIP
             // 
-            this.labelConnectedPlayer.AutoSize = true;
-            this.labelConnectedPlayer.Location = new System.Drawing.Point(15, 132);
-            this.labelConnectedPlayer.Name = "labelConnectedPlayer";
-            this.labelConnectedPlayer.Size = new System.Drawing.Size(59, 13);
-            this.labelConnectedPlayer.TabIndex = 13;
-            this.labelConnectedPlayer.Text = "Соперник:";
-            this.labelConnectedPlayer.Visible = false;
+            this.ColumnIP.HeaderText = "Адрес сервера";
+            this.ColumnIP.Name = "ColumnIP";
+            this.ColumnIP.ReadOnly = true;
+            this.ColumnIP.Width = 135;
             // 
-            // labelConnectedPlayerNick
+            // button1
             // 
-            this.labelConnectedPlayerNick.AutoSize = true;
-            this.labelConnectedPlayerNick.Location = new System.Drawing.Point(48, 152);
-            this.labelConnectedPlayerNick.Name = "labelConnectedPlayerNick";
-            this.labelConnectedPlayerNick.Size = new System.Drawing.Size(78, 13);
-            this.labelConnectedPlayerNick.TabIndex = 14;
-            this.labelConnectedPlayerNick.Text = "Тут будет Ник";
-            this.labelConnectedPlayerNick.Visible = false;
+            this.button1.Location = new System.Drawing.Point(294, 53);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(113, 23);
+            this.button1.TabIndex = 8;
+            this.button1.Text = "Создать сервер";
+            this.button1.UseVisualStyleBackColor = true;
             // 
-            // panel2
+            // button2
             // 
-            this.panel2.Location = new System.Drawing.Point(20, 149);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(22, 20);
-            this.panel2.TabIndex = 15;
-            this.panel2.Visible = false;
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Location = new System.Drawing.Point(220, 186);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(187, 23);
+            this.button2.TabIndex = 1;
+            this.button2.Text = "Подключиться";
+            this.button2.UseVisualStyleBackColor = true;
             // 
-            // comboBox1
+            // button3
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(12, 63);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(289, 21);
-            this.comboBox1.TabIndex = 16;
-            this.comboBox1.Text = "Выбрать сервер";
-            this.comboBox1.Visible = false;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button3.Location = new System.Drawing.Point(8, 186);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(187, 23);
+            this.button3.TabIndex = 2;
+            this.button3.Text = "Обновить";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(8, 9);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(47, 13);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "Сервер:";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(8, 67);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(50, 13);
+            this.label5.TabIndex = 1;
+            this.label5.Text = "Игрок 1:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(8, 122);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(50, 13);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "Игрок 2:";
+            // 
+            // button4
+            // 
+            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button4.Location = new System.Drawing.Point(244, 181);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(163, 23);
+            this.button4.TabIndex = 3;
+            this.button4.Text = "Начать игру";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // button5
+            // 
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button5.Location = new System.Drawing.Point(11, 181);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(163, 23);
+            this.button5.TabIndex = 4;
+            this.button5.Text = "Отключить / Отключиться";
+            this.button5.UseVisualStyleBackColor = true;
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(11, 181);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(396, 23);
+            this.button6.TabIndex = 4;
+            this.button6.Text = "Открыть все настройки";
+            this.button6.UseVisualStyleBackColor = true;
             // 
             // StartMultiplayerGame
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(311, 261);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.panel2);
-            this.Controls.Add(this.labelConnectedPlayerNick);
-            this.Controls.Add(this.labelConnectedPlayer);
-            this.Controls.Add(this.buttonCancel);
-            this.Controls.Add(this.buttonStart);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.textBoxNick);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBoxPort);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBoxIP);
-            this.Controls.Add(this.radioButtonClient);
-            this.Controls.Add(this.radioButtonServer);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.ClientSize = new System.Drawing.Size(423, 241);
+            this.Controls.Add(this.tabControl);
+            this.MinimumSize = new System.Drawing.Size(439, 280);
             this.Name = "StartMultiplayerGame";
             this.Text = "Мультиплеер";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.StartMultiplayerGame_FormClosed);
-            this.Load += new System.EventHandler(this.StartMultiplayerGame_Load);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
+            this.tabControl.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.RadioButton radioButtonServer;
-        private System.Windows.Forms.RadioButton radioButtonClient;
-        private System.Windows.Forms.TextBox textBoxIP;
-        private System.Windows.Forms.Label label1;
+
+        private System.Windows.Forms.TabControl tabControl;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBoxPort;
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBoxNick;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button buttonStart;
-        private System.Windows.Forms.Button buttonCancel;
-        private System.Windows.Forms.ColorDialog colorDialog1;
-        private System.Windows.Forms.Label labelConnectedPlayer;
-        private System.Windows.Forms.Label labelConnectedPlayerNick;
-        private System.Windows.Forms.Panel panel2;
-        private AdvancedComboBox comboBox1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnServerName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPlayerName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnIP;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label4;
     }
 }
