@@ -1,16 +1,368 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using LiteNetLib;
+using System.Timers;
+//using System.Threading;
 
 namespace TTTM
 {
+    class Connection2
+        // mb static ?
+    {
+        /*
+         * Принцип соединения:
+         * Начальное состояние |off, off|
+         * Server |Created,off| - RegisterOnTheWeb
+         * Client |Created, PreConnecting| -  WantToConnect
+         * Server |Created, PreConnectin| - CheckWhoWant
+         * Server |Connecting, PreConnectin| - WriteReady
+         * Client |Connecting, Connecting| - ReadReady
+         * Client |Connecting, Establishing| - WriteClientEP
+         * Server |Establishing, Establishing| - ReadClientEP
+         * Client TryConnect =>>
+         * Server TryConnect =>>
+         * Server & Client |Connected, Connected|
+         * 
+         * 
+         * 
+         * 
+         */
+        public enum State : int
+        {
+            Off, // Сервер выключен
+            Created, // Сервер добавлен в список серверов на сайте (периодически опрашивать сайт о том желает ли кто подключится)
+            PreConnecting, // Клиент ждём готовности к подключению от сервера
+            Connecting, // Сервер и клиент готовы к соединению
+            Establishing, // Соединение (одновременное
+            Connected, // Соединение установлено
+            WaitForStartFromAnother, // Ожидание начала игры от другого игрока
+            WaitForStartFromMe, // Ожидание начала игры от меня
+            Game // Игра
+        }
+        public enum NetworkRole
+        { Nope, Server, Client }
+        public struct IAMData
+        {
+            public string Nick;
+            public Color Color;
+
+            public IAMData(string Nick, Color Color)
+            {
+                this.Nick = Nick;
+                this.Color = Color;
+            }
+        }
+        public class IAMEventArgs : EventArgs
+        {
+            public string Nick { private set; get; }
+            public Color Color { private set; get; }
+
+            public IAMEventArgs(string Data)
+            {
+                string[] Strings = Data.Split('\n');
+                if (Strings.Length != 4)
+                    throw new Exception("Прислана некорректная информация об игроке");
+                Nick = Strings[1];
+                Color = Color.FromArgb(int.Parse(Strings[2]));
+            }
+        }
+        public State state { private set; get; }
+        public NetworkRole Role;
+        private string AccessKey, PublicKey;
+        private IPEndPoint LocalEP, PublicEP, RemoteEP;
+        NetClient Client;
+        IAMData IAM;
+        EventBasedNetListener Listener;
+        System.Windows.Forms.Timer CheckItselfTimer = new System.Windows.Forms.Timer() { Interval = 5000 };
+        System.Windows.Forms.Timer CheckServerReadyTimer = new System.Windows.Forms.Timer() { Interval = 2000 };
+        System.Windows.Forms.Timer CheckClientEPTimer = new System.Windows.Forms.Timer() { Interval = 1000 };
+
+
+        public event EventHandler OpponentConnected; // сделать с WhoIs
+
+        // Null => Off :D
+        public Connection2()
+        {
+            CheckItselfTimer.Tick += CheckItself;
+            CheckServerReadyTimer.Tick += CheckServerReady;
+            CheckClientEPTimer.Tick += CheckClientEP;
+        }
+
+        private void Send(string Data)
+        {
+            if (state != State.Connected)
+                throw new Exception("Неверное состояние соединения");
+
+            Client.Peer.Send(Encoding.UTF8.GetBytes(Data), SendOptions.ReliableOrdered);
+        }
+        public void SendIAM()
+        {
+            string Data = "IAM" + '\n' + IAM.Nick + '\n' + IAM.Color.ToArgb() + '\n';
+            Send(Data);
+        }
+
+        // Connecting => Establishing => Connected / Created
+        private void CheckClientEP(object sender, EventArgs e)
+        {
+            if (state != State.Connecting)
+                throw new Exception("Неверное состояние соединения");
+
+            RemoteEP = ServerList.ReadClientEP(AccessKey);
+            if (RemoteEP != null)
+            {
+                CheckClientEPTimer.Stop();
+                state = State.Establishing;
+                var con = TryToConnect(LocalEP, RemoteEP);
+                ServerList.Clear(AccessKey);
+                if (con != null)
+                {
+                    Client = con.Item1;
+                    Listener = con.Item2;
+                    Listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;
+                    state = State.Connected;
+                    Role = NetworkRole.Server;
+                }
+                else
+                {
+                    state = State.Created;
+                }
+            }
+        }
+
+        // Preconnecting => Connecting => Establishing => Connected / Off
+        private void CheckServerReady(object sender, EventArgs e)
+        {
+            if (state != State.PreConnecting)
+                throw new Exception("Неверное состояние соединения");
+
+            RemoteEP = ServerList.ReadReady(PublicKey);
+            if (RemoteEP != null)
+            {
+                CheckServerReadyTimer.Stop();
+                state = State.Establishing;
+                var EPs = GetEndPoints();
+                LocalEP = EPs.Item1;
+                PublicEP = EPs.Item2;
+                ServerList.WriteClientEP(PublicKey, PublicEP);
+                Thread.Sleep(1000);
+                var con = TryToConnect(LocalEP, RemoteEP);
+                if (con != null)
+                {
+                    Client = con.Item1;
+                    Listener = con.Item2;
+                    Listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;
+                    state = State.Connected;
+                    Role = NetworkRole.Client;
+                    SendIAM();
+                }
+                else
+                {
+                    state = State.Off;
+                }
+            }
+        }
+
+        private void Listener_NetworkReceiveEvent(NetPeer peer, LiteNetLib.Utils.NetDataReader reader)
+        {
+            if (reader.AvailableBytes == 0)
+                return;
+
+            // 508 байт (RFC 791)
+            var Data = Encoding.UTF8.GetString(reader.Data);
+            
+            switch (Data.Substring(0, 3))
+            {
+                case "TRN": // Ход
+                    //ReceivedTurn?.Invoke(this, new ReceivedTurnEventArgs(Data[3], Data[4])); // заменить null на ход
+                    break;
+                case "CHT": // Сообщение в чате
+                    //ReceivedChat?.Invoke(this, Data.Substring(3)); // заменить
+                    break;
+                case "IAM": // Представление
+                    OpponentConnected.Invoke(this, new IAMEventArgs(Data));
+                    if (Role == NetworkRole.Server)
+                        SendIAM();
+                    break;
+                case "GAM": // Game - начало игры
+                    if (state == State.Connected)
+                        state = State.WaitForStartFromMe;
+                    else if (state == State.WaitForStartFromAnother)
+                    {
+                        state = State.Game;
+                        //GameStarts(this, new EventArgs());
+                    }
+                    //else if (state == State.Game)
+                        //RestartGame(this, new EventArgs());
+                    break;
+                case "END": // Противник прервал игру
+                    //GameEnds?.Invoke(this, new EventArgs());
+                    break;
+                case "RJC":
+                    /*if (state == State.Game)
+                        RestartRejected.Invoke(this, new EventArgs());
+                    else
+                        ConnectingRejected.Invoke(this, new EventArgs());*/
+                    break;
+                default:
+                    throw new Exception("Неверный заголовой данных: " + Data.Substring(0, 3));
+            }
+        }
+
+        // Created => Connecting
+        private void CheckItself(object sender, EventArgs e)
+        {
+            if (state != State.Created)
+                throw new Exception("Неверное состояние соединения");
+
+            if (ServerList.CheckWhoWant(AccessKey))
+            {
+                var EPs = GetEndPoints();
+                LocalEP = EPs.Item1;
+                PublicEP = EPs.Item2;
+                if (ServerList.WriteReady(AccessKey, PublicEP.Port))
+                {
+                    CheckItselfTimer.Stop();
+                    CheckClientEPTimer.Start();
+                    state = State.Connecting;
+                }
+            }
+        }
+
+        // Establishing => Connection
+        private Tuple<NetClient, EventBasedNetListener> TryToConnect(IPEndPoint LocalEP, IPEndPoint RemoteEP)
+        {
+            EventBasedNetListener listener = new EventBasedNetListener();
+            NetClient client = new NetClient(listener, "tttp2pcon");
+            client.PeerToPeerMode = true;
+            try
+            {
+                client.Start(LocalEP.Port);
+                client.Connect(RemoteEP.Address.ToString(), RemoteEP.Port);
+                client.PollEvents();
+                while (client.IsRunning && !client.IsConnected)
+                    Thread.Sleep(250);
+                if (client.IsConnected)
+                {
+                    System.Threading.Tasks.Task.Run(() =>
+                    {
+                        while (client.IsConnected)
+                        {
+                            client.PollEvents();
+                            Thread.Sleep(500);
+                        }
+                    });
+                    return Tuple.Create(client, listener);
+                }
+            }
+            catch (Exception)
+            {
+                client.Stop();
+                throw;
+            }
+            return null;
+        }
+
+        // Получение своего внешнего айпи и порта
+        private Tuple<IPEndPoint,IPEndPoint> GetEndPoints()
+        {
+            IPEndPoint RemoteEP = null;
+            IPEndPoint LocalEP = new IPEndPoint(IPAddress.Any, 15678 + DateTime.Now.Second + DateTime.Now.Minute * 60);
+            using (StringReader sr = new StringReader(Properties.Resources.Stun_servers))
+            {
+                while (RemoteEP == null)
+                {
+                    string str = sr.ReadLine();
+                    if (str == null)
+                        throw new Exception("Not found any working STUN server");
+                    string[] parts = str.Split(':');
+                    string site = parts[0];
+                    int port = 3478;
+                    if (parts.Length == 2)
+                        port = int.Parse(parts[1]);
+                    try
+                    {
+                        RemoteEP = LumiSoft_edited.STUN_Client.GetPublicEP(site, port, LocalEP);
+                    }
+                    catch { }
+                }
+            }
+            return Tuple.Create(LocalEP, RemoteEP);
+        }
+
+        // Off => Created
+        public bool StartServer(string ServerName, IAMData IAM)
+        {
+            // Проверка исходного состояния
+            if (state != State.Off)
+                return false;
+
+            this.IAM = IAM;
+
+            // Регистрация сервера
+            AccessKey = ServerList.RegisterOnTheWeb(IAM.Nick, ServerName, IAM.Color);
+            if (AccessKey == "")
+                return false;
+            else
+            {
+                CheckItselfTimer.Start();
+                state = State.Created;
+                return true;
+            }
+        }
+
+        // Created => Off
+        public void StopServer()
+        {
+            // Проверка исходного состояния
+            if (state != State.Created)
+                return;
+
+            // Удаление сервера из списка
+            ServerList.RemoveFromTheWeb(AccessKey);
+        }
+
+        // Off => PreConnecting
+        public bool ConnectTo(string publicKey, IAMData IAM)
+        {
+            // Проверка исходного состояния
+            if (state != State.Off)
+                return false;
+
+            this.IAM = IAM;
+
+            // Отправка "желания подключиться" :D
+            if (ServerList.WantToConnect(publicKey))
+            {
+                CheckServerReadyTimer.Start();
+                PublicKey = publicKey;
+                state = State.PreConnecting;
+                return true;
+            }
+            return false;
+        }
+    }
+
+
+
+    /*class LowLevelConnectionStarter
+    {
+        private int Id; //My unique code
+        private byte[] buffer = new byte[0x10000]; // Reveived Data
+    }
+
+    class LowLevelConnection2
+    {
+        
+    }*/
+
     class LowLevelConnection
     {
         // Состояние
@@ -107,7 +459,7 @@ namespace TTTM
             }
         }
 
-        // Прослушивание
+        // Прослушивание (для потока)
         private void Listening()
         {
             if (Listener == null)

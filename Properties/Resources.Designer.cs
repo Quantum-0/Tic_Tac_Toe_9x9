@@ -109,5 +109,36 @@ namespace TTTM.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на stun.a-mm.tv:3478
+        ///stun.jappix.com:3478
+        ///stun.rounds.com:3478
+        ///stun.sipnet.net:3478
+        ///numb.viagenie.ca:3478
+        ///stun.12connect.com:3478
+        ///stun.12voip.com:3478
+        ///stun.1und1.de:3478
+        ///stun.2talk.co.nz:3478
+        ///stun.2talk.com:3478
+        ///stun.3clogic.com:3478
+        ///stun.advfn.com:3478
+        ///stun.aeta.com:3478
+        ///stun.aeta-audio.com:3478
+        ///stun.awt.be:3478
+        ///stun.b2b2c.ca:3478
+        ///stun.bluesip.net:3478
+        ///stun.budgetphone.nl:3478
+        ///stun.cablenet-as.net:3478
+        ///stun.callwithus.com:3478
+        ///stun.cheapvoip.com:3478
+        ///stun.cloopen.com:3478
+        ///stun.comfi.com: [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string Stun_servers {
+            get {
+                return ResourceManager.GetString("Stun_servers", resourceCulture);
+            }
+        }
     }
 }

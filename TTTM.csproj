@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LiteNetLib">
+      <HintPath>.\LiteNetLib.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -88,6 +91,7 @@
       <DependentUpon>FormSingle.cs</DependentUpon>
     </Compile>
     <Compile Include="Game.cs" />
+    <Compile Include="Lumisoft_edited.cs" />
     <Compile Include="MainMenuControl.xaml.cs">
       <DependentUpon>MainMenuControl.xaml</DependentUpon>
     </Compile>
@@ -157,6 +161,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\Stun_servers.txt" />
     <None Include="help3.png" />
     <None Include="help2.png" />
     <None Include="help1.png" />
