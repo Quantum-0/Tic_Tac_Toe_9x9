@@ -36,7 +36,19 @@ namespace TTTM
             panelPlayerColor.BackColor = settings.PlayerColor1;
             tabControl.TabPages.Remove(tabPageStartGame);
             connection.OpponentConnected += Connection_OpponentConnected;
+            connection.ServerIsntReady += Connection_ServerIsntReady;
 
+        }
+
+        private void Connection_ServerIsntReady(object sender, EventArgs e)
+        {
+            Action a = delegate
+            {
+                MessageBox.Show("Сервер не отвечает", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                buttonConnect.Enabled = true;
+            };
+
+            this.Invoke(a);
         }
 
         // Переключение вкладок
@@ -121,8 +133,17 @@ namespace TTTM
             if (index == -1)
                 return;
             if (dataGridView1.SelectedCells.Count > 0)
-                ConnectToServer(ServerList.Servers[index].PublicKey);
-            labelServerName.Text = ServerList.Servers[index].ServerName;
+            {
+                if ((textBoxMyNick.Text == ServerList.Servers[index].Name))
+                    MessageBox.Show("Выберите другой никнейм", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else if (panelPlayerColor.BackColor.DifferenceWith(Color.FromArgb(int.Parse(ServerList.Servers[index].Color))) < 50)
+                    MessageBox.Show("Ваш цвет не должен быть похож на цвет оппонента", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else
+                {
+                    ConnectToServer(ServerList.Servers[index].PublicKey);
+                    labelServerName.Text = ServerList.Servers[index].ServerName;
+                }
+            }
         }
 
         #endregion

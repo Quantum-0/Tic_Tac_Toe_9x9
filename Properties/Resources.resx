@@ -2526,4 +2526,7 @@
   <data name="Stun_servers" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\stun_servers.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
+  <data name="LiteNetLib" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\bin\Debug\LiteNetLib.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

@@ -44,11 +44,16 @@
             this.ColumnColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabPageStartServer = new System.Windows.Forms.TabPage();
+            this.textBoxServerLog = new System.Windows.Forms.TextBox();
             this.buttonCloseServer = new System.Windows.Forms.Button();
             this.buttonStartServer = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.textBoxServerName = new System.Windows.Forms.TextBox();
             this.tabPageStartGame = new System.Windows.Forms.TabPage();
+            this.panelPlayer2 = new System.Windows.Forms.Panel();
+            this.labelPlayer2Nick = new System.Windows.Forms.Label();
+            this.panelPlayer1 = new System.Windows.Forms.Panel();
+            this.labelPlayer1Nick = new System.Windows.Forms.Label();
             this.labelServerName = new System.Windows.Forms.Label();
             this.buttonCancelGame = new System.Windows.Forms.Button();
             this.buttonStartGame = new System.Windows.Forms.Button();
@@ -56,11 +61,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
-            this.textBoxServerLog = new System.Windows.Forms.TextBox();
-            this.labelPlayer1Nick = new System.Windows.Forms.Label();
-            this.panelPlayer1 = new System.Windows.Forms.Panel();
-            this.panelPlayer2 = new System.Windows.Forms.Panel();
-            this.labelPlayer2Nick = new System.Windows.Forms.Label();
             this.tabControl.SuspendLayout();
             this.tabPageMainSettings.SuspendLayout();
             this.tabPageServerList.SuspendLayout();
@@ -181,6 +181,7 @@
             // buttonConnect
             // 
             this.buttonConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonConnect.Enabled = false;
             this.buttonConnect.Location = new System.Drawing.Point(220, 186);
             this.buttonConnect.Name = "buttonConnect";
             this.buttonConnect.Size = new System.Drawing.Size(187, 23);
@@ -255,6 +256,17 @@
             this.tabPageStartServer.Text = "Создание сервера";
             this.tabPageStartServer.UseVisualStyleBackColor = true;
             // 
+            // textBoxServerLog
+            // 
+            this.textBoxServerLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBoxServerLog.Location = new System.Drawing.Point(11, 53);
+            this.textBoxServerLog.Multiline = true;
+            this.textBoxServerLog.Name = "textBoxServerLog";
+            this.textBoxServerLog.Size = new System.Drawing.Size(277, 151);
+            this.textBoxServerLog.TabIndex = 10;
+            this.textBoxServerLog.Visible = false;
+            // 
             // buttonCloseServer
             // 
             this.buttonCloseServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -321,6 +333,38 @@
             this.tabPageStartGame.Text = "Подключение";
             this.tabPageStartGame.UseVisualStyleBackColor = true;
             // 
+            // panelPlayer2
+            // 
+            this.panelPlayer2.Location = new System.Drawing.Point(23, 134);
+            this.panelPlayer2.Name = "panelPlayer2";
+            this.panelPlayer2.Size = new System.Drawing.Size(134, 13);
+            this.panelPlayer2.TabIndex = 9;
+            // 
+            // labelPlayer2Nick
+            // 
+            this.labelPlayer2Nick.AutoSize = true;
+            this.labelPlayer2Nick.Location = new System.Drawing.Point(20, 118);
+            this.labelPlayer2Nick.Name = "labelPlayer2Nick";
+            this.labelPlayer2Nick.Size = new System.Drawing.Size(16, 13);
+            this.labelPlayer2Nick.TabIndex = 8;
+            this.labelPlayer2Nick.Text = "...";
+            // 
+            // panelPlayer1
+            // 
+            this.panelPlayer1.Location = new System.Drawing.Point(23, 79);
+            this.panelPlayer1.Name = "panelPlayer1";
+            this.panelPlayer1.Size = new System.Drawing.Size(134, 13);
+            this.panelPlayer1.TabIndex = 7;
+            // 
+            // labelPlayer1Nick
+            // 
+            this.labelPlayer1Nick.AutoSize = true;
+            this.labelPlayer1Nick.Location = new System.Drawing.Point(20, 63);
+            this.labelPlayer1Nick.Name = "labelPlayer1Nick";
+            this.labelPlayer1Nick.Size = new System.Drawing.Size(16, 13);
+            this.labelPlayer1Nick.TabIndex = 6;
+            this.labelPlayer1Nick.Text = "...";
+            // 
             // labelServerName
             // 
             this.labelServerName.AutoSize = true;
@@ -382,49 +426,6 @@
             // 
             this.colorDialog1.AnyColor = true;
             this.colorDialog1.SolidColorOnly = true;
-            // 
-            // textBoxServerLog
-            // 
-            this.textBoxServerLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBoxServerLog.Location = new System.Drawing.Point(11, 53);
-            this.textBoxServerLog.Multiline = true;
-            this.textBoxServerLog.Name = "textBoxServerLog";
-            this.textBoxServerLog.Size = new System.Drawing.Size(277, 151);
-            this.textBoxServerLog.TabIndex = 10;
-            this.textBoxServerLog.Visible = false;
-            // 
-            // labelPlayer1Nick
-            // 
-            this.labelPlayer1Nick.AutoSize = true;
-            this.labelPlayer1Nick.Location = new System.Drawing.Point(20, 63);
-            this.labelPlayer1Nick.Name = "labelPlayer1Nick";
-            this.labelPlayer1Nick.Size = new System.Drawing.Size(16, 13);
-            this.labelPlayer1Nick.TabIndex = 6;
-            this.labelPlayer1Nick.Text = "...";
-            // 
-            // panelPlayer1
-            // 
-            this.panelPlayer1.Location = new System.Drawing.Point(23, 79);
-            this.panelPlayer1.Name = "panelPlayer1";
-            this.panelPlayer1.Size = new System.Drawing.Size(134, 13);
-            this.panelPlayer1.TabIndex = 7;
-            // 
-            // panelPlayer2
-            // 
-            this.panelPlayer2.Location = new System.Drawing.Point(23, 134);
-            this.panelPlayer2.Name = "panelPlayer2";
-            this.panelPlayer2.Size = new System.Drawing.Size(134, 13);
-            this.panelPlayer2.TabIndex = 9;
-            // 
-            // labelPlayer2Nick
-            // 
-            this.labelPlayer2Nick.AutoSize = true;
-            this.labelPlayer2Nick.Location = new System.Drawing.Point(20, 118);
-            this.labelPlayer2Nick.Name = "labelPlayer2Nick";
-            this.labelPlayer2Nick.Size = new System.Drawing.Size(16, 13);
-            this.labelPlayer2Nick.TabIndex = 8;
-            this.labelPlayer2Nick.Text = "...";
             // 
             // StartMultiplayerGame
             // 

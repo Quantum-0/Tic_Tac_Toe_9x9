@@ -44,6 +44,7 @@
             // 
             this.textBoxChatInput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxChatInput.Location = new System.Drawing.Point(337, 309);
+            this.textBoxChatInput.MaxLength = 255;
             this.textBoxChatInput.Name = "textBoxChatInput";
             this.textBoxChatInput.Size = new System.Drawing.Size(260, 20);
             this.textBoxChatInput.TabIndex = 0;

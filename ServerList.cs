@@ -12,6 +12,7 @@ namespace TTTM
 {
     public static class ServerList
     {
+        private const string API_URI = "http://localhost:51522/TTTMAPI.asmx/";//@"http://tttm.apphb.com/TTTMAPI.asmx/";
 
         public static List<ServerRecord> Servers;
         public struct ServerRecord
@@ -37,7 +38,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/Remove?AccessKey=" + AccessKey);
+                xml.Load(API_URI + "Remove?AccessKey=" + AccessKey);
                 return true;
             }
             catch
@@ -51,7 +52,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/Clear?AccessKey=" + AccessKey);
+                xml.Load(API_URI + "Clear?AccessKey=" + AccessKey);
                 return true;
             }
             catch
@@ -66,7 +67,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/WriteClientEP?" + parameters);
+                xml.Load(API_URI + "WriteClientEP?" + parameters);
                 var Result = xml.DocumentElement;
                 return Result.InnerText == "true";
             }
@@ -82,12 +83,11 @@ namespace TTTM
             try
             {
                 var xml = new XmlDocument();
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/Get");
+                xml.Load(API_URI + "Get");
                 var ServerList = xml.DocumentElement.ChildNodes;
                 foreach (XmlNode ServerNode in ServerList)
                 {
                     var ip = ServerNode["IP"].InnerText;
-                    //var port = ServerNode["Port"].InnerText;
                     var name = ServerNode["Name"].InnerText;
                     var sname = ServerNode["ServerName"].InnerText;
                     var pkey = ServerNode["PublicKey"].InnerText;
@@ -106,7 +106,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/ReadClientEP?" + parameters);
+                xml.Load(API_URI + "ReadClientEP?" + parameters);
                 var Result = xml.DocumentElement;
                 return new IPEndPoint(IPAddress.Parse(Result["IP"].InnerText), int.Parse(Result["Port"].InnerText));
             }
@@ -122,7 +122,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/ReadReady?" + parameters);
+                xml.Load(API_URI + "ReadReady?" + parameters);
                 var Result = xml.DocumentElement;
                 if (Result["Ready"].InnerText == "true")
                     return new IPEndPoint(IPAddress.Parse(Result["IP"].InnerText), int.Parse(Result["Port"].InnerText));
@@ -141,7 +141,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/GetWant?" + parameters);
+                xml.Load(API_URI + "GetWant?" + parameters);
                 var Result = xml.DocumentElement;
                 return (Result.InnerText == "true");
             }
@@ -157,7 +157,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/WriteReady?" + parameters);
+                xml.Load(API_URI + "WriteReady?" + parameters);
                 var Result = xml.DocumentElement;
                 return (Result.InnerText == "true");
             }
@@ -173,7 +173,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/Add?" + parameters);
+                xml.Load(API_URI + "Add?" + parameters);
                 var CreatingResult = xml.DocumentElement;
                 var AK = CreatingResult["AccessKey"].InnerText;
                 //bool Ping = (CreatingResult["Ping"].InnerText == "true");
@@ -191,7 +191,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(@"http://tttm.apphb.com/TTTMAPI.asmx/WantConnect?" + parameters);
+                xml.Load(API_URI + "WantConnect?" + parameters);
                 var Result = xml.DocumentElement;
                 return (Result.InnerText == "true");
             }

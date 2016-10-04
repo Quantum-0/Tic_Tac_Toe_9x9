@@ -35,6 +35,7 @@
     <Reference Include="LiteNetLib">
       <HintPath>.\LiteNetLib.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -162,6 +163,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\LiteNetLib.dll" />
     <Content Include="Resources\Stun_servers.txt" />
     <None Include="help3.png" />
     <None Include="help2.png" />

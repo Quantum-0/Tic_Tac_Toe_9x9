@@ -339,11 +339,19 @@ namespace TTTM
             richTextBoxChat.AppendText('[' + DateTime.Now.ToShortTimeString() + "] ");
 
             richTextBoxChat.SelectionColor = Color.Black;
-            richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, FontStyle.Bold);
+            
+            if (Text.StartsWith("/me "))
+            {
+                richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, FontStyle.Italic);
+                richTextBoxChat.AppendText(PlayerName + Text.Substring(3));
+            }
+            else
+            {
+                richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, FontStyle.Bold);
+                richTextBoxChat.AppendText(PlayerName + ": ");
+            }
 
-            richTextBoxChat.AppendText(PlayerName + ": ");
             richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, 0);
-
             richTextBoxChat.AppendText(Text + "\r\n");
 
             richTextBoxChat.ReadOnly = false;
