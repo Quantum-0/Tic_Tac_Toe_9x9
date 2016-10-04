@@ -198,7 +198,7 @@ namespace TTTM
         }
         public void SendChat(string Text)
         {
-            Send("CHT" + Text.Substring(0, 256));
+            Send("CHT" + Text.Substring(0, Math.Min(256, Text.Length)));
         }
 
         // Connecting => Establishing => Connected / Created (сервер)
@@ -261,6 +261,7 @@ namespace TTTM
                 var con = TryToConnect(LocalEP, RemoteEP); // Establishing
                 if (con != null)
                 {
+                    state = State.Connected;
                     SendIAM();
                 }
                 else

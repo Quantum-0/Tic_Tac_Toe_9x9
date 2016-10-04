@@ -12,7 +12,8 @@ namespace TTTM
 {
     public static class ServerList
     {
-        private const string API_URI = "http://localhost:51522/TTTMAPI.asmx/";//@"http://tttm.apphb.com/TTTMAPI.asmx/";
+        private const string API_URI = //"http://localhost:51522/TTTMAPI.asmx/";//@*/
+            @"http://tttm.apphb.com/TTTMAPI.asmx/";
 
         public static List<ServerRecord> Servers;
         public struct ServerRecord

@@ -343,16 +343,16 @@ namespace TTTM
             if (Text.StartsWith("/me "))
             {
                 richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, FontStyle.Italic);
-                richTextBoxChat.AppendText(PlayerName + Text.Substring(3));
+                richTextBoxChat.AppendText(" *** " + PlayerName + Text.Substring(3) + " ***\r\n");
             }
             else
             {
                 richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, FontStyle.Bold);
                 richTextBoxChat.AppendText(PlayerName + ": ");
+                richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, 0);
+                richTextBoxChat.AppendText(Text + "\r\n");
             }
 
-            richTextBoxChat.SelectionFont = new Font(richTextBoxChat.SelectionFont, 0);
-            richTextBoxChat.AppendText(Text + "\r\n");
 
             richTextBoxChat.ReadOnly = false;
             while (richTextBoxChat.Text.Contains("#луна"))
