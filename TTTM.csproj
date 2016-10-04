@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="LiteNetLib">
       <HintPath>.\LiteNetLib.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

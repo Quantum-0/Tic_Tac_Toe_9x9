@@ -225,7 +225,6 @@ namespace TTTM
         public ABot Bot { private set; get; }
         public override event EventHandler<Player> ChangeTurn;
         public override event EventHandler<Position> IncorrectTurn;
-        public override event EventHandler NobodyWins;
         public GameManagerWithBot(string player1, string player2, int botType = 3) : base(player1, player2)
         {
             // BASE CTOR HERE
@@ -245,7 +244,7 @@ namespace TTTM
             }
         }
 
-        public async void BotTurn()
+        public void BotTurn()
         {
             // Вылет если ход не бота
             if (CurrentPlayer != Player2)

@@ -18,7 +18,7 @@ namespace TTTM
          */
 
         Settings settings;
-        Connection connection;
+        Connection2 connection;
         string MyNick, OpponentNick;
         Pen penc1, penc2;
         GameManagerWthFriend game;
@@ -36,7 +36,7 @@ namespace TTTM
         int HelpAlpha = 255;
 
         // Конструктор формы
-        public FormMultiplayer(Settings settings, Connection connection, string MyNick, string OpponentNick, Color MyColor, Color OpponentColor)
+        public FormMultiplayer(Settings settings, Connection2 connection, string MyNick, string OpponentNick, Color MyColor, Color OpponentColor)
         {
             // Инициализация
             InitializeComponent();
@@ -49,10 +49,10 @@ namespace TTTM
             connection.ReceivedChat += Connection_ReceivedChat;
             connection.ReceivedTurn += Connection_ReceivedTurn;
             connection.GameEnds += Connection_GameEnds;
-            connection.AnotherPlayerDisconnected += Connection_AnotherPlayerDisconnected;
+            connection.OpponentDisconnected += Connection_AnotherPlayerDisconnected;
             connection.RestartGame += Connection_ReceivedRestartGame;
             connection.RestartRejected += Connection_RestartRejected;
-            if (connection.Host.Value)
+            if (connection.Role == Connection2.NetworkRole.Server)
             {
                 game = new GameManagerWthFriend(MyNick, OpponentNick); // Я - первый, Он - второй
                 this.Text += " (Ваш ход)";
@@ -132,7 +132,7 @@ namespace TTTM
             game.NobodyWins += Game_NobodyWins;
 
             game.Dispose();
-            if (connection.Host.Value)
+            if (connection.Role == Connection2.NetworkRole.Server)
                 game = new GameManagerWthFriend(MyNick, OpponentNick); // Я - первый, Он - второй
             else
                 game = new GameManagerWthFriend(OpponentNick, MyNick); // Я - второй, Он - первый
@@ -166,8 +166,9 @@ namespace TTTM
             {
                 AddMessageToChat("System", "Противник вышел из игры");
                 game.Dispose();
-                connection.AnotherPlayerDisconnected -= Connection_AnotherPlayerDisconnected;
-                connection.Disconnect();
+                connection.OpponentDisconnected -= Connection_AnotherPlayerDisconnected;
+                //connection.Disconnect();
+                connection.BreakAnyConnection();
                 this.FormClosing -= FormMultiplayer_FormClosing;
                 textBoxChatInput.Enabled = false;
                 buttonRestart.Enabled = false;
@@ -317,7 +318,7 @@ namespace TTTM
         }
 
         #region Сетевое взаимодействие и чат
-        private void Connection_ReceivedTurn(object sender, Connection.ReceivedTurnEventArgs e)
+        private void Connection_ReceivedTurn(object sender, Connection2.ReceivedTurnEventArgs e)
         {
             game.ClickOn(e.Turn.x, e.Turn.y);
         }
@@ -403,11 +404,12 @@ namespace TTTM
             else
             {
                 connection.SendEndGame();
-                connection.Disconnect();
+                //connection.Disconnect();
+                connection.BreakAnyConnection();
                 connection.ReceivedChat -= Connection_ReceivedChat;
                 connection.ReceivedTurn -= Connection_ReceivedTurn;
                 connection.GameEnds -= Connection_GameEnds;
-                connection.AnotherPlayerDisconnected -= Connection_AnotherPlayerDisconnected;
+                connection.OpponentDisconnected -= Connection_AnotherPlayerDisconnected;
                 connection.RestartGame -= Connection_ReceivedRestartGame;
                 connection.RestartRejected -= Connection_RestartRejected;
             }
@@ -442,7 +444,7 @@ namespace TTTM
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            if (connection.Host.Value ^ game.CurrentPlayer.Id == 1)
+            if (connection.Role == Connection2.NetworkRole.Server ^ game.CurrentPlayer.Id == 1)
                 return;
 
             var p = MouseOnGameBoard();

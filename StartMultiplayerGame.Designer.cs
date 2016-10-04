@@ -44,17 +44,23 @@
             this.ColumnColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnIP = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabPageStartServer = new System.Windows.Forms.TabPage();
+            this.buttonCloseServer = new System.Windows.Forms.Button();
             this.buttonStartServer = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.textBoxServerName = new System.Windows.Forms.TextBox();
             this.tabPageStartGame = new System.Windows.Forms.TabPage();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
+            this.labelServerName = new System.Windows.Forms.Label();
+            this.buttonCancelGame = new System.Windows.Forms.Button();
+            this.buttonStartGame = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
-            this.button1 = new System.Windows.Forms.Button();
+            this.textBoxServerLog = new System.Windows.Forms.TextBox();
+            this.labelPlayer1Nick = new System.Windows.Forms.Label();
+            this.panelPlayer1 = new System.Windows.Forms.Panel();
+            this.panelPlayer2 = new System.Windows.Forms.Panel();
+            this.labelPlayer2Nick = new System.Windows.Forms.Label();
             this.tabControl.SuspendLayout();
             this.tabPageMainSettings.SuspendLayout();
             this.tabPageServerList.SuspendLayout();
@@ -119,12 +125,10 @@
             // 
             // panelPlayerColor
             // 
-            this.panelPlayerColor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.panelPlayerColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelPlayerColor.Location = new System.Drawing.Point(21, 68);
             this.panelPlayerColor.Name = "panelPlayerColor";
-            this.panelPlayerColor.Size = new System.Drawing.Size(386, 20);
+            this.panelPlayerColor.Size = new System.Drawing.Size(107, 20);
             this.panelPlayerColor.TabIndex = 2;
             this.panelPlayerColor.Click += new System.EventHandler(this.panel1_Click);
             // 
@@ -239,7 +243,8 @@
             // 
             // tabPageStartServer
             // 
-            this.tabPageStartServer.Controls.Add(this.button1);
+            this.tabPageStartServer.Controls.Add(this.textBoxServerLog);
+            this.tabPageStartServer.Controls.Add(this.buttonCloseServer);
             this.tabPageStartServer.Controls.Add(this.buttonStartServer);
             this.tabPageStartServer.Controls.Add(this.label3);
             this.tabPageStartServer.Controls.Add(this.textBoxServerName);
@@ -250,8 +255,21 @@
             this.tabPageStartServer.Text = "Создание сервера";
             this.tabPageStartServer.UseVisualStyleBackColor = true;
             // 
+            // buttonCloseServer
+            // 
+            this.buttonCloseServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCloseServer.Location = new System.Drawing.Point(294, 181);
+            this.buttonCloseServer.Name = "buttonCloseServer";
+            this.buttonCloseServer.Size = new System.Drawing.Size(113, 23);
+            this.buttonCloseServer.TabIndex = 9;
+            this.buttonCloseServer.Text = "Отключить сервер";
+            this.buttonCloseServer.UseVisualStyleBackColor = true;
+            this.buttonCloseServer.Visible = false;
+            this.buttonCloseServer.Click += new System.EventHandler(this.buttonCloseServer_Click);
+            // 
             // buttonStartServer
             // 
+            this.buttonStartServer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonStartServer.Enabled = false;
             this.buttonStartServer.Location = new System.Drawing.Point(294, 53);
             this.buttonStartServer.Name = "buttonStartServer";
@@ -280,14 +298,19 @@
             this.textBoxServerName.Size = new System.Drawing.Size(386, 20);
             this.textBoxServerName.TabIndex = 6;
             this.textBoxServerName.Text = "Укажите название сервера";
+            this.textBoxServerName.TextChanged += new System.EventHandler(this.textBoxServerName_TextChanged);
             this.textBoxServerName.Enter += new System.EventHandler(this.textBoxServerName_Enter);
-            this.textBoxServerName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxServerName_KeyPress);
             this.textBoxServerName.Leave += new System.EventHandler(this.textBoxServerName_Leave);
             // 
             // tabPageStartGame
             // 
-            this.tabPageStartGame.Controls.Add(this.button5);
-            this.tabPageStartGame.Controls.Add(this.button4);
+            this.tabPageStartGame.Controls.Add(this.panelPlayer2);
+            this.tabPageStartGame.Controls.Add(this.labelPlayer2Nick);
+            this.tabPageStartGame.Controls.Add(this.panelPlayer1);
+            this.tabPageStartGame.Controls.Add(this.labelPlayer1Nick);
+            this.tabPageStartGame.Controls.Add(this.labelServerName);
+            this.tabPageStartGame.Controls.Add(this.buttonCancelGame);
+            this.tabPageStartGame.Controls.Add(this.buttonStartGame);
             this.tabPageStartGame.Controls.Add(this.label6);
             this.tabPageStartGame.Controls.Add(this.label5);
             this.tabPageStartGame.Controls.Add(this.label4);
@@ -298,30 +321,40 @@
             this.tabPageStartGame.Text = "Подключение";
             this.tabPageStartGame.UseVisualStyleBackColor = true;
             // 
-            // button5
+            // labelServerName
             // 
-            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button5.Location = new System.Drawing.Point(11, 181);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(163, 23);
-            this.button5.TabIndex = 4;
-            this.button5.Text = "Отключить / Отключиться";
-            this.button5.UseVisualStyleBackColor = true;
+            this.labelServerName.AutoSize = true;
+            this.labelServerName.Location = new System.Drawing.Point(20, 27);
+            this.labelServerName.Name = "labelServerName";
+            this.labelServerName.Size = new System.Drawing.Size(16, 13);
+            this.labelServerName.TabIndex = 5;
+            this.labelServerName.Text = "...";
             // 
-            // button4
+            // buttonCancelGame
             // 
-            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button4.Location = new System.Drawing.Point(244, 181);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(163, 23);
-            this.button4.TabIndex = 3;
-            this.button4.Text = "Начать игру";
-            this.button4.UseVisualStyleBackColor = true;
+            this.buttonCancelGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonCancelGame.Location = new System.Drawing.Point(8, 181);
+            this.buttonCancelGame.Name = "buttonCancelGame";
+            this.buttonCancelGame.Size = new System.Drawing.Size(163, 23);
+            this.buttonCancelGame.TabIndex = 4;
+            this.buttonCancelGame.Text = "Отключить / Отключиться";
+            this.buttonCancelGame.UseVisualStyleBackColor = true;
+            // 
+            // buttonStartGame
+            // 
+            this.buttonStartGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonStartGame.Location = new System.Drawing.Point(244, 181);
+            this.buttonStartGame.Name = "buttonStartGame";
+            this.buttonStartGame.Size = new System.Drawing.Size(163, 23);
+            this.buttonStartGame.TabIndex = 3;
+            this.buttonStartGame.Text = "Начать игру";
+            this.buttonStartGame.UseVisualStyleBackColor = true;
+            this.buttonStartGame.Click += new System.EventHandler(this.buttonStartGame_Click);
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(8, 122);
+            this.label6.Location = new System.Drawing.Point(8, 100);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(50, 13);
             this.label6.TabIndex = 2;
@@ -330,7 +363,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(8, 67);
+            this.label5.Location = new System.Drawing.Point(8, 45);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(50, 13);
             this.label5.TabIndex = 1;
@@ -350,14 +383,48 @@
             this.colorDialog1.AnyColor = true;
             this.colorDialog1.SolidColorOnly = true;
             // 
-            // button1
+            // textBoxServerLog
             // 
-            this.button1.Location = new System.Drawing.Point(294, 181);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(113, 23);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "Отключить сервер";
-            this.button1.UseVisualStyleBackColor = true;
+            this.textBoxServerLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBoxServerLog.Location = new System.Drawing.Point(11, 53);
+            this.textBoxServerLog.Multiline = true;
+            this.textBoxServerLog.Name = "textBoxServerLog";
+            this.textBoxServerLog.Size = new System.Drawing.Size(277, 151);
+            this.textBoxServerLog.TabIndex = 10;
+            this.textBoxServerLog.Visible = false;
+            // 
+            // labelPlayer1Nick
+            // 
+            this.labelPlayer1Nick.AutoSize = true;
+            this.labelPlayer1Nick.Location = new System.Drawing.Point(20, 63);
+            this.labelPlayer1Nick.Name = "labelPlayer1Nick";
+            this.labelPlayer1Nick.Size = new System.Drawing.Size(16, 13);
+            this.labelPlayer1Nick.TabIndex = 6;
+            this.labelPlayer1Nick.Text = "...";
+            // 
+            // panelPlayer1
+            // 
+            this.panelPlayer1.Location = new System.Drawing.Point(23, 79);
+            this.panelPlayer1.Name = "panelPlayer1";
+            this.panelPlayer1.Size = new System.Drawing.Size(134, 13);
+            this.panelPlayer1.TabIndex = 7;
+            // 
+            // panelPlayer2
+            // 
+            this.panelPlayer2.Location = new System.Drawing.Point(23, 134);
+            this.panelPlayer2.Name = "panelPlayer2";
+            this.panelPlayer2.Size = new System.Drawing.Size(134, 13);
+            this.panelPlayer2.TabIndex = 9;
+            // 
+            // labelPlayer2Nick
+            // 
+            this.labelPlayer2Nick.AutoSize = true;
+            this.labelPlayer2Nick.Location = new System.Drawing.Point(20, 118);
+            this.labelPlayer2Nick.Name = "labelPlayer2Nick";
+            this.labelPlayer2Nick.Size = new System.Drawing.Size(16, 13);
+            this.labelPlayer2Nick.TabIndex = 8;
+            this.labelPlayer2Nick.Text = "...";
             // 
             // StartMultiplayerGame
             // 
@@ -400,8 +467,8 @@
         private System.Windows.Forms.TextBox textBoxServerName;
         private System.Windows.Forms.TabPage tabPageStartGame;
         private System.Windows.Forms.Button buttonOpenSettings;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonCancelGame;
+        private System.Windows.Forms.Button buttonStartGame;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
@@ -410,6 +477,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPlayerName;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnColor;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnIP;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonCloseServer;
+        private System.Windows.Forms.Label labelServerName;
+        private System.Windows.Forms.TextBox textBoxServerLog;
+        private System.Windows.Forms.Panel panelPlayer2;
+        private System.Windows.Forms.Label labelPlayer2Nick;
+        private System.Windows.Forms.Panel panelPlayer1;
+        private System.Windows.Forms.Label labelPlayer1Nick;
     }
 }

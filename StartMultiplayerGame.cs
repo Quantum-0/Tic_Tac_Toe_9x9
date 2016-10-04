@@ -16,6 +16,7 @@ namespace TTTM
         Settings settings;
         Connection2 connection;
         bool DontAllowChangeTab;
+        const bool ShowServerLog = true;
 
         public StartMultiplayerGame(Settings settings)
         {
@@ -33,10 +34,6 @@ namespace TTTM
             textBoxMyNick.Text = settings.DefaultName1;
             textBoxMyNick_Leave(this, null);
             panelPlayerColor.BackColor = settings.PlayerColor1;
-            //EnabledPages[tabPageMainSettings] = true;
-            //EnabledPages[tabPageServerList] = false;
-            //EnabledPages[tabPageStartServer] = false;
-            //EnabledPages[tabPageStartGame] = false;
             tabControl.TabPages.Remove(tabPageStartGame);
             connection.OpponentConnected += Connection_OpponentConnected;
 
@@ -45,8 +42,6 @@ namespace TTTM
         // Переключение вкладок
         private void tabControl_Selecting(object sender, TabControlCancelEventArgs e)
         {
-            //if (e.TabPage == tabPageStartGame || tabControl.SelectedTab == tabPageStartGame)
-            //    e.Cancel = true;
             if (DontAllowChangeTab)
                 e.Cancel = true;
 
@@ -122,22 +117,18 @@ namespace TTTM
         // Подключение
         private void buttonConnect_Click(object sender, EventArgs e)
         {
+            var index = dataGridView1.SelectedCells[0].RowIndex;
+            if (index == -1)
+                return;
             if (dataGridView1.SelectedCells.Count > 0)
-                ConnectToServer(ServerList.Servers[dataGridView1.SelectedCells[0].RowIndex].PublicKey);
+                ConnectToServer(ServerList.Servers[index].PublicKey);
+            labelServerName.Text = ServerList.Servers[index].ServerName;
         }
 
         #endregion
         #region Создание сервера
         
         // Редактирование поля "Название сервера"
-        private void textBoxServerName_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == '\r')
-            {
-                e.Handled = true;
-                textBoxServerName_Leave(this, null);
-            }
-        }
         private void textBoxServerName_Enter(object sender, EventArgs e)
         {
             textBoxServerName.ForeColor = Color.Black;
@@ -148,8 +139,6 @@ namespace TTTM
         }
         private void textBoxServerName_Leave(object sender, EventArgs e)
         {
-            buttonStartServer.Enabled = false;
-
             if (string.IsNullOrWhiteSpace(textBoxServerName.Text))
             {
                 textBoxServerName.Text = "Укажите название сервера";
@@ -163,19 +152,30 @@ namespace TTTM
                 textBoxServerName.ForeColor = Color.Red;
                 return;
             }
-
-            buttonStartServer.Enabled = true;
+        }
+        private void textBoxServerName_TextChanged(object sender, EventArgs e)
+        {
+            buttonStartServer.Enabled = (!string.IsNullOrWhiteSpace(textBoxServerName.Text) &&
+                !textBoxServerName.Text.Contains('<') && !textBoxServerName.Text.Contains('>'));
         }
 
-        // Создание сервера
+        // Создание/остановка сервера
         private void buttonStartServer_Click(object sender, EventArgs e)
         {
             StartServer();
-            buttonStartServer.Enabled = false;
-            DontAllowChangeTab = true;
+        }
+        private void buttonCloseServer_Click(object sender, EventArgs e)
+        {
+            StopServer();
         }
 
         #endregion
+
+        private void buttonStartGame_Click(object sender, EventArgs e)
+        {
+            buttonStartGame.Enabled = false;
+            connection.SendStartGame();
+        }
         #endregion
 
         #region Логика
@@ -199,20 +199,49 @@ namespace TTTM
 
                 buttonRefresh.Enabled = true;
                 buttonRefresh.Text = "Обновить";
+
+                buttonConnect.Enabled = Servers.Count > 0;
             };
 
             this.Invoke(a);
         }
         private void StartServer()
         {
+            textBoxServerLog.Visible = ShowServerLog;
+            buttonStartServer.Enabled = false;
+            textBoxServerName.ReadOnly = true;
+            buttonCloseServer.Visible = true;
+            DontAllowChangeTab = true;
+            labelServerName.Text = textBoxServerName.Text;
+            connection.ServerLog += Connection_ServerLog;
             connection.StartServer(textBoxServerName.Text, new Connection2.IAMData(textBoxMyNick.Text, panelPlayerColor.BackColor));
+        }
+        private void Connection_ServerLog(object sender, string e)
+        {
+            Action a = delegate
+            {
+                textBoxServerLog.Text += e + "\r\n";
+            };
+
+            this.Invoke(a);
+        }
+        private void StopServer()
+        {
+            textBoxServerLog.Visible = false;
+            buttonStartServer.Enabled = true;
+            textBoxServerName.ReadOnly = false;
+            buttonCloseServer.Visible = false;
+            DontAllowChangeTab = false;
+            //connection.StopServer();
+            connection.BreakAnyConnection();
+            connection.ServerLog -= Connection_ServerLog;
         }
         private void ConnectToServer(string PublicKey)
         {
             if (connection.ConnectTo(PublicKey, new Connection2.IAMData(textBoxMyNick.Text, panelPlayerColor.BackColor)))
                 buttonConnect.Enabled = false;
         }
-        private void Connection_OpponentConnected(object sender, EventArgs e)
+        private void Connection_OpponentConnected(object sender, Connection2.IAMEventArgs e)
         {
             Action a = delegate
             {
@@ -223,10 +252,35 @@ namespace TTTM
                 tabControl.TabPages.Add(tabPageStartGame);
                 tabControl.SelectTab(tabPageStartGame);
                 DontAllowChangeTab = true;
+
+                labelPlayer2Nick.Text = e.Nick;
+                labelPlayer1Nick.Text = connection.IAM.Nick;
+                panelPlayer2.BackColor = e.Color;
+                panelPlayer1.BackColor = connection.IAM.Color;
+
+                connection.GameStarts += Connection_GameStarts;
+            };
+
+            this.Invoke(a);
+        }
+        private void Connection_GameStarts(object sender, bool e)
+        {
+            Action a = delegate
+            {
+                connection.GameStarts -= Connection_GameStarts;
+                DontAllowChangeTab = false;
+                tabControl.SelectTab(tabPageServerList);
+                tabControl.TabPages.Remove(tabPageStartGame);
+                var GameForm = new FormMultiplayer(settings, connection, labelPlayer1Nick.Text, labelPlayer2Nick.Text, panelPlayer1.BackColor, panelPlayer2.BackColor);
+                GameForm.Show();
+                GameForm.FormClosed += (s,ee) => this.Visible = true;
+                this.Visible = false;
             };
 
             this.Invoke(a);
         }
         #endregion
+
+
     }
 }
