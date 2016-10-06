@@ -58,7 +58,7 @@ namespace TTTM
                 e.Cancel = true;
 
             if (e.TabPage == tabPageServerList)
-                new Thread(RefreshServerList).Start();
+                Task.Run((Action)RefreshServerList);
         }
 
         #endregion
@@ -122,8 +122,7 @@ namespace TTTM
         // Обновление списка
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
-            // Ой всё не получается у меня с async await
-            new Thread(RefreshServerList).Start();
+            Task.Run((Action)RefreshServerList);
         }
 
         // Подключение
@@ -218,10 +217,11 @@ namespace TTTM
                     dataGridView1[3, i].Value = Servers[i].IP;
                 }
 
+                
                 buttonRefresh.Enabled = true;
                 buttonRefresh.Text = "Обновить";
 
-                buttonConnect.Enabled = Servers.Count > 0;
+                buttonConnect.Enabled = (connection.state == Connection2.State.Off) && (Servers.Count > 0);
             };
 
             this.Invoke(a);
