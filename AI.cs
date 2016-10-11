@@ -174,8 +174,8 @@ namespace TTTM
     {
         #region Константные значения приоритета действий
 
-        const float CostMake3InField = 10f;
-        const float CostPrevent3InField = 8f;
+        const float CostMake3InField = 11f;
+        const float CostPrevent3InField = 9f;
         const float CostMake3InGame = 20f;
         const byte MinFreeCellsToNarrowRecursion = 7;
         const byte MaxFreeCellsToExtandRecursion = 3;
@@ -184,7 +184,7 @@ namespace TTTM
         const float CostNoFreeCellsWithWhenCommonFieldContainsTrue = -35f;
         const float CostNoFreeCellsWithWhenCommonFieldDontContainsTrue = -20f;
         const float CostFreeCellInNextField = 0.5f;
-        const float CostSendPlayerToOwnedField = 12f; //10f;
+        const float CostSendPlayerToOwnedField = 10f;
 
         #endregion
 
