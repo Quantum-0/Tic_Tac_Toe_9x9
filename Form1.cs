@@ -30,6 +30,22 @@ namespace TTTM
 
             // Создаём настройки
             Settings.Load("Settings.cfg", out settings);
+
+            // Проверяем наличие обновлений
+            if (UpdatingSystem.CheckUpd())
+                if (System.Windows.Forms.MessageBox.Show("Скачать обновление?", "Найдено обновление", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    UpdatingSystem.UpdatingError += (o, e) => { System.Windows.Forms.MessageBox.Show("Не удалось установить обновление"); };
+                    UpdatingSystem.ClosingRequest += (o, e) =>
+                    {
+                        if (System.Windows.Forms.MessageBox.Show("Обновление готово к установке. Закрыть приложение?", "Обновление", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            Settings.Save("Settings.cfg", settings);
+                            System.Windows.Forms.Application.Exit();
+                        }
+                    };
+                    UpdatingSystem.Update();
+                }
         }
         
         private void startDrag(object sender, MouseButtonEventArgs e)

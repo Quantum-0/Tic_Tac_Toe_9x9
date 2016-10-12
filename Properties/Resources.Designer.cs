@@ -150,5 +150,20 @@ namespace TTTM.Properties {
                 return ResourceManager.GetString("Stun_servers", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на :WaitForClosing
+        ///&gt;nul ping.exe -n  2 127.0.0.1
+        ///tasklist|find /i %1&gt;nul &amp;&amp; goto WaitForClosing
+        ///
+        ///del %1
+        ///ren &quot;Upd.tmp&quot; %1
+        ///start %1.
+        /// </summary>
+        internal static string upd {
+            get {
+                return ResourceManager.GetString("upd", resourceCulture);
+            }
+        }
     }
 }
