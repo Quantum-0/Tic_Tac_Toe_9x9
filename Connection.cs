@@ -4,13 +4,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using LiteNetLib;
-using System.Timers;
-//using System.Threading;
+using System.Threading.Tasks;
 
 namespace TTTM
 {
@@ -86,9 +83,9 @@ namespace TTTM
         public IAMData IAM;
         EventBasedNetListener Listener;
         int WaitServerResponseTimeout;
-        System.Windows.Forms.Timer CheckItselfTimer = new System.Windows.Forms.Timer() { Interval = 5000 };
-        System.Windows.Forms.Timer CheckServerReadyTimer = new System.Windows.Forms.Timer() { Interval = 1500 };
-        System.Windows.Forms.Timer CheckClientEPTimer = new System.Windows.Forms.Timer() { Interval = 500 };
+        Task CheckItselfTask;
+        Task CheckServerReadyTask;
+        Task CheckClientEPTask;
 
         public event EventHandler ConnectingRejected;
         public event EventHandler ServerIsntReady;
@@ -145,9 +142,9 @@ namespace TTTM
         // Null => Off :D
         public Connection2()
         {
-            CheckItselfTimer.Tick += CheckItself;
+            /*CheckItselfTimer.Tick += CheckItself;
             CheckServerReadyTimer.Tick += CheckServerReady;
-            CheckClientEPTimer.Tick += CheckClientEP;
+            CheckClientEPTimer.Tick += CheckClientEP;*/
         }
 
         private void Send(string Data)
@@ -211,7 +208,7 @@ namespace TTTM
             if (RemoteEP != null)
             {
                 ServerLog?.Invoke(this, "Получен адрес клиента");
-                CheckClientEPTimer.Stop();
+                //CheckClientEPTimer.Stop();
                 state = State.Establishing;
                 var con = TryToConnect(LocalEP, RemoteEP);
                 ServerList.Clear(AccessKey);
@@ -224,13 +221,43 @@ namespace TTTM
                 {
                     state = State.Created;
                     ServerList.Clear(AccessKey);
-                    CheckItselfTimer.Start();
+                    CheckItselfTask = Task.Run((Action)CheckItself);
+                }
+            }
+        }
+        private void CheckClientEP()
+        {
+            if (state != State.Connecting)
+                throw new Exception("Неверное состояние соединения");
+
+            while (true)
+            {
+                RemoteEP = ServerList.ReadClientEP(AccessKey);
+                if (RemoteEP != null)
+                {
+                    ServerLog?.Invoke(this, "Получен адрес клиента");
+                    state = State.Establishing;
+                    var con = TryToConnect(LocalEP, RemoteEP);
+                    ServerList.Clear(AccessKey);
+                    if (con != null)
+                    {
+                        state = State.Connected;
+                        ServerLog?.Invoke(this, "Ожидание данных IAM от клиента");
+                    }
+                    else
+                    {
+                        state = State.Created;
+                        ServerList.Clear(AccessKey);
+                        CheckItselfTask = Task.Run((Action)CheckItself);
+                    }
+
+                    break;
                 }
             }
         }
 
         // Preconnecting => Connecting => Establishing => Connected / Off (клиент)
-        private void CheckServerReady(object sender, EventArgs e)
+        /*private void CheckServerReady(object sender, EventArgs e)
         {
             if (state != State.PreConnecting)
                 throw new Exception("Неверное состояние соединения");
@@ -267,6 +294,54 @@ namespace TTTM
                 else
                 {
                     state = State.Off;
+                }
+            }
+        }*/
+        private void CheckServerReady()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+
+                if (state != State.PreConnecting)
+                    throw new Exception("Неверное состояние соединения");
+
+                // Таймаут подключения
+                if (WaitServerResponseTimeout++ > 6)
+                {
+                    state = State.Off;
+                    ServerIsntReady(this, new EventArgs());
+                    break;
+                }
+
+                RemoteEP = ServerList.ReadReady(PublicKey);
+                if (RemoteEP != null)
+                {
+                    state = State.Establishing;
+                    var EPs = GetEndPoints();
+                    if (EPs == null)
+                    {
+                        // Не удалось подключиться к STUN
+                        ConnectingRejected(this, new EventArgs());
+                        return;
+                    }
+                    LocalEP = EPs.Item1;
+                    PublicEP = EPs.Item2;
+                    ServerList.WriteClientEP(PublicKey, PublicEP);
+                    Thread.Sleep(100);
+                    var con = TryToConnect(LocalEP, RemoteEP); // Establishing
+                    if (con != null)
+                    {
+                        state = State.Connected;
+                        SendIAM();
+                    }
+                    else
+                    {
+                        ConnectingRejected(this, new EventArgs());
+                        state = State.Off;
+                    }
+
+                    break;
                 }
             }
         }
@@ -337,28 +412,34 @@ namespace TTTM
         }
 
         // Created => Connecting (сервер)
-        private void CheckItself(object sender, EventArgs e)
+        private void CheckItself()//(object sender, EventArgs e)
         {
             if (state != State.Created)
                 throw new Exception("Неверное состояние соединения");
 
-            if (ServerList.CheckWhoWant(AccessKey))
+            while (true)
             {
-                ServerLog?.Invoke(this, "Обнаружен запрос на подключение");
-                var EPs = GetEndPoints();
-                if (EPs == null)
+                Thread.Sleep(3000);
+
+                if (ServerList.CheckWhoWant(AccessKey))
                 {
-                    // Не удалось подключиться к STUN
-                    return;
-                }
-                LocalEP = EPs.Item1;
-                PublicEP = EPs.Item2;
-                if (ServerList.WriteReady(AccessKey, PublicEP.Port))
-                {
-                    ServerLog?.Invoke(this, "Отправлен ответ на запрос");
-                    CheckItselfTimer.Stop();
-                    CheckClientEPTimer.Start();
-                    state = State.Connecting;
+                    ServerLog?.Invoke(this, "Обнаружен запрос на подключение");
+                    var EPs = GetEndPoints();
+                    if (EPs == null)
+                    {
+                        // Не удалось подключиться к STUN
+                        return;
+                    }
+                    LocalEP = EPs.Item1;
+                    PublicEP = EPs.Item2;
+                    if (ServerList.WriteReady(AccessKey, PublicEP.Port))
+                    {
+                        ServerLog?.Invoke(this, "Отправлен ответ на запрос");
+                        CheckClientEPTask = Task.Run((Action)CheckClientEP);
+                        state = State.Connecting;
+
+                        break;
+                    }
                 }
             }
         }
@@ -378,10 +459,10 @@ namespace TTTM
                 Client.Connect(RemoteEP.Address.ToString(), RemoteEP.Port);
                 Client.PollEvents();
                 while (Client.IsRunning && !Client.IsConnected)
-                    Thread.Sleep(250);
+                    Thread.Sleep(50);
                 if (Client.IsConnected)
                 {
-                    System.Threading.Tasks.Task.Run(() =>
+                    Task.Run(() =>
                     {
                         while (Client.IsConnected)
                         {
@@ -462,7 +543,7 @@ namespace TTTM
             }
             else
             {
-                CheckItselfTimer.Start();
+                CheckItselfTask = Task.Run((Action)CheckItself);
                 state = State.Created;
                 Role = NetworkRole.Server;
                 ServerLog?.Invoke(this, "Сервер создан и зарегистрирован");
@@ -499,7 +580,8 @@ namespace TTTM
             // Отправка "желания подключиться" :D
             if (ServerList.WantToConnect(publicKey))
             {
-                CheckServerReadyTimer.Start();
+                //CheckServerReadyTimer.Start();
+                CheckServerReadyTask = Task.Run((Action)CheckServerReady);
                 PublicKey = publicKey;
                 state = State.PreConnecting;
                 Role = NetworkRole.Client;
@@ -523,7 +605,7 @@ namespace TTTM
             {
                 ServerList.Clear(AccessKey);
                 state = State.Created;
-                CheckItselfTimer.Start();
+                CheckItselfTask = Task.Run((Action)CheckItself);
             }
             else
             {
@@ -571,9 +653,10 @@ namespace TTTM
             AccessKey = "";
             Role = NetworkRole.Nope;
             state = State.Off;
-            CheckClientEPTimer.Stop();
+            //      Stop all   !!!!!!
+            /*CheckClientEPTimer.Stop();
             CheckServerReadyTimer.Stop();
-            CheckItselfTimer.Stop();
+            CheckItselfTimer.Stop();*/
             Client?.Stop();
             if (Listener != null)
                 Listener.NetworkReceiveEvent -= Listener_NetworkReceiveEvent;
