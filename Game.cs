@@ -47,13 +47,14 @@ namespace TTTM
         public Color FilledField = Color.Gray;
         public string DefaultName1 = "";
         public string DefaultName2 = "";
-        public string MpIP = "";
-        public int MpPort = 0;
+        public string MasterServerAPIUrl = ""; // Заменить на хост мастер-сервера
+        public int MpPort = 0; // Заменить на порт, случайный если 0, фиксированный если указано число
         public Color HelpColor;
         public int HelpCellsAlpha;
         public int HelpLinesAlpha;
-        public int HelpShow; //(bool)
-        public int GraphicsLevel;
+        public int HelpShow;
+        public int GraphicsLevel; // Убрать
+        public int CheckForUpdates;
 
 
         // Сохранение настроек в файл
@@ -110,16 +111,19 @@ namespace TTTM
                     // Вытаскиваем из строки название поля и его значение
                     string field = str.Substring(0, str.IndexOf('='));
                     dynamic val = str.Substring(str.IndexOf('=') + 1);
+                    var Field = typeof(Settings).GetFields().FirstOrDefault(f => f.Name == field);
+                    if (Field == null)
+                        continue;
 
                     // Color
-                    if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(Color))
+                    if (Field.FieldType == typeof(Color))
                     {
                         int temp;
                         int.TryParse(val, out temp);
                         val = Color.FromArgb(temp);
                     }
                     else // int
-                    if (typeof(Settings).GetFields().First(f => f.Name == field).FieldType == typeof(int))
+                    if (Field.FieldType == typeof(int))
                     {
                         int temp;
                         int.TryParse(val, out temp);
@@ -127,7 +131,7 @@ namespace TTTM
                     }
 
                     // Записываем значение в настройки
-                    typeof(Settings).GetFields().First(f => f.Name == field).SetValue(settings, val);
+                    Field.SetValue(settings, val);
                 }
                 return true;
             }
@@ -144,13 +148,14 @@ namespace TTTM
             FilledField = Color.Gray;
             DefaultName1 = "Игрок 1";
             DefaultName2 = "Игрок 2";
-            MpIP = "127.0.0.1";
+            MasterServerAPIUrl = "http://tttm.apphb.com/TTTMAPI.asmx";
             MpPort = 7890;
             HelpColor = Color.Aqua;
             HelpCellsAlpha = 180;
             HelpLinesAlpha = 40;
             HelpShow = 1;
             GraphicsLevel = 2;
+            CheckForUpdates = 1;
         }
     }
 

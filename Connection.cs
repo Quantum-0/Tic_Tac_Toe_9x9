@@ -86,6 +86,7 @@ namespace TTTM
         Task CheckItselfTask;
         Task CheckServerReadyTask;
         Task CheckClientEPTask;
+        Settings settings;
 
         public event EventHandler ConnectingRejected;
         public event EventHandler ServerIsntReady;
@@ -140,8 +141,9 @@ namespace TTTM
         */
 
         // Null => Off :D
-        public Connection2()
+        public Connection2(Settings settings)
         {
+            this.settings = settings;
             /*CheckItselfTimer.Tick += CheckItself;
             CheckServerReadyTimer.Tick += CheckServerReady;
             CheckClientEPTimer.Tick += CheckClientEP;*/
@@ -230,8 +232,10 @@ namespace TTTM
             if (state != State.Connecting)
                 throw new Exception("Неверное состояние соединения");
 
-            while (true)
+            var TryCount = 0;
+            while (TryCount++ < 100)
             {
+                Thread.Sleep(100);
                 RemoteEP = ServerList.ReadClientEP(AccessKey);
                 if (RemoteEP != null)
                 {
@@ -251,9 +255,14 @@ namespace TTTM
                         CheckItselfTask = Task.Run((Action)CheckItself);
                     }
 
-                    break;
+                    return;
                 }
             }
+
+            ServerLog?.Invoke(this, "Истекло время ожидание ответа от клиента");
+            state = State.Created;
+            ServerList.Clear(AccessKey);
+            CheckItselfTask = Task.Run((Action)CheckItself);
         }
 
         // Preconnecting => Connecting => Establishing => Connected / Off (клиент)
@@ -494,7 +503,7 @@ namespace TTTM
         {
             ServerLog?.Invoke(this, "Получение Public IPEndPoint с помощью STUN сервера..");
             IPEndPoint RemoteEP = null;
-            IPEndPoint LocalEP = new IPEndPoint(IPAddress.Any, 15678 + DateTime.Now.Second + DateTime.Now.Minute * 60);
+            IPEndPoint LocalEP = new IPEndPoint(IPAddress.Any, settings.MpPort == 0 ? 15678 + DateTime.Now.Second + DateTime.Now.Minute * 60 : settings.MpPort);
             using (StringReader sr = new StringReader(Properties.Resources.Stun_servers))
             {
                 ServerLog?.Invoke(this, "- LocalEP = " + LocalEP.ToString());

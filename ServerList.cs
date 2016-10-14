@@ -12,12 +12,34 @@ using System.Xml;
 
 namespace TTTM
 {
+    public static class MasterServer
+    {
+        public static string API_URI { get; private set; } = @"http://tttm.apphb.com/TTTMAPI.asmx/";
+        public static string UPD_URI { get; private set; } = @"http://tttm.apphb.com/TTTM.exe";
+
+        public static void ChangeAPIUrl(string Url)
+        {
+            if (string.IsNullOrWhiteSpace(Url))
+                return;
+
+            if (Url.Last() != '/')
+                API_URI = Url + '/';
+            else
+                API_URI = Url;
+        }
+
+        public static void ChangeUPDUrl(string Url)
+        {
+            UPD_URI = Url;
+        }
+    }
+
     public static class UpdatingSystem
     {
         private static string UpdHash = string.Empty;
-        private const bool LOCAL_API = false;
+        /*private const bool LOCAL_API = false;
         private const string API_URI = LOCAL_API ? @"http://localhost:51522/TTTMAPI.asmx/" : @"http://tttm.apphb.com/TTTMAPI.asmx/";
-        private const string UPD_PATH = LOCAL_API ? @"http://localhost:51522/TTTM.exe" : @"http://tttm.apphb.com/TTTM.exe";
+        private const string UPD_PATH = LOCAL_API ? @"http://localhost:51522/TTTM.exe" : @"http://tttm.apphb.com/TTTM.exe";*/
 
         public static event EventHandler UpdatingError;
         public static event EventHandler ClosingRequest;
@@ -46,16 +68,18 @@ namespace TTTM
             path = path + ".tmp";
 
             System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();
+            var sb = new StringBuilder(64);
+
             using (FileStream fs = new FileStream(path, FileMode.Open))
             {
                 var hash = md5.ComputeHash(fs);
-                var sb = new StringBuilder(hash.Length * 2);
+                
                 foreach (byte b in hash)
                     sb.Append(b.ToString("X2"));
-                return new Tuple<string, DateTime>(sb.ToString(), dt);
             }
 
             File.Delete(path);
+            return new Tuple<string, DateTime>(sb.ToString(), dt);
         }
 
         private static Tuple<string,DateTime> GetLastUpdateData()
@@ -63,7 +87,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "GetUpdatingData");
+                xml.Load(MasterServer.API_URI + "GetUpdatingData");
                 var Hash = xml.DocumentElement["Hash"].InnerText;
                 var dt = DateTime.Parse(xml.DocumentElement["Date"].InnerText).ToUniversalTime();
                 return new Tuple<string, DateTime>(Hash, dt);
@@ -77,7 +101,7 @@ namespace TTTM
         public static void Update()
         {
             var wc = new WebClient();
-            wc.DownloadFileAsync(new Uri(UPD_PATH), "Upd.tmp");
+            wc.DownloadFileAsync(new Uri(MasterServer.UPD_URI), "Upd.tmp");
             wc.DownloadFileCompleted += NewVersionDownloaded;
         }
 
@@ -96,9 +120,6 @@ namespace TTTM
 
     public static class ServerList
     {
-        private const bool LOCAL_API = false;
-        private const string API_URI = LOCAL_API ? @"http://localhost:51522/TTTMAPI.asmx/" : @"http://tttm.apphb.com/TTTMAPI.asmx/";
-
         public static List<ServerRecord> Servers;
         public struct ServerRecord
         {
@@ -123,7 +144,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "Remove?AccessKey=" + AccessKey);
+                xml.Load(MasterServer.API_URI + "Remove?AccessKey=" + AccessKey);
                 return true;
             }
             catch
@@ -137,7 +158,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "Clear?AccessKey=" + AccessKey);
+                xml.Load(MasterServer.API_URI + "Clear?AccessKey=" + AccessKey);
                 return true;
             }
             catch
@@ -152,7 +173,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "WriteClientEP?" + parameters);
+                xml.Load(MasterServer.API_URI + "WriteClientEP?" + parameters);
                 var Result = xml.DocumentElement;
                 return Result.InnerText == "true";
             }
@@ -168,7 +189,7 @@ namespace TTTM
             try
             {
                 var xml = new XmlDocument();
-                xml.Load(API_URI + "Get");
+                xml.Load(MasterServer.API_URI + "Get");
                 var ServerList = xml.DocumentElement.ChildNodes;
                 foreach (XmlNode ServerNode in ServerList)
                 {
@@ -191,7 +212,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "ReadClientEP?" + parameters);
+                xml.Load(MasterServer.API_URI + "ReadClientEP?" + parameters);
                 var Result = xml.DocumentElement;
                 return new IPEndPoint(IPAddress.Parse(Result["IP"].InnerText), int.Parse(Result["Port"].InnerText));
             }
@@ -207,7 +228,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "ReadReady?" + parameters);
+                xml.Load(MasterServer.API_URI + "ReadReady?" + parameters);
                 var Result = xml.DocumentElement;
                 if (Result["Ready"].InnerText == "true")
                     return new IPEndPoint(IPAddress.Parse(Result["IP"].InnerText), int.Parse(Result["Port"].InnerText));
@@ -226,7 +247,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "GetWant?" + parameters);
+                xml.Load(MasterServer.API_URI + "GetWant?" + parameters);
                 var Result = xml.DocumentElement;
                 return (Result.InnerText == "true");
             }
@@ -242,7 +263,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "WriteReady?" + parameters);
+                xml.Load(MasterServer.API_URI + "WriteReady?" + parameters);
                 var Result = xml.DocumentElement;
                 return (Result.InnerText == "true");
             }
@@ -258,7 +279,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "Add?" + parameters);
+                xml.Load(MasterServer.API_URI + "Add?" + parameters);
                 var CreatingResult = xml.DocumentElement;
                 var AK = CreatingResult["AccessKey"].InnerText;
                 //bool Ping = (CreatingResult["Ping"].InnerText == "true");
@@ -276,7 +297,7 @@ namespace TTTM
             var xml = new XmlDocument();
             try
             {
-                xml.Load(API_URI + "WantConnect?" + parameters);
+                xml.Load(MasterServer.API_URI + "WantConnect?" + parameters);
                 var Result = xml.DocumentElement;
                 return (Result.InnerText == "true");
             }

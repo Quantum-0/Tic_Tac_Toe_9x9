@@ -30,7 +30,7 @@ namespace TTTM
         // Загрузка формы
         private void StartMultiplayerGame_Load(object sender, EventArgs e)
         {
-            connection = new Connection2();
+            connection = new Connection2(settings);
             textBoxMyNick.Text = settings.DefaultName1;
             textBoxMyNick_Leave(this, null);
             panelPlayerColor.BackColor = settings.PlayerColor1;

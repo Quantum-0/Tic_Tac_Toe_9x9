@@ -30,22 +30,24 @@ namespace TTTM
 
             // Создаём настройки
             Settings.Load("Settings.cfg", out settings);
+            MasterServer.ChangeAPIUrl(settings.MasterServerAPIUrl);
 
             // Проверяем наличие обновлений
-            if (UpdatingSystem.CheckUpd())
-                if (System.Windows.Forms.MessageBox.Show("Скачать обновление?", "Найдено обновление", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
-                    UpdatingSystem.UpdatingError += (o, e) => { System.Windows.Forms.MessageBox.Show("Не удалось установить обновление"); };
-                    UpdatingSystem.ClosingRequest += (o, e) =>
+            if (settings.CheckForUpdates == 1)
+                if (UpdatingSystem.CheckUpd())
+                    if (System.Windows.Forms.MessageBox.Show("Скачать обновление?", "Найдено обновление", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
-                        if (System.Windows.Forms.MessageBox.Show("Обновление готово к установке. Закрыть приложение?", "Обновление", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        UpdatingSystem.UpdatingError += (o, e) => { System.Windows.Forms.MessageBox.Show("Не удалось установить обновление"); };
+                        UpdatingSystem.ClosingRequest += (o, e) =>
                         {
-                            Settings.Save("Settings.cfg", settings);
-                            System.Windows.Forms.Application.Exit();
-                        }
-                    };
-                    UpdatingSystem.Update();
-                }
+                            if (System.Windows.Forms.MessageBox.Show("Обновление готово к установке. Закрыть приложение?", "Обновление", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            {
+                                Settings.Save("Settings.cfg", settings);
+                                System.Windows.Forms.Application.Exit();
+                            }
+                        };
+                        UpdatingSystem.Update();
+                    }
         }
         
         private void startDrag(object sender, MouseButtonEventArgs e)

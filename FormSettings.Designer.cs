@@ -63,6 +63,7 @@
             this.panel8 = new System.Windows.Forms.Panel();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -94,11 +95,11 @@
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(45, 19);
+            this.textBox2.Location = new System.Drawing.Point(88, 19);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(149, 20);
+            this.textBox2.Size = new System.Drawing.Size(147, 20);
             this.textBox2.TabIndex = 3;
-            this.textBox2.Text = "127.0.0.1";
+            this.textBox2.Text = "http://tttm.apphb.com/TTTMAPI.asmx";
             this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // textBox3
@@ -244,7 +245,7 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(15, 400);
+            this.button1.Location = new System.Drawing.Point(15, 428);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(77, 23);
             this.button1.TabIndex = 0;
@@ -255,7 +256,7 @@
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button2.Location = new System.Drawing.Point(98, 400);
+            this.button2.Location = new System.Drawing.Point(98, 428);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(92, 23);
             this.button2.TabIndex = 1;
@@ -267,7 +268,7 @@
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button3.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button3.Location = new System.Drawing.Point(196, 400);
+            this.button3.Location = new System.Drawing.Point(196, 428);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(68, 23);
             this.button3.TabIndex = 2;
@@ -282,7 +283,7 @@
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.textBox2);
-            this.groupBox2.Location = new System.Drawing.Point(15, 324);
+            this.groupBox2.Location = new System.Drawing.Point(15, 352);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(249, 70);
             this.groupBox2.TabIndex = 7;
@@ -291,7 +292,7 @@
             // 
             // textBox4
             // 
-            this.textBox4.Location = new System.Drawing.Point(60, 42);
+            this.textBox4.Location = new System.Drawing.Point(140, 42);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(95, 20);
             this.textBox4.TabIndex = 6;
@@ -304,18 +305,18 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(19, 45);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(35, 13);
+            this.label7.Size = new System.Drawing.Size(109, 13);
             this.label7.TabIndex = 5;
-            this.label7.Text = "Порт:";
+            this.label7.Text = "Порт по умолчанию:";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(19, 22);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(20, 13);
+            this.label6.Size = new System.Drawing.Size(63, 13);
             this.label6.TabIndex = 4;
-            this.label6.Text = "IP:";
+            this.label6.Text = "Servers API";
             // 
             // groupBox3
             // 
@@ -443,13 +444,24 @@
             this.label11.TabIndex = 15;
             this.label11.Text = "Уровень графики:";
             // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(18, 330);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(144, 17);
+            this.checkBox2.TabIndex = 19;
+            this.checkBox2.Text = "Проверять обновления";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.button1;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button3;
-            this.ClientSize = new System.Drawing.Size(274, 431);
+            this.ClientSize = new System.Drawing.Size(274, 459);
+            this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.groupBox4);
@@ -517,5 +529,6 @@
         private System.Windows.Forms.Panel panel8;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.CheckBox checkBox2;
     }
 }

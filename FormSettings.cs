@@ -27,41 +27,34 @@ namespace TTTM
         {
             if (panel1.BackColor.DifferenceWith(panel2.BackColor) < 100)
             {
-                MessageBox.Show("Слишком похожие цвета, выберите другие", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Слишком похожие цвета, выберите другие", "Ошибка сохранения настроек", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            if (textBox1.Text == textBox2.Text)
+            if (textBox1.Text == textBox3.Text)
             {
-                MessageBox.Show("Имена игроков не могут совпадать", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Имена игроков не могут совпадать", "Ошибка сохранения настроек", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
+            if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox3.Text))
             {
-                MessageBox.Show("Имена игроков не могут быть пустыми", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Имена игроков не могут быть пустыми", "Ошибка сохранения настроек", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             if (settings.BackgroundColor.DifferenceWith(panel2.BackColor) < 50 || settings.BackgroundColor.DifferenceWith(panel1.BackColor) < 50)
             {
-                MessageBox.Show("Цвета не должны быть близки к фоновому цвету", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            IPAddress ip;
-            if (!IPAddress.TryParse(textBox2.Text, out ip))
-            { 
-                MessageBox.Show("Некорректный IP", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Цвета не должны быть близки к фоновому цвету", "Ошибка сохранения настроек", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             ushort port;
             if (!ushort.TryParse(' ' + textBox4.Text + ' ', out port))
             {
-                MessageBox.Show("Некорректный порт", "Ошибка создания игры", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Некорректный порт", "Ошибка сохранения настроек", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             settings.DefaultName1 = textBox1.Text;
             settings.DefaultName2 = textBox3.Text;
-            settings.MpIP = textBox2.Text;
+            settings.MasterServerAPIUrl = textBox2.Text;
             settings.MpPort = int.Parse(textBox4.Text);
             settings.BackgroundColor = panel6.BackColor;
             settings.IncorrectTurn = panel5.BackColor;
@@ -75,7 +68,9 @@ namespace TTTM
             settings.HelpLinesAlpha = trackBar2.Value;
             settings.HelpShow = checkBox1.Checked ? 1 : 0;
             settings.GraphicsLevel = (int)numericUpDown1.Value;
+            settings.CheckForUpdates = checkBox2.Checked ? 1 : 0;
 
+            MasterServer.ChangeAPIUrl(settings.MasterServerAPIUrl);
             DialogResult = DialogResult.OK;
         }
 
@@ -102,7 +97,7 @@ namespace TTTM
         {
             textBox1.Text = s.DefaultName1;
             textBox3.Text = s.DefaultName2;
-            textBox2.Text = s.MpIP;
+            textBox2.Text = s.MasterServerAPIUrl;
             textBox4.Text = s.MpPort.ToString();
             panel1.BackColor = s.PlayerColor2;
             panel2.BackColor = s.PlayerColor1;
@@ -116,6 +111,7 @@ namespace TTTM
             trackBar2.Value = s.HelpLinesAlpha;
             checkBox1.Checked = (s.HelpShow == 1);
             numericUpDown1.Value = s.GraphicsLevel;
+            checkBox2.Checked = s.CheckForUpdates == 1;
         }
 
         private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
