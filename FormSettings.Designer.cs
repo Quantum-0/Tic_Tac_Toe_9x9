@@ -100,7 +100,6 @@
             this.textBox2.Size = new System.Drawing.Size(147, 20);
             this.textBox2.TabIndex = 3;
             this.textBox2.Text = "http://tttm.apphb.com/TTTMAPI.asmx";
-            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // textBox3
             // 

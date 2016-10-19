@@ -1,36 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//using System.Windows.Controls;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace TTTM
 {
     class AdvancedComboBox : ComboBox
     {
-        new public System.Windows.Forms.DrawMode DrawMode { get; set; }
+        new public DrawMode DrawMode { get; set; }
         public Color HighlightColor { get; set; }
 
         public AdvancedComboBox()
         {
-            base.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            base.DrawMode = DrawMode.OwnerDrawFixed;
             this.HighlightColor = Color.Gray;
-            //this.DrawItem += new DrawItemEventHandler(AdvancedComboBox_DrawItem);
         }
-
-        /*protected override void OnDrawItem(DrawItemEventArgs e)
-        {
-            base.OnDrawItem(e);
-            e.DrawBackground();
-            ComboBoxItem item = (ComboBoxItem)this.Items[e.Index];
-            Brush brush = new SolidBrush(item.ForeColor);
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-            { brush = Brushes.Yellow; }
-            e.Graphics.DrawString(item.Text, this.Font, brush, e.Bounds.X, e.Bounds.Y);
-        }*/
 
         protected override void OnDrawItem(DrawItemEventArgs e)
         {

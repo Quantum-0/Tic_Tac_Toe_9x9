@@ -12,12 +12,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-/*
- * TODO:
- * 
- * Сделать более плавную отрисовку (например переход ячейки из прошлой в текущую с плавным переходом (синус^2 мб?) и небольшим изменением размера (тоже по синусоиде можно)
- */
-
 namespace TTTM
 {
     public partial class FormSingle : Form

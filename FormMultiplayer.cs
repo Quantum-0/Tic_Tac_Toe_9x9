@@ -12,11 +12,6 @@ namespace TTTM
 {
     public partial class FormMultiplayer : Form
     {
-        /* TODO:
-         * Добавить обработку обрыва соединения
-         * Вынести код из MP и SP в обдельный класс (может быть создать родительскую форму?)
-         */
-
         Settings settings;
         Connection2 connection;
         string MyNick, OpponentNick;
@@ -167,7 +162,6 @@ namespace TTTM
                 AddMessageToChat("System", "Противник вышел из игры");
                 game.Dispose();
                 connection.OpponentDisconnected -= Connection_AnotherPlayerDisconnected;
-                //connection.Disconnect();
                 connection.BreakAnyConnection();
                 this.FormClosing -= FormMultiplayer_FormClosing;
                 textBoxChatInput.Enabled = false;

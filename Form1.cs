@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -76,7 +69,6 @@ namespace TTTM
             // Закрытие формы и выход из игры
             timerOpacity.Stop();
             timerClosing.Start();
-            //Close();
         }
 
         private void FormMainMenu_FormClosing(object sender, FormClosingEventArgs e)

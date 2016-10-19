@@ -164,6 +164,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ToDo.txt" />
     <EmbeddedResource Include="Resources\LiteNetLib.dll" />
     <Content Include="Resources\Stun_servers.txt" />
     <None Include="help3.png" />

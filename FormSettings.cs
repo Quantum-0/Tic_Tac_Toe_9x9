@@ -129,12 +129,6 @@ namespace TTTM
             textBox4.Text = UInt16.TryParse(textBox4.Text, out value) ? value.ToString() : "7890";
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-            //if (!Regex.IsMatch(textBox2.Text, @"^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
-            //    textBox2.Undo();
-        }
-
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
             if (textBox3.Text.Contains('='))
