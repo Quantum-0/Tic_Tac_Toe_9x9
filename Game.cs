@@ -268,6 +268,7 @@ namespace TTTM
                 return;
 
             // Выполнение хода
+            var pos = new Position(i, j);
             bool res = game.Turn(new Position(i, j), CurrentPlayer);
 
             // Если ход выполнен успешно (ячейка не занята и ход туда разрешён) - свап игрока
@@ -333,7 +334,8 @@ namespace TTTM
                 return;
 
             // Выполнение хода
-            bool res = game.Turn(new Position(i, j), CurrentPlayer);
+            var pos = new Position(i, j);
+            bool res = game.Turn(pos, CurrentPlayer);
 
             // Если ход выполнен успешно (ячейка не занята и ход туда разрешён) - свап игрока
             if (res)
@@ -536,6 +538,9 @@ namespace TTTM
             // Проверка верности хода
             Position Cell = Position.GetCellFrom9x9(pos);
             Position Field = Position.GetFieldFrom9x9(pos);
+
+            if (Cell.Equals(Field) && History.Count == 0)
+                return false;
 
             bool notThatField = !Field.Equals(CurrentField);
             bool fieldIsNotFull = (CurrentField != null) ? !Fields[CurrentField.x, CurrentField.y].Full : true;

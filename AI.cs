@@ -183,10 +183,14 @@ namespace TTTM
         const float WeightMidScoresFromRecursion = 0.075f;
         const float CostNoFreeCellsWithWhenCommonFieldContainsTrue = -35f;
         const float CostNoFreeCellsWithWhenCommonFieldDontContainsTrue = -20f;
-        const float CostFreeCellInNextField = 0.5f;
+        const float CostFreeCellInNextField = -0f;
         const float CostSendPlayerToOwnedField = 10f;
 
         #endregion
+
+        // Первый ход
+        public Position FirstTurn;
+        public int TurnsCount;
 
         // Конструктор
         public RecursionAnalizerBot(Player player, Player hplayer, Game game) : base(player, hplayer, game)
@@ -295,6 +299,10 @@ namespace TTTM
                 if (CommonField[i])
                     Scores[i] -= CostMake3InGame;
             }
+
+            // Не даём ходить в поле первого хода
+            if (Depth == 0 && FirstTurn != null)
+                Scores[FirstTurn.x * 3 + FirstTurn.y] -= Math.Max(5 - TurnsCount, 0);
 
             // Рекурсивно подсчитываем для каждого поля куда можем послать противника количество очков
             if (Depth < MaxDepth)
@@ -468,6 +476,9 @@ namespace TTTM
             if (Game.Finished)
                 return;
 
+            if (TurnsCount == 0)
+                FirstTurn = Position.GetFieldFrom9x9(Game.History.First());
+
             Position Field = Game.CurrentField;
             int x = 0, y = 0;
             if (!Game.Fields[Field.x, Field.y].Full)
@@ -501,6 +512,7 @@ namespace TTTM
                 }
                 while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
             }
+            TurnsCount++;
             if (!Game.Turn(new Position(x, y), Player))
                 throw new Exception("Бот не смог сделать ход");
         }
