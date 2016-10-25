@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TTTM.Properties {
+namespace Tic_Tac_Toe_WPF_Remake.Properties {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace TTTM.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace TTTM.Properties {
         ///   Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TTTM.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Tic_Tac_Toe_WPF_Remake.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace TTTM.Properties {
         ///   обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,9 +63,9 @@ namespace TTTM.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap help1 {
+        public static System.Drawing.Bitmap About_1 {
             get {
-                object obj = ResourceManager.GetObject("help1", resourceCulture);
+                object obj = ResourceManager.GetObject("About_1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,19 +73,9 @@ namespace TTTM.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap help2 {
+        public static System.Drawing.Bitmap About_2 {
             get {
-                object obj = ResourceManager.GetObject("help2", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap help3 {
-            get {
-                object obj = ResourceManager.GetObject("help3", resourceCulture);
+                object obj = ResourceManager.GetObject("About_2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -93,7 +83,7 @@ namespace TTTM.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Byte[].
         /// </summary>
-        internal static byte[] LiteNetLib {
+        public static byte[] LiteNetLib {
             get {
                 object obj = ResourceManager.GetObject("LiteNetLib", resourceCulture);
                 return ((byte[])(obj));
@@ -103,7 +93,7 @@ namespace TTTM.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap menubg {
+        public static System.Drawing.Bitmap menubg {
             get {
                 object obj = ResourceManager.GetObject("menubg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -113,7 +103,7 @@ namespace TTTM.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap SmileMoon {
+        public static System.Drawing.Bitmap SmileMoon {
             get {
                 object obj = ResourceManager.GetObject("SmileMoon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -145,7 +135,7 @@ namespace TTTM.Properties {
         ///stun.cloopen.com:3478
         ///stun.comfi.com: [остаток строки не уместился]&quot;;.
         /// </summary>
-        internal static string Stun_servers {
+        public static string Stun_servers {
             get {
                 return ResourceManager.GetString("Stun_servers", resourceCulture);
             }
@@ -160,7 +150,7 @@ namespace TTTM.Properties {
         ///ren &quot;Upd.tmp&quot; %1
         ///start %1.
         /// </summary>
-        internal static string upd {
+        public static string upd {
             get {
                 return ResourceManager.GetString("upd", resourceCulture);
             }

@@ -409,7 +409,7 @@ namespace TTTM
             ServerLog?.Invoke(this, "Получение Public IPEndPoint с помощью STUN сервера..");
             IPEndPoint RemoteEP = null;
             IPEndPoint LocalEP = new IPEndPoint(IPAddress.Any, settings.MpPort == 0 ? 15678 + DateTime.Now.Second + DateTime.Now.Minute * 60 : settings.MpPort);
-            using (StringReader sr = new StringReader(Properties.Resources.Stun_servers))
+            using (StringReader sr = new StringReader(Tic_Tac_Toe_WPF_Remake.Properties.Resources.Stun_servers))
             {
                 ServerLog?.Invoke(this, "- LocalEP = " + LocalEP.ToString());
                 while (RemoteEP == null)
@@ -563,7 +563,7 @@ namespace TTTM
         public void ExportLNLDLL()
         {
             if (!File.Exists("LiteNetLib.dll"))
-                File.WriteAllBytes("LiteNetLib.dll", Properties.Resources.LiteNetLib);
+                File.WriteAllBytes("LiteNetLib.dll", Tic_Tac_Toe_WPF_Remake.Properties.Resources.LiteNetLib);
         }
     }
 }

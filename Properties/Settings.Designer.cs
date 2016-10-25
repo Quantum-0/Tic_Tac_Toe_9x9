@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TTTM.Properties
+namespace Tic_Tac_Toe_WPF_Remake.Properties
 {
 
 

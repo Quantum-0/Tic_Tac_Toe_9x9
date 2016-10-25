@@ -10,17 +10,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TTTM
+namespace Tic_Tac_Toe_WPF_Remake
 {
     /// <summary>
-    /// Логика взаимодействия для MainMenuControl.xaml
+    /// Логика взаимодействия для WindowSettings.xaml
     /// </summary>
-    public partial class MainMenuControl : UserControl
+    public partial class WindowSettings : Window
     {
-        public MainMenuControl()
+        public WindowSettings()
         {
             InitializeComponent();
         }

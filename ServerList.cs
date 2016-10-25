@@ -60,7 +60,7 @@ namespace TTTM
 
         private static Tuple<string,DateTime> GetMyUpdateData()
         {
-            var path = System.Windows.Forms.Application.ExecutablePath;
+            var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
             if (File.Exists(path + ".tmp"))
                 File.Delete(path + ".tmp");
             File.Copy(path, path + ".tmp");
@@ -111,8 +111,8 @@ namespace TTTM
                 UpdatingError(null, new EventArgs());
             else
             {
-                File.WriteAllText("upd" + UpdHash + ".bat", Properties.Resources.upd);
-                Process p = Process.Start("upd" + UpdHash + ".bat", Path.GetFileName(System.Windows.Forms.Application.ExecutablePath));
+                File.WriteAllText("upd" + UpdHash + ".bat", Tic_Tac_Toe_WPF_Remake.Properties.Resources.upd);
+                Process p = Process.Start("upd" + UpdHash + ".bat", Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location));
                 ClosingRequest(null, new EventArgs());
             }
         }
@@ -275,7 +275,7 @@ namespace TTTM
 
         public static string RegisterOnTheWeb(string Name, string ServerName, Color Color)
         {
-            var parameters = "Name=" + HttpUtility.UrlEncode(Name) + "&Color=" + Color.ToArgb().ToString() + "&ServerName=" + ServerName;
+            var parameters = "Name=" + WebUtility.UrlEncode(Name) + "&Color=" + Color.ToArgb().ToString() + "&ServerName=" + ServerName;
             var xml = new XmlDocument();
             try
             {
