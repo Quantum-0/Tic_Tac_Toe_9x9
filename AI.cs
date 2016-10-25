@@ -302,7 +302,7 @@ namespace TTTM
 
             // Не даём ходить в поле первого хода
             if (Depth == 0 && FirstTurn != null)
-                Scores[FirstTurn.x * 3 + FirstTurn.y] -= Math.Max(5 - TurnsCount, 0);
+                Scores[FirstTurn.x + FirstTurn.y * 3] -= Math.Max(5 - TurnsCount, 0);
 
             // Рекурсивно подсчитываем для каждого поля куда можем послать противника количество очков
             if (Depth < MaxDepth)
@@ -514,7 +514,7 @@ namespace TTTM
             }
             TurnsCount++;
             if (!Game.Turn(new Position(x, y), Player))
-                throw new Exception("Бот не смог сделать ход");
+                throw new Exception("Бот не смог сделать ход"); // Паровозик который не смог
         }
     }
 }
