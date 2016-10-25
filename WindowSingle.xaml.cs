@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Interop;
 using TTTM;
@@ -25,35 +27,50 @@ namespace Tic_Tac_Toe_WPF_Remake
         Rectangle[,] FieldZones = new Rectangle[3, 3];
         Point CellUnderMouse;
         event EventHandler MouseMovedToAnotherCell;
-        System.Timers.Timer timerRefreshView = new System.Timers.Timer(50);
+        //System.Timers.Timer timerRefreshView = new System.Timers.Timer(50);
+        Task ViewRefreshing;
         System.Timers.Timer timerResizing = new System.Timers.Timer(200);
         int IncorrectTurnAlpha = 255;
         int HelpAlpha = 255;
         bool Redrawing;
+        bool StopingRedrawing, DontRedraw = true;
 
         public WindowSingle()
         {
             InitializeComponent();
-
-            timerRefreshView.Elapsed += timerRefreshView_Tick;
+            
+            ViewRefreshing = Task.Run((Action)GameRedrawing);
             timerResizing.Elapsed += TimerResizing_Tick;
+            this.MouseMovedToAnotherCell += delegate { HelpAlpha = 255; };
+        }
+
+        private void GameRedrawing()
+        {
+            Redrawing = false;
+            while (true)
+            {
+                Thread.Sleep(50);
+                if (StopingRedrawing)
+                    break;
+                if (!DontRedraw)
+                {
+                    Redrawing = true;
+                    if (IncorrectTurnAlpha > 0)
+                        IncorrectTurnAlpha -= 5;
+                    if (HelpAlpha > 0)
+                        HelpAlpha -= 5;
 
 
-            if (Settings.Current.GraphicsLevel == 2)
-            {
-                this.MouseMovedToAnotherCell += delegate { HelpAlpha = 255; };
-                timerRefreshView.Start();
-            }
-            else
-            {
-                this.MouseMovedToAnotherCell += delegate { RedrawGame(); };
+                    RedrawGame();
+                }
+                Redrawing = false;
             }
         }
 
         private void TimerResizing_Tick(object sender, System.Timers.ElapsedEventArgs e)
         {
             RedrawGame(true);
-            timerRefreshView.Start();
+            DontRedraw = false;
         }
 
         // Перерисовка игры
@@ -67,8 +84,6 @@ namespace Tic_Tac_Toe_WPF_Remake
 
                     if (gfx == null && !refreshGraphics)
                         return;
-
-                    Redrawing = true;
 
                     // Обновление графики (нужно при ресайзе)
                     if (refreshGraphics)
@@ -173,15 +188,12 @@ namespace Tic_Tac_Toe_WPF_Remake
 
                     // Рендеринг полученной графики
                     BufGFX.Render();
-
-                    Redrawing = false;
                 });
         }
         
         // Создание новой игры
         private void NewGame()
         {
-            
             // Ввод настроек для новой игры
             WindowSingleStart wnd = new WindowSingleStart();
             if (wnd.ShowDialog() != true)
@@ -374,15 +386,18 @@ namespace Tic_Tac_Toe_WPF_Remake
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            timerRefreshView.Stop();
-            while (Redrawing)
-                System.Threading.Thread.Sleep(10);
+            StopingRedrawing = true;
 
             // Спрашиваем подтверждение на выход
             // (Ибо НЕКОТОРЫЕ не хотят проиграть и кликают по крестику хд)
             if (game != null)
                 if (System.Windows.MessageBox.Show("Вы действительно хотите выйти?", "Выход", System.Windows.MessageBoxButton.YesNo) != System.Windows.MessageBoxResult.Yes)
+                {
                     e.Cancel = true;
+                    StopingRedrawing = false;
+                    ViewRefreshing = Task.Run((Action)GameRedrawing);
+                    return;
+                }
 
             // Сохранять тут и при запуске новой игры спрашивать, восстановить ли предыдущую
             game?.Dispose();
@@ -415,11 +430,10 @@ namespace Tic_Tac_Toe_WPF_Remake
 
         private void Window_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
         {
-            timerRefreshView.Stop();
-            //timerResizing.Enabled = true;
+            DontRedraw = true;
             timerResizing.Stop();
             timerResizing.Start();
-            //RedrawGame(true);
+            RedrawGame(true);
         }
 
         private Point MouseOnGameBoard()
@@ -435,15 +449,6 @@ namespace Tic_Tac_Toe_WPF_Remake
             y = (int)Math.Floor(y * 11f / canvas.ActualHeight - 1);
 
             return new Point(x, y);
-        }
-
-        private void timerRefreshView_Tick(object sender, EventArgs e)
-        {
-            if (IncorrectTurnAlpha > 0)
-                IncorrectTurnAlpha -= 5;
-            if (HelpAlpha > 0)
-                HelpAlpha -= 5;
-            RedrawGame();
         }
     }
 }
