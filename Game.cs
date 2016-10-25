@@ -50,6 +50,19 @@ namespace TTTM
         public int GraphicsLevel; // Убрать
         public int CheckForUpdates;
 
+        private static Settings _Current;
+        public static Settings Current
+        {
+            get
+            {
+                if (_Current == null)
+                {
+                    _Current = new Settings();
+                    _Current.SetDefaults();
+                }
+                return _Current;
+            }
+        }
 
         // Сохранение настроек в файл
         public static bool Save(string fname, Settings settings)
@@ -81,7 +94,7 @@ namespace TTTM
                 return true;
             }
         }
-        public static bool Load(string fname, out Settings settings)
+        public static bool Load(string fname, Settings settings)
         {
             // Создаём объект настроек, в любом случае пригодится, да и возвращать что-то надо
             settings = new Settings();
@@ -129,6 +142,16 @@ namespace TTTM
                 }
                 return true;
             }
+        }
+
+        public static bool Load(string fname)
+        {
+            return Load(fname, Current);
+        }
+
+        public static bool Save(string fname)
+        {
+            return Save(fname, Current);
         }
 
         public void SetDefaults()
@@ -219,7 +242,7 @@ namespace TTTM
     }
 
     // Менеджер для одиночной игры с ботом
-    public class GameManagerWithBot : GameManagerWthFriend
+    public class GameManagerWithBot : GameManager
     {
         public ABot Bot { private set; get; }
         public override event EventHandler<Player> ChangeTurn;
@@ -287,7 +310,7 @@ namespace TTTM
     }
 
     // Абстрактная реализация менеджера игры
-    public class GameManagerWthFriend : IDisposable
+    public class GameManager : IDisposable
     {
         // Свойства
         protected Game game;// { private set; get; }
@@ -300,7 +323,7 @@ namespace TTTM
         public virtual event EventHandler<Position> IncorrectTurn;
 
         // Конструктор
-        public GameManagerWthFriend(string player1, string player2)
+        public GameManager(string player1, string player2)
         {
             game = new Game();
             game.StartGame();
@@ -698,6 +721,7 @@ namespace TTTM
                 {
                     var LastPos = new Position(int.Parse(State[90].ToString()), int.Parse(State[91].ToString()));
                     CurrentField = LastPos % 3;
+                    History.Add(LastPos);
                     if (Fields[(LastPos / 3).x, (LastPos / 3).y].Cells[CurrentField.x, CurrentField.y].Owner?.Id == 2)
                         currentPlayer = p2;
                     else
