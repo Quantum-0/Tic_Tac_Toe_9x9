@@ -5,8 +5,66 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         mc:Ignorable="d"
-        Title="Настройки" Height="300" Width="300" Topmost="True">
+        Title="Настройки" Height="300" Width="355" Topmost="True">
     <Grid>
-        
+        <TabControl x:Name="tabControl" Margin="0,0,0,44">
+            <TabItem Header="Игроки по умолчанию">
+                <Grid>
+                    <TextBox x:Name="textBoxPlayer1" Height="23" Margin="10,36,46,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxPlayer2" Height="23" Margin="10,90,46,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
+                    <Label Content="Игрок 1:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Игрок 2:" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top"/>
+                    <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" Height="23" Margin="0,90,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="31"/>
+                    <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" Height="23" Margin="0,36,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="31"/>
+                    <TextBox x:Name="textBoxServerName" Height="23" Margin="10,145,10,0" TextWrapping="Wrap" Text="My Server" VerticalAlignment="Top"/>
+                    <Label Content="Название сервера:" HorizontalAlignment="Left" Margin="10,119,0,0" VerticalAlignment="Top"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Цветовая схема">
+                <Grid>
+                    <Label Content="Мелкая сетка" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Rectangle x:Name="RectColorSmallGrid" Fill="#FFF4F4F5" Height="23" Margin="0,13,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="83"/>
+                    <Label Content="Крупная сетка" HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Фон" HorizontalAlignment="Left" Margin="10,88,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Некорректный ход" HorizontalAlignment="Left" Margin="10,62,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Штриховка нейтрального поля" HorizontalAlignment="Left" Margin="10,114,0,0" VerticalAlignment="Top"/>
+                    <Rectangle x:Name="RectColorBigGrid" Fill="#FFF4F4F5" Height="23" Margin="0,39,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="83"/>
+                    <Rectangle x:Name="RectColorIncorrectTurn" Fill="#FFF4F4F5" Height="23" Margin="0,65,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="83"/>
+                    <Rectangle x:Name="RectColorBackground" Fill="#FFF4F4F5" Height="23" Margin="0,91,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="83"/>
+                    <Rectangle x:Name="RectColorNobodysField" Fill="#FFF4F4F5" Height="23" Margin="0,117,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="83"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Подсказки">
+                <Grid>
+                    <CheckBox x:Name="checkBoxShowHelp" Content="Показывать подсказки" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Rectangle x:Name="RectColorHelpColor" Fill="#FFF4F4F5" Height="23" Margin="0,33,10,0" Stroke="Black" VerticalAlignment="Top" MouseLeftButtonDown="ColorSelect_Click" HorizontalAlignment="Right" Width="83"/>
+                    <Label Content="Цвет подсказок:" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top"/>
+                    <Slider x:Name="sliderLinesAlpha" HorizontalAlignment="Left" Margin="183,97,0,0" VerticalAlignment="Top" Width="148" Height="26" Maximum="255"/>
+                    <Slider x:Name="sliderSquaresAlpha" HorizontalAlignment="Left" Margin="183,66,0,0" VerticalAlignment="Top" Width="148" Height="26" Maximum="255"/>
+                    <Label Content="Прозрачность квадратов:" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Прозрачность линий:" HorizontalAlignment="Left" Margin="10,92,0,0" VerticalAlignment="Top"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Сеть">
+                <Grid>
+                    <Label Content="Server API:" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Порт по умолчанию:" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top"/>
+                    <CheckBox x:Name="checkBoxCheckForUpdates" Content="Проверять обновления" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxPort" Height="22" Margin="140,65,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxServerAPI" Height="22" Margin="140,32,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Grid Height="44" VerticalAlignment="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="buttonSave" Content="Сохранить" Margin="10,12,5,10" Click="buttonSave_Click"/>
+            <Button x:Name="buttonDefaults" Content="По умолчанию" Margin="5,12,5,10" Grid.Column="1" Click="buttonDefaults_Click"/>
+            <Button x:Name="buttonCancel" Content="Отменить" Margin="5,12,10,10" Grid.Column="2" Click="buttonCancel_Click"/>
+        </Grid>
+
     </Grid>
 </Window>

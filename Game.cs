@@ -49,6 +49,7 @@ namespace TTTM
         public int HelpShow;
         public int GraphicsLevel; // Убрать
         public int CheckForUpdates;
+        public string DefaultServerName = "";
 
         private static Settings _Current;
         public static Settings Current
@@ -165,6 +166,7 @@ namespace TTTM
             FilledField = Color.Gray;
             DefaultName1 = "Игрок 1";
             DefaultName2 = "Игрок 2";
+            DefaultServerName = "My Server";
             MasterServerAPIUrl = "http://tttm.apphb.com/TTTMAPI.asmx";
             MpPort = 7890;
             HelpColor = Color.Aqua;
