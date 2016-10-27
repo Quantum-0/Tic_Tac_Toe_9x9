@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         mc:Ignorable="d"
-        Title="Справка" Height="327" Width="544.886">
+        Title="Справка" Height="327" Width="544">
     
     <Grid x:Name="grid">
         <Grid.Background>

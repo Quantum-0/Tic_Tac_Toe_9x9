@@ -15,20 +15,6 @@ using System.Xml.Serialization;
 
 namespace TTTM
 {
-    /*
-     * добавить правила к игре, чтоб убрать гарантированный способ победить в самом начале игры
-     * 1)ставим в ячейке ход обратно в неё
-     * 2)до заполнения кидаем туда противника
-     * 3)когда кончаются ячейик - ходим в центр
-     * 4)повторяем до заполнения
-     * 5)провоцируем дать ход в любое место и закрываем чтоб не дать 3 в ряд
-     * 6)доигрываем игру
-     */
-
-    
-
-    
-
     // Класс настроек
     public class Settings
     {
@@ -249,23 +235,24 @@ namespace TTTM
         public ABot Bot { private set; get; }
         public override event EventHandler<Player> ChangeTurn;
         public override event EventHandler<Position> IncorrectTurn;
-        public GameManagerWithBot(string player1, string player2, int botType = 3) : base(player1, player2)
+        public GameManagerWithBot(string player1, string player2, int botLevel = 3) : base(player1, player2)
         {
             // BASE CTOR HERE
-            switch (botType)
-            {
-                case 1:
-                    Bot = new StupidBot(Player2, game);
-                    break;
-                case 2:
-                    Bot = new SomeMoreCleverBot(Player2, Player1, game);
-                    break;
-                case 3:
-                    Bot = new RecursionAnalizerBot(Player2, Player1, game);
-                    break;
-                default:
-                    throw new Exception("Не удалось создать бота");
-            }
+            Bot = new RecursionAnalizerBot(Player2, Player1, game, botLevel);
+            //switch (botType)
+            //{
+            //    case 1:
+            //        Bot = new StupidBot(Player2, game);
+            //        break;
+            //    case 2:
+            //        Bot = new SomeMoreCleverBot(Player2, Player1, game);
+            //        break;
+            //    case 3:
+            //        Bot = new RecursionAnalizerBot(Player2, Player1, game);
+            //        break;
+            //    default:
+            //        throw new Exception("Не удалось создать бота");
+            //}
         }
 
         public void BotTurn()

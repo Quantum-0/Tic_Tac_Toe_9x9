@@ -60,11 +60,11 @@ namespace Tic_Tac_Toe_WPF_Remake
                 MessageBox.Show("Имена игроков не могут быть пустыми", "Ошибка создания игры", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (comboBoxLevel.SelectedIndex == -1 && checkBoxPlayWithComputer.IsChecked == true)
+            /*if (comboBoxLevel.SelectedIndex == -1 && checkBoxPlayWithComputer.IsChecked == true)
             {
                 MessageBox.Show("Выберите сложность", "Ошибка создания игры", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
-            }
+            }*/
 
             DialogResult = true;
             Close();
@@ -72,8 +72,7 @@ namespace Tic_Tac_Toe_WPF_Remake
 
         private void checkBoxPlayWithComputer_Checked(object sender, RoutedEventArgs e)
         {
-            //comboBoxLevel.IsEnabled = checkBoxPlayWithComputer.IsChecked == true;
-            comboBoxLevel.SelectedIndex = checkBoxPlayWithComputer.IsChecked == true ? 1 : -1;
+            sliderBotLevel.IsEnabled = checkBoxPlayWithComputer.IsChecked == true;
         }
     }
 }

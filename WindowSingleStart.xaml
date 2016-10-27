@@ -16,11 +16,8 @@
         <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="153,95,0,0" Stroke="Black" VerticalAlignment="Top" Width="31" MouseLeftButtonDown="ColorSelect_Click"/>
         <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="153,36,0,0" Stroke="Black" VerticalAlignment="Top" Width="31" MouseLeftButtonDown="ColorSelect_Click"/>
         <CheckBox x:Name="checkBoxPlayWithComputer" Content="Играть с компьютером" HorizontalAlignment="Left" Margin="10,125,0,0" Checked="checkBoxPlayWithComputer_Checked" VerticalAlignment="Top"/>
-        <ComboBox x:Name="comboBoxLevel" HorizontalAlignment="Left" Margin="45,148,0,0" VerticalAlignment="Top" Width="140" Text="Сложность">
-            <System:String>Легко</System:String>
-            <System:String>Средне</System:String>
-            <System:String>Сложно</System:String>
-        </ComboBox>
+        <Slider x:Name="sliderBotLevel" HorizontalAlignment="Left" Margin="102,145,0,0" VerticalAlignment="Top" Width="82" SmallChange="1" Value="6" IsEnabled="False" Minimum="2"/>
+        <Label x:Name="label" Content="Уровень бота:" HorizontalAlignment="Left" Margin="10,140,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

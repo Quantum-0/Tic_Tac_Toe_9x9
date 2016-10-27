@@ -6,6 +6,17 @@ using System.Threading.Tasks;
 
 namespace TTTM
 {
+    /*
+     * Bot Level =>
+     * 
+     * [1/2, 10]
+     * 
+     * 4 - abs(x) - % of Random & MaxDepth
+     * 
+     * if x<4
+     *   
+     */
+
     // Абстрактный бот (как базовый класс для реализаций бота)
     abstract public class ABot
     {
@@ -188,13 +199,36 @@ namespace TTTM
 
         #endregion
 
-        // Первый ход
-        public Position FirstTurn;
+        // Первый ход, уровень бота и количество ходов
+        private Position FirstTurn;
+        public int BotLevel;
         public int TurnsCount;
+        private bool InvertCalculation
+        {
+            get
+            {
+                return (BotLevel < 4);
+            }
+        }
+        private float PercentOfRandom
+        {
+            get
+            {
+                return 1 - Math.Abs(BotLevel - 4) / 6f;
+            }
+        }
+        private int StartDepth
+        {
+            get
+            {
+                return Math.Abs(BotLevel - 5);
+            }
+        }
 
         // Конструктор
-        public RecursionAnalizerBot(Player player, Player hplayer, Game game) : base(player, hplayer, game)
+        public RecursionAnalizerBot(Player player, Player hplayer, Game game, int Level) : base(player, hplayer, game)
         {
+            BotLevel = Level;
         }
 
         // Проверка 3 позиций на наличие нужной для заполнения (2 из них = Plr, 1 = null)
@@ -241,9 +275,7 @@ namespace TTTM
             if (Current != null) ResultList.Add(Current);
 
             for (int i = 0; i < ResultList.Count; i++)
-            {
                 Result[ResultList[i].x + ResultList[i].y * 3] = true;
-            }
 
             return Result;
         }
@@ -270,7 +302,7 @@ namespace TTTM
         }
 
         // РЕКУРСИВНЫЙ ПОДСЧЁТ ОЧКОВ В ПОЛЕ ДЛЯ КАЖДОЙ КЛЕТКИ
-        private Tuple<float[], bool[], byte> CalculateScores(Position Field = null, int Depth = 0, int MaxDepth = 5)
+        private Tuple<float[], bool[], byte> CalculateScores(Position Field = null, int Depth = 0, int MaxDepth = -1)
         {
             // Item1 - количество очков, Item2 - нельзя ходить, Item3 - количество ячеек, куда можно ходить
 
@@ -280,6 +312,10 @@ namespace TTTM
             // Указываем текущее поле
             if (Field == null)
                 Field = Game.CurrentField;
+
+            // Устанавливаем максимальную глубину рекурсии
+            if (MaxDepth == -1)
+                MaxDepth = StartDepth;
 
             // Инициализируем массив 9 элементов для ячеек
             float[] Scores = new float[9];
@@ -330,9 +366,16 @@ namespace TTTM
                                 MidScoresFromRecursion[i] += CalculatedScores.Item1[j] / CalculatedScores.Item3;
                             }
                         }
-                        // Вычитаем из очков каждой ячейки взвешенные максимальное и среднее значения очков по этому полю
-                        Scores[i] -= MaxScoresFromRecursion[i] * WeightMaxScoresFromRecursion
-                            + MidScoresFromRecursion[i] * WeightMidScoresFromRecursion;
+
+                        if (InvertCalculation)
+                        {
+                            // Вычитаем из очков каждой ячейки взвешенные максимальное и среднее значения очков по этому полю
+                            Scores[i] -= MaxScoresFromRecursion[i] * WeightMaxScoresFromRecursion
+                                + MidScoresFromRecursion[i] * WeightMidScoresFromRecursion;
+                        }
+                        else
+                            Scores[i] += MaxScoresFromRecursion[i] * WeightMaxScoresFromRecursion
+                                + MidScoresFromRecursion[i] * WeightMidScoresFromRecursion;
 
                         // Вычисляем количество свободных ячеек и занятость поля, и учитываем это в очках ячейки
                         var FreeCells = CalculatedScores.Item3;
@@ -358,7 +401,18 @@ namespace TTTM
 
             // Выключаем "тихий" режим, возвращая обработку событий игры
             if (Depth == 0)
+            {
                 Game.SilentMode = false;
+                var MaxShift = Scores.Max();
+                for (int i = 0; i < Scores.Length; i++)
+                {
+                    Scores[i] = Scores[i] * (1 - PercentOfRandom) +
+                        + (float)(rnd.NextDouble() * MaxShift * PercentOfRandom);
+
+                    if (InvertCalculation)
+                        Scores[i] = 10 - Scores[i];
+                }
+            }
 
             return new Tuple<float[], bool[], byte>(Scores, StepDeny, AllowedCellsHere);
         }

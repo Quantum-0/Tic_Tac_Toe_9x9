@@ -216,7 +216,7 @@ namespace Tic_Tac_Toe_WPF_Remake
             penc1 = new Pen(wnd.RectColor1.GetShapeColor());
             penc2 = new Pen(wnd.RectColor2.GetShapeColor());
             labelCurrentTurn.Content = pl1;
-            var BotLevel = wnd.comboBoxLevel.SelectedIndex + 1;
+            var BotLevel = (int)Math.Round(wnd.sliderBotLevel.Value);
 
             // Создание GameManeger'a
             if (wnd.checkBoxPlayWithComputer.IsChecked == true)
