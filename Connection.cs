@@ -12,7 +12,7 @@ using Tic_Tac_Toe_WPF_Remake;
 
 namespace TTTM
 {
-    public class Connection2
+    public class Connection
     {
         // состояние подключения для клиента
 
@@ -37,6 +37,13 @@ namespace TTTM
          * Client |Game, Game| <= SendStart
          * 
          */
+
+        public static Connection Current { get; private set; }
+        public static void CreateConnection()
+        {
+            Current = new Connection(Settings.Current);
+        }
+        
         public enum State : int
         {
             Off, // Сервер выключен
@@ -120,7 +127,7 @@ namespace TTTM
         }
         
         // Null => Off :D
-        public Connection2(Settings settings)
+        public Connection(Settings settings)
         {
             this.settings = settings;
         }

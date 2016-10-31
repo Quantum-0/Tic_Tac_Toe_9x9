@@ -5,17 +5,62 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         mc:Ignorable="d"
-        Title="Мультиплеер" Height="268.697" Width="430.697" ResizeMode="NoResize" Topmost="True">
+        Title="Мультиплеер" Height="268.697" Width="456.697" Topmost="True">
     <Grid>
         <TabControl x:Name="tabControl" RenderTransformOrigin="0.5,0.5" Background="White">
             <TabItem Header="Общие настройки">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid>
+                    <Label Content="Ник:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxNick" Height="23" Margin="29,36,191,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" GotFocus="textBoxNick_GotFocus"/>
+                    <Label x:Name="label1" Content="Цвет:" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top"/>
+                    <Rectangle x:Name="RectColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="20" Margin="29,90,0,0" Stroke="Black" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="SelectColor_Click"/>
+                    <Button x:Name="buttonSettings" Content="Все настройки" Margin="10,0,10,10" Height="20" VerticalAlignment="Bottom" Click="buttonSettings_Click"/>
+                </Grid>
             </TabItem>
             <TabItem Header="Список серверов">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid>
+                    <DataGrid x:Name="dataGrid" Margin="0,0,0,33" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding ServerName}" Header="Название сервера"/>
+                            <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="Имя игрока"/>
+                            <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="Уровень"/>
+                            <DataGridTextColumn x:Name="ColumnColor" Binding="{Binding Color}" ClipboardContentBinding="{x:Null}" Header="Цвет"/>
+                            <DataGridTemplateColumn  x:Name="ColumnColor2" ClipboardContentBinding="{x:Null}" Header="Цвет"/>
+                            <DataGridTextColumn Binding="{Binding IP}" ClipboardContentBinding="{x:Null}" Header="Адрес сервера"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Grid Margin="0" VerticalAlignment="Bottom">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="buttonRefresh" Content="Обновить" Margin="10,5" Click="buttonRefresh_Click"/>
+                        <Button x:Name="buttonConnect" Content="Подключиться" Margin="10,5" Grid.Column="1"/>
+                    </Grid>
+                </Grid>
             </TabItem>
-            <TabItem Header="Создание сервера"/>
-            <TabItem Header="Подключение"/>
+            <TabItem Header="Создание сервера">
+                <Grid>
+                    <Label Content="Название сервера:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="115"/>
+                    <TextBox x:Name="textBoxServername" Height="23" Margin="29,36,191,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
+                    <Button x:Name="buttonStartServer" Content="Создать сервер" Margin="0,64,10,0" HorizontalAlignment="Right" Width="110" Height="20" VerticalAlignment="Top"/>
+                    <Button x:Name="buttonStopServer" Content="Отключить сервер" Margin="0,0,10,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Подключение">
+                <Grid>
+                    <Label Content="Сервер:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelServerName" Content="..." Margin="19,36,10,0" VerticalAlignment="Top"/>
+                    <Label Content="Игрок 1:" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelPlayer1" Content="..." Margin="53,93,10,0" VerticalAlignment="Top"/>
+                    <Label Content="Игрок 2:" HorizontalAlignment="Left" Margin="10,124,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelPlayer2" Content="Сервер:" Margin="53,150,10,0" VerticalAlignment="Top"/>
+                    <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,93,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
+                    <Rectangle x:Name="RectColor1_Copy" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,150,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
+                    <Button x:Name="buttonStartGame" Content="Начать игру" Margin="0,0,10,11" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84"/>
+                    <Button x:Name="buttonDisconnectGame" Content="Отключить / отключиться" Margin="10,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="155"/>
+                </Grid>
+            </TabItem>
         </TabControl>
 
     </Grid>

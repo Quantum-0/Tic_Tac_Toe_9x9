@@ -123,11 +123,11 @@ namespace TTTM
         public static List<ServerRecord> Servers;
         public struct ServerRecord
         {
-            public string IP;
-            public string Name;
-            public string ServerName;
-            public string PublicKey;
-            public string Color;
+            public string IP { get; private set; }
+            public string Name { get; private set; }
+            public string ServerName { get; private set; }
+            public string PublicKey { get; private set; }
+            public string Color { get; private set; }
 
             public ServerRecord(string ip, string servername, string name, string color, string publickey)
             {
