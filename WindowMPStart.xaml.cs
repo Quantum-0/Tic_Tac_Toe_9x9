@@ -31,6 +31,16 @@ namespace Tic_Tac_Toe_WPF_Remake
             RectColor.SetShapeColor(Settings.Current.PlayerColor1);
             Connection.Current.OpponentConnected += Connection_OpponentConnected;
             Connection.Current.ServerIsntReady += Connection_ServerIsntReady;
+            Connection.Current.ConnectingRejected += Connection_ConnectingRejected;
+        }
+
+        private void Connection_ConnectingRejected(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(
+                delegate {
+                    buttonConnect.IsEnabled = true;
+                    System.Windows.Forms.MessageBox.Show("Не удалось подключиться к серверу");
+                });
         }
 
         private void Connection_ServerIsntReady(object sender, EventArgs e)
@@ -50,6 +60,7 @@ namespace Tic_Tac_Toe_WPF_Remake
                 labelPlayer1.Content = Connection.Current.IAM.Nick;
                 RectColor2.SetShapeColor(e.Color);
                 RectColor1.SetShapeColor(Connection.Current.IAM.Color);
+                buttonStartGame.IsEnabled = true;
 
                 Connection.Current.GameStarts += Connection_GameStarts;
             });
@@ -214,11 +225,22 @@ namespace Tic_Tac_Toe_WPF_Remake
             {
                 Connection.Current.GameStarts -= Connection_GameStarts;
                 // Переключать на начальный грид
-                var GameForm = new WindowMultiplayer(labelPlayer1Nick.Text, labelPlayer2Nick.Text, panelPlayer1.BackColor, panelPlayer2.BackColor);
+                var GameForm = new WindowMultiplayer(labelPlayer1.Content.ToString(), labelPlayer2.Content.ToString(), RectColor1.GetShapeColor(), RectColor1.GetShapeColor());
                 GameForm.Show();
-                GameForm.FormClosed += (s, ee) => this.Visibility = Visibility.Visible;
+                GameForm.Closed += (s, ee) => this.Visibility = Visibility.Visible;
                 this.Visibility = Visibility.Hidden;
             });
+        }
+
+        private void buttonStartGame_Click(object sender, RoutedEventArgs e)
+        {
+            buttonStartGame.IsEnabled = false;
+            Connection.Current.SendStartGame();
+        }
+
+        private void buttonDisconnectGame_Click(object sender, RoutedEventArgs e)
+        {
+            Connection.Current.SendReject();
         }
     }
 }

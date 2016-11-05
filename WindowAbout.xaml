@@ -6,12 +6,12 @@
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         mc:Ignorable="d"
         Title="Справка" Height="327" Width="544">
-    
+
     <Grid x:Name="grid">
         <Grid.Background>
             <ImageBrush ImageSource="Resources/About_1.jpg"/>
         </Grid.Background>
-        <Button x:Name="buttonRules" Content="Правила тип" HorizontalAlignment="Left" Margin="405,258,0,0" VerticalAlignment="Top" Width="122" Height="28" Background="#FF59D45E" Click="buttonRules_Click"/>
+        <Button x:Name="buttonRules" Content="Авторы" Margin="0,0,29,19" Background="#FF59D45E" Click="buttonRules_Click" Height="31" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="82"/>
 
     </Grid>
 </Window>

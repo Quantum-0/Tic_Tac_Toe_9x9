@@ -198,11 +198,10 @@ namespace TTTM
                 {
                     ServerLog?.Invoke(this, "Получен адрес клиента");
                     state = State.Establishing;
-                    var con = TryToConnect(LocalEP, RemoteEP);
+                    var con = TryToConnect(LocalEP, RemoteEP); // state = State.Connected;
                     ServerList.Clear(AccessKey);
                     if (con != null)
                     {
-                        state = State.Connected;
                         ServerLog?.Invoke(this, "Ожидание данных IAM от клиента");
                     }
                     else
@@ -258,7 +257,7 @@ namespace TTTM
                     var con = TryToConnect(LocalEP, RemoteEP); // Establishing
                     if (con != null)
                     {
-                        state = State.Connected;
+                        Thread.Sleep(100);
                         SendIAM();
                     }
                     else
@@ -326,7 +325,7 @@ namespace TTTM
                         RestartRejected.Invoke(this, new EventArgs());
                     else
                     {
-                        state = State.Connected;
+                        // state = State.Connected;
                         ConnectingRejected.Invoke(this, new EventArgs());
                         BreakAnyConnection();
                     }
@@ -381,10 +380,11 @@ namespace TTTM
                 Client.Start(LocalEP.Port);
                 Client.Connect(RemoteEP.Address.ToString(), RemoteEP.Port);
                 Client.PollEvents();
-                while (Client.IsRunning && !Client.IsConnected)
+                while(Client.IsRunning && !Client.IsConnected)
                     Thread.Sleep(50);
                 if (Client.IsConnected)
                 {
+                    state = State.Connected;
                     Task.Run(() =>
                     {
                         while (Client.IsConnected)
@@ -404,10 +404,10 @@ namespace TTTM
                     return null;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 Client.Stop();
-                throw;
+                throw new Exception("Ошибка инициализации клиента. Возможно порт уже используется.", e);
             }
         }
 
@@ -465,8 +465,8 @@ namespace TTTM
             }
             else
             {
-                CheckItselfTask = Task.Run((Action)CheckItself);
                 state = State.Created;
+                CheckItselfTask = Task.Run((Action)CheckItself);
                 Role = NetworkRole.Server;
                 ServerLog?.Invoke(this, "Сервер создан и зарегистрирован");
                 return true;

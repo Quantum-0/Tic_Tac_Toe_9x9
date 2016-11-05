@@ -44,7 +44,7 @@ namespace Tic_Tac_Toe_WPF_Remake
                         {
                             if (MessageBox.Show("Обновление готово к установке. Закрыть приложение?", "Обновление", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                             {
-                                Settings.Save("Settings.cfg", Settings.Current);
+                                //Settings.Save("Settings.cfg", Settings.Current);
                                 Application.Current.Shutdown();
                             }
                         };

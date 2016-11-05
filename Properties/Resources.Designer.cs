@@ -111,6 +111,16 @@ namespace Tic_Tac_Toe_WPF_Remake.Properties {
         }
         
         /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap StartSingleGameBG {
+            get {
+                object obj = ResourceManager.GetObject("StartSingleGameBG", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на stun.a-mm.tv:3478
         ///stun.jappix.com:3478
         ///stun.rounds.com:3478

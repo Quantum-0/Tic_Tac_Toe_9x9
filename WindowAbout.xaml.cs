@@ -19,13 +19,15 @@ namespace Tic_Tac_Toe_WPF_Remake
     /// </summary>
     public partial class WindowAbout : Window
     {
+        string firstContent;
         public WindowAbout()
         {
             InitializeComponent();
+            firstContent = buttonRules.Content.ToString();
         }
         private void buttonRules_Click(object sender, RoutedEventArgs e)
         {
-            if (buttonRules.Content.ToString() == "Правила тип")
+            if (buttonRules.Content.ToString() == firstContent)
             {
                 var uri = new Uri("pack://application:,,,/Resources/About_2.jpg");
                 ImageSource a = new BitmapImage(uri);
@@ -37,7 +39,7 @@ namespace Tic_Tac_Toe_WPF_Remake
                 var uri = new Uri("pack://application:,,,/Resources/About_1.jpg");
                 ImageSource a = new BitmapImage(uri);
                 grid.Background = new ImageBrush(a);
-                buttonRules.Content = "Правила тип";
+                buttonRules.Content = firstContent;
             }
         }
     }

@@ -83,8 +83,8 @@ namespace TTTM
         }
         public static bool Load(string fname, Settings settings)
         {
-            // Создаём объект настроек, в любом случае пригодится, да и возвращать что-то надо
-            settings = new Settings();
+            if (settings == null)
+                return false;
 
             // Выход если файл отсутствует
             if (!File.Exists(fname))

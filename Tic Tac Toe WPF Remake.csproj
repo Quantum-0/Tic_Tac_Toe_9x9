@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -73,8 +74,12 @@
     <Compile Include="WindowAbout.xaml.cs">
       <DependentUpon>WindowAbout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WindowBase.cs" />
     <Compile Include="WindowMPStart.xaml.cs">
       <DependentUpon>WindowMPStart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WindowMultiplayer.xaml.cs">
+      <DependentUpon>WindowMultiplayer.xaml</DependentUpon>
     </Compile>
     <Compile Include="WindowSettings.xaml.cs">
       <DependentUpon>WindowSettings.xaml</DependentUpon>
@@ -105,6 +110,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WindowMPStart.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WindowMultiplayer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -164,6 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ToDo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\StartSingleGameBG.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

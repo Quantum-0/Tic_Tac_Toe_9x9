@@ -6,11 +6,14 @@
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Tic_Tac_Toe_WPF_Remake.WindowSingleStart"
         mc:Ignorable="d"
-        Title="Начало игры" ResizeMode="NoResize" Width="210.851" Height="246.855">
+        Title="Начало игры" ResizeMode="NoResize" Width="414" Height="240">
     <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="Resources/StartSingleGameBG.jpg"/>
+        </Grid.Background>
         <Label Content="Игрок 1:" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top"/>
         <Label Content="Игрок 2:" HorizontalAlignment="Left" Margin="5,64,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="buttonStart" Content="Начать игру" HorizontalAlignment="Left" Margin="15,180,0,0" VerticalAlignment="Top" Width="75" IsDefault="True" Click="buttonStart_Click"/>
+        <Button x:Name="buttonStart" Content="Начать игру" HorizontalAlignment="Left" Margin="10,181,0,0" VerticalAlignment="Top" Width="75" IsDefault="True" Click="buttonStart_Click"/>
         <TextBox x:Name="textBoxPlayer1" HorizontalAlignment="Left" Height="23" Margin="10,36,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="textBoxPlayer2" HorizontalAlignment="Left" Height="23" Margin="10,95,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
         <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="153,95,0,0" Stroke="Black" VerticalAlignment="Top" Width="31" MouseLeftButtonDown="ColorSelect_Click"/>

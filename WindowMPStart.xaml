@@ -66,8 +66,8 @@
                     <Label x:Name="labelPlayer2" Content="Сервер:" Margin="53,150,10,0" VerticalAlignment="Top"/>
                     <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,93,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
                     <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,150,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
-                    <Button x:Name="buttonStartGame" Content="Начать игру" Margin="0,0,10,11" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84"/>
-                    <Button x:Name="buttonDisconnectGame" Content="Отключить / отключиться" Margin="10,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="155"/>
+                    <Button x:Name="buttonStartGame" Content="Начать игру" Margin="0,0,10,11" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="buttonStartGame_Click"/>
+                    <Button x:Name="buttonDisconnectGame" Content="Отключить / отключиться" Margin="10,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="155" Click="buttonDisconnectGame_Click"/>
                 </Grid>
             </TabItem>
         </TabControl>
