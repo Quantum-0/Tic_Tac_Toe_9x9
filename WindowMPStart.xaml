@@ -8,69 +8,105 @@
         Title="Мультиплеер" Height="268.697" Width="456.697" Topmost="True">
     <Window.Resources>
         <local:IntToColorConverter x:Key="IntToColorConverter"/>
+        <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
+            <Border BorderBrush="{x:Null}">
+                <ContentPresenter RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"></ContentPresenter>
+            </Border>
+            <!--
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="border" Property="Background" Value="Red"></Setter>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="Yellow"></Setter>
+                </Trigger>
+            </ControlTemplate.Triggers>
+            -->
+        </ControlTemplate>
     </Window.Resources>
     <Grid>
-        <TabControl x:Name="tabControl" RenderTransformOrigin="0.5,0.5" Background="White">
-            <TabItem Header="Общие настройки">
-                <Grid>
-                    <Label Content="Ник:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxNick" Height="23" Margin="29,36,191,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" GotFocus="textBoxNick_GotFocus" KeyUp="textBoxNick_KeyUp"/>
-                    <Label x:Name="label1" Content="Цвет:" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top"/>
-                    <Rectangle x:Name="RectColor" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="20" Margin="29,90,0,0" Stroke="Black" VerticalAlignment="Top" Width="75" MouseLeftButtonDown="SelectColor_Click"/>
-                    <Button x:Name="buttonSettings" Content="Все настройки" Margin="10,0,10,10" Height="20" VerticalAlignment="Bottom" Click="buttonSettings_Click"/>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Список серверов">
-                <Grid>
-                    <DataGrid x:Name="dataGrid" Margin="0,0,0,33" AutoGenerateColumns="False">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding ServerName}" Header="Название сервера"/>
-                            <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="Имя игрока"/>
-                            <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="Уровень"/>
-                            <DataGridTemplateColumn x:Name="ColumnColor" Header="Цвет">
-                                <DataGridTemplateColumn.CellStyle>
-                                    <Style TargetType="{x:Type DataGridCell}">
-                                        <Setter Property="Background" Value="{Binding Color, Converter = {StaticResource IntToColorConverter}}"/>
-                                    </Style>
-                                </DataGridTemplateColumn.CellStyle>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Binding="{Binding IP}" ClipboardContentBinding="{x:Null}" Header="Адрес сервера"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    <Grid Margin="0" VerticalAlignment="Bottom">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button x:Name="buttonRefresh" Content="Обновить" Margin="10,5" Click="buttonRefresh_Click"/>
-                        <Button x:Name="buttonConnect" Content="Подключиться" Margin="10,5" Grid.Column="1" IsEnabled="False" Click="buttonConnect_Click"/>
-                    </Grid>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Создание сервера">
-                <Grid>
-                    <Label Content="Название сервера:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="115"/>
-                    <TextBox x:Name="textBoxServerName" Height="23" Margin="29,36,191,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" GotFocus="textBoxServername_GotFocus" LostFocus="textBoxServername_LostFocus" KeyUp="textBoxServername_KeyUp"/>
-                    <Button x:Name="buttonStartServer" Content="Создать сервер" Margin="0,64,10,0" HorizontalAlignment="Right" Width="110" Height="20" VerticalAlignment="Top" Click="buttonStartServer_Click"/>
-                    <Button x:Name="buttonStopServer" Content="Отключить сервер" Margin="0,0,10,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" Click="buttonStopServer_Click"/>
-                    <TextBox x:Name="textBoxServerLog" Margin="10,64,125,10" TextWrapping="Wrap" Text="TextBox"/>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Подключение">
-                <Grid>
-                    <Label Content="Сервер:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                    <Label x:Name="labelServerName" Content="..." Margin="19,36,10,0" VerticalAlignment="Top"/>
-                    <Label Content="Игрок 1:" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
-                    <Label x:Name="labelPlayer1" Content="..." Margin="53,93,10,0" VerticalAlignment="Top"/>
-                    <Label Content="Игрок 2:" HorizontalAlignment="Left" Margin="10,124,0,0" VerticalAlignment="Top"/>
-                    <Label x:Name="labelPlayer2" Content="Сервер:" Margin="53,150,10,0" VerticalAlignment="Top"/>
-                    <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,93,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
-                    <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,150,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
-                    <Button x:Name="buttonStartGame" Content="Начать игру" Margin="0,0,10,11" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="buttonStartGame_Click"/>
-                    <Button x:Name="buttonDisconnectGame" Content="Отключить / отключиться" Margin="10,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="155" Click="buttonDisconnectGame_Click"/>
-                </Grid>
-            </TabItem>
-        </TabControl>
+        <Grid x:Name="ConnectedGrid" Background="White" Visibility="Hidden">
+            <Label Content="Сервер:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="labelServerName" Content="..." Margin="19,36,10,0" VerticalAlignment="Top"/>
+            <Label Content="Игрок 1:" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="labelPlayer1" Content="..." Margin="53,93,10,0" VerticalAlignment="Top"/>
+            <Label Content="Игрок 2:" HorizontalAlignment="Left" Margin="10,124,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="labelPlayer2" Content="Сервер:" Margin="53,150,10,0" VerticalAlignment="Top"/>
+            <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,93,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
+            <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,150,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
+            <Button x:Name="buttonStartGame" Content="Начать игру" Margin="0,0,10,11" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="buttonStartGame_Click"/>
+            <Button x:Name="buttonDisconnectGame" Content="Отключить / отключиться" Margin="10,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="155" Click="buttonDisconnectGame_Click"/>
+        </Grid>
+
+        <Grid x:Name="ServerListGrid" Background="White" Visibility="Hidden">
+            <DataGrid x:Name="dataGrid" Margin="0,0,0,33" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding ServerName}" Header="Название сервера"/>
+                    <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="Имя игрока"/>
+                    <DataGridTextColumn Binding="{x:Null}" ClipboardContentBinding="{x:Null}" Header="Уровень"/>
+                    <DataGridTemplateColumn x:Name="ColumnColor" Header="Цвет">
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="Background" Value="{Binding Color, Converter = {StaticResource IntToColorConverter}}"/>
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Binding="{Binding IP}" ClipboardContentBinding="{x:Null}" Header="Адрес сервера"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Grid Margin="0" VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="buttonRefresh" Content="Обновить" Margin="10,5" Click="buttonRefresh_Click"/>
+                <Button x:Name="buttonConnect" Content="Подключиться" Margin="10,5" Grid.Column="1" IsEnabled="False" Click="buttonConnect_Click"/>
+                <Button x:Name="buttonBack2" Content="Вернуться" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Width="75" Click="buttonBack_Click"/>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="CreateServerGrid" Background="White" Visibility="Hidden">
+            <Label Content="Название сервера:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="115"/>
+            <TextBox x:Name="textBoxServerName" Height="23" Margin="31,41,189,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" GotFocus="textBoxServername_GotFocus" LostFocus="textBoxServername_LostFocus" KeyUp="textBoxServername_KeyUp"/>
+            <Button x:Name="buttonStartServer" Content="Создать сервер" Margin="0,69,10,0" HorizontalAlignment="Right" Width="110" Height="20" VerticalAlignment="Top" Click="buttonStartServer_Click"/>
+            <Button x:Name="buttonStopServer" Content="Отключить сервер" Margin="0,0,10,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" Click="buttonStopServer_Click"/>
+            <TextBox x:Name="textBoxServerLog" Margin="10,69,125,10" TextWrapping="Wrap" Text="TextBox"/>
+            <Button x:Name="buttonBack1" Content="Вернуться" HorizontalAlignment="Left" Margin="364,10,0,0" VerticalAlignment="Top" Width="75" Click="buttonBack_Click"/>
+        </Grid>
+
+        <Rectangle x:Name="RectColor" Fill="#FFF4F4F5" Stroke="Black" MouseLeftButtonDown="SelectColor_Click"/>
+        <Grid x:Name="MainGrid" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="35*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="17*"/>
+                <ColumnDefinition Width="12*"/>
+                <ColumnDefinition Width="21*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25*"/>
+                <RowDefinition Height="40*"/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="21*"/>
+                <RowDefinition Height="4*"/>
+            </Grid.RowDefinitions>
+            <Grid.Background>
+                <ImageBrush ImageSource="Resources/MPStartMenuBG.png"/>
+            </Grid.Background>
+            <Button x:Name="buttonGotoCreateServer" Content="Создать сервер" Click="buttonGotoCreateServer_Click" Grid.RowSpan="5" BorderBrush="{x:Null}" Foreground="{x:Null}">
+                <Button.Background>
+                    <ImageBrush ImageSource="Resources/MPStartCreateServer355.png"/>
+                </Button.Background>
+            </Button>
+            <Button x:Name="buttonGotoServerList" Content="Список серверов" Click="buttonGotoServerList_Click" Foreground="{x:Null}" BorderBrush="{x:Null}" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3">
+                <Button.Background>
+                    <ImageBrush ImageSource="Resources/MPStartServerList50-100-25-65.png"/>
+                </Button.Background>
+            </Button>
+            <TextBox x:Name="textBoxNick" Height="23" Margin="11,10,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" GotFocus="textBoxNick_GotFocus" KeyUp="textBoxNick_KeyUp" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <Button x:Name="buttonSettings" Content="Все настройки" Margin="0,0,10,0" Height="20" VerticalAlignment="Bottom" Click="buttonSettings_Click" Grid.Row="3" Grid.Column="4" HorizontalAlignment="Right" Width="84"/>
+            <Button x:Name="BucketColorSelecter" Content="Button" Grid.Column="3" Grid.Row="3" Background="#00000000" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="BucketColorSelecter_Click" Template="{DynamicResource ButtonTemplate}"/>
+        </Grid>
 
     </Grid>
 </Window>

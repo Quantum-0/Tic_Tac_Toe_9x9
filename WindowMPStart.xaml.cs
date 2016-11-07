@@ -197,6 +197,7 @@ namespace Tic_Tac_Toe_WPF_Remake
             labelServerName.Content = textBoxServerName.Text;
             Connection.Current.ServerLog += Connection_ServerLog;
             Connection.Current.StartServer(textBoxServerName.Text, new Connection.IAMData(textBoxNick.Text, RectColor.GetShapeColor()));
+            buttonBack1.IsEnabled = false;
         }
         private void Connection_ServerLog(object sender, string e)
         {
@@ -213,6 +214,7 @@ namespace Tic_Tac_Toe_WPF_Remake
             buttonStopServer.Visibility = Visibility.Hidden;
             Connection.Current.BreakAnyConnection();
             Connection.Current.ServerLog -= Connection_ServerLog;
+            buttonBack1.IsEnabled = true;
         }
         private void ConnectToServer(string PublicKey)
         {
@@ -241,6 +243,33 @@ namespace Tic_Tac_Toe_WPF_Remake
         private void buttonDisconnectGame_Click(object sender, RoutedEventArgs e)
         {
             Connection.Current.SendReject();
+        }
+
+        private void buttonGotoCreateServer_Click(object sender, RoutedEventArgs e)
+        {
+            CreateServerGrid.Visibility = Visibility.Visible;
+            MainGrid.Visibility = Visibility.Hidden;
+            RectColor.Visibility = Visibility.Hidden;
+        }
+
+        private void buttonGotoServerList_Click(object sender, RoutedEventArgs e)
+        {
+            ServerListGrid.Visibility = Visibility.Visible;
+            MainGrid.Visibility = Visibility.Hidden;
+            RectColor.Visibility = Visibility.Hidden;
+        }
+
+        private void buttonBack_Click(object sender, RoutedEventArgs e)
+        {
+            ServerListGrid.Visibility = Visibility.Hidden;
+            CreateServerGrid.Visibility = Visibility.Hidden;
+            MainGrid.Visibility = Visibility.Visible;
+            RectColor.Visibility = Visibility.Visible;
+        }
+
+        private void BucketColorSelecter_Click(object sender, RoutedEventArgs e)
+        {
+            SelectColor_Click(RectColor, null);
         }
     }
 }

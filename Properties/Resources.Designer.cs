@@ -103,6 +103,46 @@ namespace Tic_Tac_Toe_WPF_Remake.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap MPStartCreateServer355 {
+            get {
+                object obj = ResourceManager.GetObject("MPStartCreateServer355", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap MPStartForeground {
+            get {
+                object obj = ResourceManager.GetObject("MPStartForeground", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap MPStartMenuBG {
+            get {
+                object obj = ResourceManager.GetObject("MPStartMenuBG", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap MPStartServerList50_100_25_65 {
+            get {
+                object obj = ResourceManager.GetObject("MPStartServerList50_100_25_65", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap SmileMoon {
             get {
                 object obj = ResourceManager.GetObject("SmileMoon", resourceCulture);
