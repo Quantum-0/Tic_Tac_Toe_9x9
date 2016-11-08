@@ -25,19 +25,6 @@
         </ControlTemplate>
     </Window.Resources>
     <Grid>
-        <Grid x:Name="ConnectedGrid" Background="White" Visibility="Hidden">
-            <Label Content="Сервер:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-            <Label x:Name="labelServerName" Content="..." Margin="19,36,10,0" VerticalAlignment="Top"/>
-            <Label Content="Игрок 1:" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
-            <Label x:Name="labelPlayer1" Content="..." Margin="53,93,10,0" VerticalAlignment="Top"/>
-            <Label Content="Игрок 2:" HorizontalAlignment="Left" Margin="10,124,0,0" VerticalAlignment="Top"/>
-            <Label x:Name="labelPlayer2" Content="Сервер:" Margin="53,150,10,0" VerticalAlignment="Top"/>
-            <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,93,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
-            <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,150,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
-            <Button x:Name="buttonStartGame" Content="Начать игру" Margin="0,0,10,11" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="buttonStartGame_Click"/>
-            <Button x:Name="buttonDisconnectGame" Content="Отключить / отключиться" Margin="10,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="155" Click="buttonDisconnectGame_Click"/>
-        </Grid>
-
         <Grid x:Name="ServerListGrid" Background="White" Visibility="Hidden">
             <DataGrid x:Name="dataGrid" Margin="0,0,0,33" AutoGenerateColumns="False">
                 <DataGrid.Columns>
@@ -74,7 +61,21 @@
             <Button x:Name="buttonBack1" Content="Вернуться" HorizontalAlignment="Left" Margin="364,10,0,0" VerticalAlignment="Top" Width="75" Click="buttonBack_Click"/>
         </Grid>
 
-        <Rectangle x:Name="RectColor" Fill="#FFF4F4F5" Stroke="Black" MouseLeftButtonDown="SelectColor_Click"/>
+
+        <Grid x:Name="ConnectedGrid" Background="White" Visibility="Hidden">
+            <Label Content="Сервер:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="labelServerName" Content="..." Margin="19,36,10,0" VerticalAlignment="Top"/>
+            <Label Content="Игрок 1:" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="labelPlayer1" Content="..." Margin="53,93,10,0" VerticalAlignment="Top"/>
+            <Label Content="Игрок 2:" HorizontalAlignment="Left" Margin="10,124,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="labelPlayer2" Content="Сервер:" Margin="53,150,10,0" VerticalAlignment="Top"/>
+            <Rectangle x:Name="RectColor1" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,93,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
+            <Rectangle x:Name="RectColor2" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="26" Margin="19,150,0,0" Stroke="Black" VerticalAlignment="Top" Width="29"/>
+            <Button x:Name="buttonStartGame" Content="Начать игру" Margin="0,0,10,11" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="buttonStartGame_Click"/>
+            <Button x:Name="buttonDisconnectGame" Content="Отключить / отключиться" Margin="10,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="155" Click="buttonDisconnectGame_Click"/>
+        </Grid>
+
+        <Rectangle x:Name="RectColor" Visibility="Visible"  Fill="#FFF4F4F5" Stroke="Black" MouseLeftButtonDown="SelectColor_Click"/>
         <Grid x:Name="MainGrid" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35*"/>

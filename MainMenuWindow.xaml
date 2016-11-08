@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         mc:Ignorable="d"
-        Title="MainWindow" Height="347" Width="600" WindowStyle="None" SnapsToDevicePixels="True" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="CenterScreen" Closed="MainMenu_Closed" Opacity="0" AllowsTransparency="True">
+        Title="MainWindow" Height="347" Width="600" WindowStyle="None" SnapsToDevicePixels="True" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Opacity="0" AllowsTransparency="True">
 
     <Grid UseLayoutRounding="True" HorizontalAlignment="Left" Width="600">
         <Grid.Background>
@@ -72,20 +72,9 @@
                 <DropShadowEffect Opacity="0.15"/>
             </Button.Effect>
         </Button>
-        <Rectangle x:Name="rectTitle" Height="32" VerticalAlignment="Top" MouseDown="rectTitle_MouseDown">
-            <Rectangle.OpacityMask>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="Black"/>
-                    <GradientStop Color="White" Offset="1"/>
-                </LinearGradientBrush>
-            </Rectangle.OpacityMask>
-            <Rectangle.Fill>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="Black" Offset="0"/>
-                    <GradientStop Color="#002D2D2D" Offset="0.69"/>
-                </LinearGradientBrush>
-            </Rectangle.Fill>
-        </Rectangle>
+        <local:TitleBorder Margin="0,0,0,315">
+            
+        </local:TitleBorder>
         <Button x:Name="buttonStats" Content="Достижения" HorizontalAlignment="Right" Margin="0,0,15,58" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonStats_Click">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">

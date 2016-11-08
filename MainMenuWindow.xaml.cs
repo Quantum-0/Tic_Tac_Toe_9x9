@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,17 +19,11 @@ namespace Tic_Tac_Toe_WPF_Remake
 {
     public partial class MainWindow : Window
     {
-        System.Timers.Timer timerOpacity = new System.Timers.Timer() { Interval = 20 };
-        System.Timers.Timer timerClosing = new System.Timers.Timer() { Interval = 20 };
-        int vSpeed = 0;
-
         public MainWindow()
         {
             InitializeComponent();
 
-            timerOpacity.Elapsed += timerOpacity_Tick;
-            timerClosing.Elapsed += timerClosing_Tick;
-            timerOpacity.Start();
+            Task.Run((Action)TaskOpening);
 
             // Создаём настройки
             Settings.Load("Settings.cfg");
@@ -50,35 +45,6 @@ namespace Tic_Tac_Toe_WPF_Remake
                         };
                         UpdatingSystem.Update();
                     }
-        }
-
-        private void timerOpacity_Tick(object sender, EventArgs e)
-        {
-            this.Dispatcher.Invoke(delegate {
-                this.Opacity += 0.03;
-
-                if (this.Opacity >= 1)
-                {
-                    timerOpacity.Stop();
-                    timerOpacity.Elapsed -= timerOpacity_Tick;
-                }
-            });
-        }
-
-        private void timerClosing_Tick(object sender, EventArgs e)
-        {
-            this.Dispatcher.Invoke(delegate
-            {
-                this.Opacity -= 0.03;
-                this.Top += vSpeed;
-                vSpeed += 1;
-                if (this.Opacity <= 0)
-                {
-                    timerClosing.Stop();
-                    timerClosing.Elapsed -= timerClosing_Tick;
-                    Application.Current.Shutdown();
-                }
-            });
         }
 
         private void buttonSingleplayer_Click(object sender, RoutedEventArgs e)
@@ -103,6 +69,38 @@ namespace Tic_Tac_Toe_WPF_Remake
             (new WindowSettings()).ShowDialog();
         }
 
+        private void TaskOpening()
+        {
+            for (int i = 0; i < 70; i++)
+            {
+                Thread.Sleep(15);
+                this.Dispatcher.Invoke(delegate
+                {
+                    this.Opacity += 0.015;
+                });
+            }
+        }
+
+        private void TaskClosing()
+        {
+            int vSpeed = -10;
+            for (int i = 0; i < 35; i++)
+            {
+                Thread.Sleep(20);
+                this.Dispatcher.Invoke(delegate
+                {
+                    this.Opacity -= 0.03;
+                    this.Top += vSpeed;
+                });
+                vSpeed += 1;
+            }
+            Settings.Save("Settings.cfg");
+            this.Dispatcher.Invoke(delegate
+            {
+                Application.Current.Shutdown();
+            });
+        }
+
         private void buttonHelp_Click(object sender, RoutedEventArgs e)
         {
             this.Visibility = Visibility.Hidden;
@@ -118,20 +116,8 @@ namespace Tic_Tac_Toe_WPF_Remake
         private void buttonExit_Click(object sender, RoutedEventArgs e)
         {
             // Закрытие формы и выход из игры
-            vSpeed = -10;
-            timerOpacity.Stop();
-            timerClosing.Start();
-        }
-
-        private void rectTitle_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }
-
-        private void MainMenu_Closed(object sender, EventArgs e)
-        {
-            // Сохранение настроек перед закрытием
-            Settings.Save("Settings.cfg");
+            if (this.Opacity >= 1)
+                Task.Run((Action)TaskClosing);
         }
     }
 }

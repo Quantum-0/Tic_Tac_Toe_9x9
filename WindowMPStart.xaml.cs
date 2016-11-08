@@ -226,7 +226,7 @@ namespace Tic_Tac_Toe_WPF_Remake
             Dispatcher.Invoke(delegate
             {
                 Connection.Current.GameStarts -= Connection_GameStarts;
-                // Переключать на начальный грид
+                ConnectedGrid.Visibility = Visibility.Hidden;
                 var GameForm = new WindowMultiplayer(labelPlayer1.Content.ToString(), labelPlayer2.Content.ToString(), RectColor1.GetShapeColor(), RectColor1.GetShapeColor());
                 GameForm.Show();
                 GameForm.Closed += (s, ee) => this.Visibility = Visibility.Visible;
@@ -243,6 +243,7 @@ namespace Tic_Tac_Toe_WPF_Remake
         private void buttonDisconnectGame_Click(object sender, RoutedEventArgs e)
         {
             Connection.Current.SendReject();
+            ConnectedGrid.Visibility = Visibility.Hidden;
         }
 
         private void buttonGotoCreateServer_Click(object sender, RoutedEventArgs e)
