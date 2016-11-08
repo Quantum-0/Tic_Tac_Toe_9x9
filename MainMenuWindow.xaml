@@ -7,6 +7,104 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="347" Width="600" WindowStyle="None" SnapsToDevicePixels="True" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Opacity="0" AllowsTransparency="True">
 
+    <Window.Resources>
+        <ControlTemplate x:Key="MenuButtonTemplate" TargetType="Button">
+            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="3"
+                    TextBlock.Foreground="Black" Name="border">
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStopCollection>
+                            <GradientStop Offset="0" Color="#FF8AC542"></GradientStop>
+                            <GradientStop Offset="1" Color="#FFF0FBE1"></GradientStop>
+                        </GradientStopCollection>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"></ContentPresenter>
+                <Border.Effect>
+                    <DropShadowEffect Opacity="0.15"/>
+                </Border.Effect>
+            </Border>
+            <ControlTemplate.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Offset" To="-0.1">
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Offset" To="0.75">
+                            </DoubleAnimation>
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.5"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Color" To="#FF6AE432">
+                            </ColorAnimation>
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.5"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Color" To="#FFF3FFE6">
+                            </ColorAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Offset" To="0">
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Offset" To="1">
+                                </DoubleAnimation>
+
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.5"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Color" To="#FF8AC542">
+                            </ColorAnimation>
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.5"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Color" To="#FFF0FBE1">
+                            </ColorAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+
+                <EventTrigger RoutedEvent="PreviewMouseDown">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Offset" To="0.1">
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Offset" To="0.9">
+                            </DoubleAnimation>
+
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.1"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Color" To="#FFFAA512">
+                            </ColorAnimation>
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.1"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Color" To="#FFFFDD88">
+                            </ColorAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="PreviewMouseUp">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Offset" To="0">
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetName="border" Duration="0:0:1"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Offset" To="1">
+                            </DoubleAnimation>
+
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.1"
+                                            Storyboard.TargetProperty="Background.GradientStops[0].Color" To="#FF6AE432">
+                            </ColorAnimation>
+                            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.1"
+                                            Storyboard.TargetProperty="Background.GradientStops[1].Color" To="#FFF3FFE6">
+                            </ColorAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
+    
     <Grid UseLayoutRounding="True" HorizontalAlignment="Left" Width="600">
         <Grid.Background>
             <ImageBrush ImageSource="Resources/menubg.jpg"/>
@@ -17,75 +115,12 @@
                 <VisualState x:Name="MouseEnter"/>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        <Button x:Name="buttonSingleplayer" Content="Одиночная игра" HorizontalAlignment="Right" Margin="0,0,15,209" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonSingleplayer_Click">
-            <Button.Background>
-                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
-                    <GradientStop Color="#FF8AC542"/>
-                    <GradientStop Color="#FFF0FBE1" Offset="1"/>
-                </LinearGradientBrush>
-            </Button.Background>
-            <Button.Effect>
-                <DropShadowEffect Opacity="0.15"/>
-            </Button.Effect>
-        </Button>
-        <Button x:Name="buttonMultiplayer" Content="Играть по сети" HorizontalAlignment="Right" Margin="0,0,15,171" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonMultiplayer_Click">
-            <Button.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF8AC542" Offset="0"/>
-                    <GradientStop Color="#FFF0FBE1" Offset="1"/>
-                </LinearGradientBrush>
-            </Button.Background>
-            <Button.Effect>
-                <DropShadowEffect Opacity="0.15"/>
-            </Button.Effect>
-        </Button>
-        <Button x:Name="buttonSettings" Content="Настройки" HorizontalAlignment="Right" Margin="0,0,15,134" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonSettings_Click">
-            <Button.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFF0FBE1" Offset="1"/>
-                    <GradientStop Color="#FF8AC542"/>
-                </LinearGradientBrush>
-            </Button.Background>
-            <Button.Effect>
-                <DropShadowEffect Opacity="0.15"/>
-            </Button.Effect>
-        </Button>
-        <Button x:Name="buttonHelp" Content="Помощь" HorizontalAlignment="Right" Margin="0,0,15,96" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonHelp_Click">
-            <Button.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFF0FBE1" Offset="1"/>
-                    <GradientStop Color="#FF8AC542"/>
-                </LinearGradientBrush>
-            </Button.Background>
-            <Button.Effect>
-                <DropShadowEffect Opacity="0.15"/>
-            </Button.Effect>
-        </Button>
-        <Button x:Name="buttonExit" Content="Выход" HorizontalAlignment="Right" Margin="0,0,15,20" VerticalAlignment="Bottom" Width="150" IsCancel="True" Height="27" FontSize="14" Click="buttonExit_Click">
-            <Button.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFF0FBE1" Offset="1"/>
-                    <GradientStop Color="#FF8AC542"/>
-                </LinearGradientBrush>
-            </Button.Background>
-            <Button.Effect>
-                <DropShadowEffect Opacity="0.15"/>
-            </Button.Effect>
-        </Button>
-        <local:TitleBorder Margin="0,0,0,315">
-            
-        </local:TitleBorder>
-        <Button x:Name="buttonStats" Content="Достижения" HorizontalAlignment="Right" Margin="0,0,15,58" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonStats_Click">
-            <Button.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFF0FBE1" Offset="1"/>
-                    <GradientStop Color="#FF8AC542"/>
-                </LinearGradientBrush>
-            </Button.Background>
-            <Button.Effect>
-                <DropShadowEffect Opacity="0.15"/>
-            </Button.Effect>
-        </Button>
-
+        <local:TitleBorder Margin="0,0,0,315"/>
+        <Button x:Name="buttonSingleplayer" Content="Одиночная игра" HorizontalAlignment="Right" Margin="0,0,15,209" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonSingleplayer_Click" Template="{StaticResource MenuButtonTemplate}"/>
+        <Button x:Name="buttonMultiplayer" Content="Играть по сети" HorizontalAlignment="Right" Margin="0,0,15,171" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonMultiplayer_Click" Template="{StaticResource MenuButtonTemplate}"/>
+        <Button x:Name="buttonSettings" Content="Настройки" HorizontalAlignment="Right" Margin="0,0,15,134" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonSettings_Click" Template="{StaticResource MenuButtonTemplate}"/>
+        <Button x:Name="buttonHelp" Content="Помощь" HorizontalAlignment="Right" Margin="0,0,15,96" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonHelp_Click" Template="{StaticResource MenuButtonTemplate}"/>
+        <Button x:Name="buttonExit" Content="Выход" HorizontalAlignment="Right" Margin="0,0,15,20" VerticalAlignment="Bottom" Width="150" IsCancel="True" Height="27" FontSize="14" Click="buttonExit_Click" Template="{StaticResource MenuButtonTemplate}"/>
+        <Button x:Name="buttonStats" Content="Достижения" HorizontalAlignment="Right" Margin="0,0,15,58" VerticalAlignment="Bottom" Width="150" Height="27" FontSize="14" Click="buttonStats_Click" Template="{StaticResource MenuButtonTemplate}"/>
     </Grid>
 </Window>
