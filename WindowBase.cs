@@ -146,7 +146,7 @@ namespace Tic_Tac_Toe_WPF_Remake
                     var cy = (float)canvas.Margin.Top;
 
                     // Фон
-                    gfx.FillRectangle(Background, 0, 0, w, h);
+                    gfx.FillRectangle(Background, 0, 0, cx+w, cy+h);
 
                     //Линии
                     for (int i = 1; i <= 10; i++)
