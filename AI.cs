@@ -201,34 +201,34 @@ namespace TTTM
 
         // Первый ход, уровень бота и количество ходов
         private Position FirstTurn;
-        public int BotLevel;
+        public int Level;
         public int TurnsCount;
         private bool InvertCalculation
         {
             get
             {
-                return (BotLevel < 4);
+                return (Level < 4);
             }
         }
         private float PercentOfRandom
         {
             get
             {
-                return 1 - Math.Abs(BotLevel - 4) / 6f;
+                return 1 - Math.Abs(Level - 4) / 6f;
             }
         }
         private int StartDepth
         {
             get
             {
-                return Math.Abs(BotLevel - 5);
+                return Math.Abs(Level - 5);
             }
         }
 
         // Конструктор
         public RecursionAnalizerBot(Player player, Player hplayer, Game game, int Level) : base(player, hplayer, game)
         {
-            BotLevel = Level;
+            this.Level = Level;
         }
 
         // Проверка 3 позиций на наличие нужной для заполнения (2 из них = Plr, 1 = null)
@@ -396,7 +396,7 @@ namespace TTTM
                     }
                 }
                 // Возвращаем исходное состояние
-                Game.UpdateFromStateCode(GameState, HumanPlayer, Player, Player);
+                Game.UpdateFromStateCode(GameState, HumanPlayer, Player);
             }
 
             // Выключаем "тихий" режим, возвращая обработку событий игры

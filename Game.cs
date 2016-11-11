@@ -474,7 +474,7 @@ namespace TTTM
         }
         public void Load(string State)
         {
-            game.UpdateFromStateCode(State, Player1, Player2, CurrentPlayer);
+            CurrentPlayer = game.UpdateFromStateCode(State, Player1, Player2);
             //ChangeTurn(this, CurrentPlayer);
         }
     }
@@ -669,12 +669,12 @@ namespace TTTM
 
             return res.ToString();
         }
-        public bool UpdateFromStateCode(string State, Player p1, Player p2, Player currentPlayer)
+        public Player UpdateFromStateCode(string State, Player p1, Player p2)
         {
             string Backup = GetStateCode();
 
             if (State.Length != 92)
-                return false;
+                return null;
 
             foreach (var item in Fields)
             {
@@ -703,6 +703,7 @@ namespace TTTM
                     }
 
                 History.Clear();
+                Player currentPlayer = null;
 
                 if (State[90] == 'X')
                     CurrentField = null;
@@ -711,19 +712,19 @@ namespace TTTM
                     var LastPos = new Position(int.Parse(State[90].ToString()), int.Parse(State[91].ToString()));
                     CurrentField = LastPos % 3;
                     History.Add(LastPos);
-                    if (Fields[(LastPos / 3).x, (LastPos / 3).y].Cells[CurrentField.x, CurrentField.y].Owner?.Id == 2)
+                    if (Fields[(LastPos / 3).x, (LastPos / 3).y].Cells[CurrentField.x, CurrentField.y].Owner?.Id == 1)
                         currentPlayer = p2;
                     else
                         currentPlayer = p1;
                 }
 
                 Finished = false;
-                return true;
+                return currentPlayer;
             }
             catch
             {
-                UpdateFromStateCode(Backup, p1, p2, currentPlayer);
-                return false;
+                UpdateFromStateCode(Backup, p1, p2);
+                return null;
             }
         }
     }

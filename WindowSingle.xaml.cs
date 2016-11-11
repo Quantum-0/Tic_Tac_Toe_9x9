@@ -155,7 +155,7 @@ namespace Tic_Tac_Toe_WPF_Remake
                         game = new GameManager(pl1, pl2);
                     else if (type.Substring(0, 2) == "WB")
                     {
-                        game = new GameManagerWithBot(pl1, pl2, int.Parse(type[3].ToString()));
+                        game = new GameManagerWithBot(pl1, pl2, int.Parse(type.Substring(2)));
                         Bot = (game as GameManagerWithBot).Bot;
                     }
                     else
@@ -211,15 +211,10 @@ namespace Tic_Tac_Toe_WPF_Remake
                     if (game is GameManagerWithBot) // Тип игры
                     {
                         sw.Write("WB");
-                        if (Bot is StupidBot)
-                            sw.Write("1\n");
-                        if (Bot is SomeMoreCleverBot)
-                            sw.Write("2\n");
-                        if (Bot is RecursionAnalizerBot)
-                            sw.Write("3\n");
+                        sw.Write((Bot as RecursionAnalizerBot).Level.ToString() + "\n");
                     }
                     else
-                        sw.WriteLine("WF ");
+                        sw.Write("WF \n");
                     sw.Write(penc1.Color.ToArgb()); // Цвет игроков
                     sw.WriteLine();
                     sw.Write(penc2.Color.ToArgb());
