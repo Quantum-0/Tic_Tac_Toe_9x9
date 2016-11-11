@@ -367,7 +367,7 @@ namespace TTTM
                             }
                         }
 
-                        if (InvertCalculation)
+                        if (!InvertCalculation)
                         {
                             // Вычитаем из очков каждой ячейки взвешенные максимальное и среднее значения очков по этому полю
                             Scores[i] -= MaxScoresFromRecursion[i] * WeightMaxScoresFromRecursion
@@ -403,7 +403,7 @@ namespace TTTM
             if (Depth == 0)
             {
                 Game.SilentMode = false;
-                var MaxShift = Scores.Max();
+                var MaxShift = Scores.Max() * 0.9;
                 for (int i = 0; i < Scores.Length; i++)
                 {
                     Scores[i] = Scores[i] * (1 - PercentOfRandom) +
@@ -484,6 +484,38 @@ namespace TTTM
             }
         }
 
+        // Поиск лучшей позиции для хода по всей игре (в случае хода в заполненную ячейку)
+        protected Position findBetterGlobalPos()
+        {
+            // Генерируем матрицу всех очков
+            var GlobalScores = new double[9, 9];
+            for (int i = 0; i < 9; i++)
+            {
+                var CalculatedScores = CalculateScores(new Position(i / 3, i % 3));
+                for (int j = 0; j < 9; j++)
+                {
+                    GlobalScores[(i / 3) * 3 + j / 3, (i % 3) * 3 + j % 3] = CalculatedScores.Item1[j];
+                    if (CalculatedScores.Item2[j])
+                        GlobalScores[(i / 3) * 3 + j / 3, (i % 3) * 3 + j % 3] = -1000;
+                }
+            }
+
+            var MaxX = 0;
+            var MaxY = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    if (GlobalScores[MaxX, MaxY] < GlobalScores[i, j])
+                    {
+                        MaxX = i;
+                        MaxY = j;
+                    }
+                }
+            }
+            return new Position(MaxX, MaxY);
+        }
+
         // Поиск лучшей позиции для хода
         protected override Position findBetterPos()
         {
@@ -557,14 +589,23 @@ namespace TTTM
             }
             else
             {
-                do
+                Position finded = findBetterGlobalPos();
+                if (finded == null)
                 {
-                    x = rnd.Next(0, 9);
-                    y = rnd.Next(0, 9);
-                    if (Game.Fields[x / 3, y / 3].Owner != null)
-                        continue;
+                    do
+                    {
+                        x = rnd.Next(0, 9);
+                        y = rnd.Next(0, 9);
+                        if (Game.Fields[x / 3, y / 3].Owner != null)
+                            continue;
+                    }
+                    while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
                 }
-                while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
+                else
+                {
+                    x = finded.x;
+                    y = finded.y;
+                }
             }
             TurnsCount++;
             if (!Game.Turn(new Position(x, y), Player))
