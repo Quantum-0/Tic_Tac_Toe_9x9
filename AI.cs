@@ -6,229 +6,57 @@ using System.Threading.Tasks;
 
 namespace TTTM
 {
-    /*
-     * Bot Level =>
-     * 
-     * [1/2, 10]
-     * 
-     * 4 - abs(x) - % of Random & MaxDepth
-     * 
-     * if x<4
-     *   
-     */
+    public interface IBot
+    {
+        void MakeTurn();
+        Player Player { get; }
+    }
 
     // Абстрактный бот (как базовый класс для реализаций бота)
-    abstract public class ABot
+    abstract internal class ABot : IBot
     {
-        protected Random rnd = new Random();
+        protected Random Rnd = new Random();
         public Player Player { protected set; get; }
         public Player HumanPlayer { protected set; get; }
         public Game Game { protected set; get; }
-        public abstract void makeTurn();
-    }
-
-    // Класс рандомного бота
-    public class StupidBot : ABot
-    {
-        public StupidBot(Player player, Game game)
-        {
-            Player = player;
-            Game = game;
-        }
-
-        public override void makeTurn()
-        {
-            if (Game.Finished)
-                return;
-
-            Position Field = Game.CurrentField;
-            int x, y;
-            if (!Game.Fields[Field.x, Field.y].Full)
-            {
-                do
-                {
-                    x = rnd.Next(0, 3);
-                    y = rnd.Next(0, 3);
-                }
-                while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
-                x += Field.x * 3;
-                y += Field.y * 3;
-            }
-            else
-            {
-                do
-                {
-                    x = rnd.Next(0, 9);
-                    y = rnd.Next(0, 9);
-                    if (Game.Fields[x / 3, y / 3].Owner != null)
-                        continue;
-                }
-                while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
-            }
-            if (!Game.Turn(new Position(x, y), Player))
-                throw new Exception("Бот не смог сделать ход");
-        }
-    }
-
-    // Класс чуть более умного бота
-    public class SomeMoreCleverBot : ABot
-    {
-        public SomeMoreCleverBot(Player player, Game game)
-        {
-            Player = player;
-            Game = game;
-        }
-
-        public SomeMoreCleverBot(Player player, Player hplayer, Game game)
-        {
-            Player = player;
-            HumanPlayer = hplayer;
-            Game = game;
-        }
-
-        private Position check3(Position p1, Position p2, Position p3, Player Plr)
-        {
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Plr &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Plr &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == null)
-                return p3;
-
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == Plr &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Plr)
-                return p2;
-
-            if (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p1.x, p1.y].Owner == null &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p2.x, p2.y].Owner == Plr &&
-                Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[p3.x, p3.y].Owner == Plr)
-                return p1;
-
-            return null;
-        }
-
-        protected virtual Position findBetterPos()
-        {
-            List<Position> Results = new List<Position>();
-            Position Current;
-            for (int i = 0; i < 3; i++)
-            {
-                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), Player);
-                if (Current != null) Results.Add(Current);
-                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), Player);
-                if (Current != null) Results.Add(Current);
-                Current = check3(new Position(0, i), new Position(1, i), new Position(2, i), HumanPlayer);
-                if (Current != null) Results.Add(Current);
-                Current = check3(new Position(i, 0), new Position(i, 1), new Position(i, 2), HumanPlayer);
-                if (Current != null) Results.Add(Current);
-            }
-            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), Player);
-            if (Current != null) Results.Add(Current);
-            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), Player);
-            if (Current != null) Results.Add(Current);
-
-            Current = check3(new Position(0, 0), new Position(1, 1), new Position(2, 2), HumanPlayer);
-            if (Current != null) Results.Add(Current);
-            Current = check3(new Position(2, 0), new Position(1, 1), new Position(0, 2), HumanPlayer);
-            if (Current != null) Results.Add(Current);
-
-            if (Results.Count > 0)
-                return Results[rnd.Next(Results.Count)];
-            else
-                return null;
-        }
-
-        public override void makeTurn()
-        {
-            if (Game.Finished)
-                return;
-
-            Position Field = Game.CurrentField;
-            int x = 0, y = 0;
-            if (!Game.Fields[Field.x, Field.y].Full)
-            {
-                Position finded = findBetterPos();
-                if (finded == null)
-                {
-                    do
-                    {
-                        x = rnd.Next(0, 3);
-                        y = rnd.Next(0, 3);
-                    }
-                    while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
-                    x += Field.x * 3;
-                    y += Field.y * 3;
-                }
-                else
-                {
-                    x = Field.x * 3 + finded.x;
-                    y = Field.y * 3 + finded.y;
-                }
-            }
-            else
-            {
-                do
-                {
-                    x = rnd.Next(0, 9);
-                    y = rnd.Next(0, 9);
-                    if (Game.Fields[x / 3, y / 3].Owner != null)
-                        continue;
-                }
-                while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
-            }
-            if (!Game.Turn(new Position(x, y), Player))
-                throw new Exception("Бот не смог сделать ход");
-        }
+        public abstract void MakeTurn();
     }
 
     // Класс бота рекурсивно оценивающее ходы
-    public class RecursionAnalizerBot : SomeMoreCleverBot
+    internal class RecursionAnalizerBot : ABot, IBot
     {
-        #region Константные значения приоритета действий
-
-        const float CostMake3InField = 11f;
-        const float CostPrevent3InField = 9f;
-        const float CostMake3InGame = 20f;
-        const byte MinFreeCellsToNarrowRecursion = 7;
-        const byte MaxFreeCellsToExtandRecursion = 3;
-        const float WeightMaxScoresFromRecursion = 0.85f;
-        const float WeightMidScoresFromRecursion = 0.075f;
-        const float CostNoFreeCellsWithWhenCommonFieldContainsTrue = -35f;
-        const float CostNoFreeCellsWithWhenCommonFieldDontContainsTrue = -20f;
-        const float CostFreeCellInNextField = -0f;
-        const float CostSendPlayerToOwnedField = 10f;
-
-        #endregion
+        // Константы для анализа очков каждой клетки
+        const float CostMake3InField = 11f; // Сделать 3 в ряд в свободном поле
+        const float CostPrevent3InField = 9f; // Помешать сделать 3 в ряд закрыв клетку
+        const float CostMake3InGame = 20f; // Стоимость сделать 3 поля подряд (победа в игре)
+        const byte MinFreeCellsToNarrowRecursion = 7; // Минимальное количество свободных клеток для сокращения глубины рекурсии
+        const byte MaxFreeCellsToExtandRecursion = 3; // Максимальное количество свободных клеток для расширения глубины рекурсии
+        const float WeightMaxScoresFromRecursion = 0.85f; // Вес максимума из рекурсивного вызова
+        const float WeightMidScoresFromRecursion = 0.075f; // Вес среднего из рекурсивного вызова
+        const float CostNoFreeCellsWithWhenCommonFieldContainsTrue = -35f; // Я не помню что это :D
+        const float CostNoFreeCellsWithWhenCommonFieldDontContainsTrue = -20f; // Что это, зачем это тут..
+        const float CostFreeCellInNextField = -0f; // Изменение очков в зависимости от количества свободных в следующем поле
+        const float CostSendPlayerToOwnedField = 10f; // Стоимость того чтоб отправить противника в уже заполненное поле
 
         // Первый ход, уровень бота и количество ходов
         private Position FirstTurn;
-        public int Level;
-        public int TurnsCount;
-        private bool InvertCalculation
-        {
-            get
-            {
-                return (Level < 4);
-            }
-        }
-        private float PercentOfRandom
-        {
-            get
-            {
-                return 1 - Math.Abs(Level - 4) / 6f;
-            }
-        }
-        private int StartDepth
-        {
-            get
-            {
-                return Math.Abs(Level - 5);
-            }
-        }
+        public int Level { private set; get; }
+        public int TurnsCount { private set; get; }
+        // Значения для анализа ходов, зависящие от уровня бота
+        private bool InvertCalculation { get; }
+        private float PercentOfRandom { get; }
+        private int StartDepth { get; }
 
         // Конструктор
-        public RecursionAnalizerBot(Player player, Player hplayer, Game game, int Level) : base(player, hplayer, game)
+        public RecursionAnalizerBot(Player Player, Player HPlayer, Game Game, int Level)
         {
             this.Level = Level;
+            this.Player = Player;
+            this.HumanPlayer = HPlayer;
+            this.Game = Game;
+            this.InvertCalculation = Level < 4;
+            this.PercentOfRandom = 1 - Math.Abs(Level - 4) / 6f;
+            this.StartDepth = Math.Abs(Level - 5);
         }
 
         // Проверка 3 позиций на наличие нужной для заполнения (2 из них = Plr, 1 = null)
@@ -236,6 +64,7 @@ namespace TTTM
         {
             if (Field == null)
                 Field = Game.CurrentField;
+
             if (Game.Fields[Field.x, Field.y].Cells[p1.x, p1.y].Owner == Plr &&
                 Game.Fields[Field.x, Field.y].Cells[p2.x, p2.y].Owner == Plr &&
                 Game.Fields[Field.x, Field.y].Cells[p3.x, p3.y].Owner == null)
@@ -300,13 +129,43 @@ namespace TTTM
 
             return null;
         }
-
-        // РЕКУРСИВНЫЙ ПОДСЧЁТ ОЧКОВ В ПОЛЕ ДЛЯ КАЖДОЙ КЛЕТКИ
-        private Tuple<float[], bool[], byte> CalculateScores(Position Field = null, int Depth = 0, int MaxDepth = -1)
+        
+        // Возвращаемая рекурсией структура
+        private struct CalculatedScoresData
         {
-            // Item1 - количество очков, Item2 - нельзя ходить, Item3 - количество ячеек, куда можно ходить
+            public float[] Scores { get; }
+            public bool[] DeniedCells { get; }
+            public byte FreeCells { get; }
+            public float MaxScore { get; }
+            public float MidScore { get; }
+            public int Length { get; }
+            public CalculatedScoresData(float[] Scores, bool[] DeniedCells)
+            {
+                if (Scores.Length != DeniedCells.Length)
+                    throw new ArgumentException("Массив очков и свободных ячеек в структуре должен иметь одинаковый размер");
+                this.Scores = Scores;
+                this.DeniedCells = DeniedCells;
+                this.FreeCells = (byte)DeniedCells.Count(c => c);
+                this.Length = Scores.Length;
+                this.MaxScore = float.MinValue;
+                this.MidScore = 0;
+                for (int i = 0; i < Scores.Length; i++)
+                {
+                    if (!DeniedCells[i])
+                    {
+                        if (MaxScore < Scores[i])
+                            MaxScore = Scores[i];
+                        MidScore += Scores[i];
+                    }
+                }
+                MidScore /= FreeCells;
+            }
+        }
 
-            // Переводим игру в "тихий" режим (чтоб не вызывала свои события при окончании игры)
+        // Рекурсивный подсчёт очков
+        private CalculatedScoresData CalculateScores(Position Field = null, int Depth = 0, int MaxDepth = -1)
+        {
+            // Отключение вызова событий
             Game.SilentMode = true;
 
             // Указываем текущее поле
@@ -357,19 +216,11 @@ namespace TTTM
                         var CalculatedScores = CalculateScores(new Position(i % 3, i / 3), Depth + 1);
 
                         // Находим максимум и среднее значение очков по каждому полю, куда будет ходить противник
-                        for (int j = 0; j < CalculatedScores.Item1.Length; j++)
-                        {
-                            if (!CalculatedScores.Item2[j])
-                            {
-                                if (MaxScoresFromRecursion[i] < CalculatedScores.Item1[j])
-                                    MaxScoresFromRecursion[i] = CalculatedScores.Item1[j];
-                                MidScoresFromRecursion[i] += CalculatedScores.Item1[j] / CalculatedScores.Item3;
-                            }
-                        }
+                        MaxScoresFromRecursion[i] = CalculatedScores.MaxScore;
+                        MidScoresFromRecursion[i] = CalculatedScores.MidScore;
 
                         if (!InvertCalculation)
                         {
-                            // Вычитаем из очков каждой ячейки взвешенные максимальное и среднее значения очков по этому полю
                             Scores[i] -= MaxScoresFromRecursion[i] * WeightMaxScoresFromRecursion
                                 + MidScoresFromRecursion[i] * WeightMidScoresFromRecursion;
                         }
@@ -378,8 +229,7 @@ namespace TTTM
                                 + MidScoresFromRecursion[i] * WeightMidScoresFromRecursion;
 
                         // Вычисляем количество свободных ячеек и занятость поля, и учитываем это в очках ячейки
-                        var FreeCells = CalculatedScores.Item3;
-                        if (FreeCells == 0)
+                        if (CalculatedScores.FreeCells == 0)
                         {
                             if (CommonField.Contains(true))
                                 Scores[i] += CostNoFreeCellsWithWhenCommonFieldContainsTrue;
@@ -389,7 +239,7 @@ namespace TTTM
                         else
                         {
                             if (Game.Fields[i % 3, i / 3].Owner == null)
-                                Scores[i] += (9 - FreeCells) / 9f * CostFreeCellInNextField; // Чем меньше в поле противника свободных ячеек тем лучше
+                                Scores[i] += (9 - CalculatedScores.FreeCells) / 9f * CostFreeCellInNextField; // Чем меньше в поле противника свободных ячеек тем лучше
                             else //Owner != null
                                 Scores[i] += CostSendPlayerToOwnedField; // Если ячейка уже занята, то посылаем туда противника
                         }
@@ -399,7 +249,7 @@ namespace TTTM
                 Game.UpdateFromStateCode(GameState, HumanPlayer, Player);
             }
 
-            // Выключаем "тихий" режим, возвращая обработку событий игры
+            // Возвращаем обработку событий игры
             if (Depth == 0)
             {
                 Game.SilentMode = false;
@@ -407,14 +257,14 @@ namespace TTTM
                 for (int i = 0; i < Scores.Length; i++)
                 {
                     Scores[i] = Scores[i] * (1 - PercentOfRandom) +
-                        + (float)(rnd.NextDouble() * MaxShift * PercentOfRandom);
+                        + (float)(Rnd.NextDouble() * MaxShift * PercentOfRandom);
 
                     if (InvertCalculation)
                         Scores[i] = 10 - Scores[i];
                 }
             }
 
-            return new Tuple<float[], bool[], byte>(Scores, StepDeny, AllowedCellsHere);
+            return new CalculatedScoresData(Scores, StepDeny);
         }
 
         // Подсчёт количества свободных ячеек, куда можно ходить с изменением максимальной глубины рекурсии
@@ -494,8 +344,8 @@ namespace TTTM
                 var CalculatedScores = CalculateScores(new Position(i / 3, i % 3));
                 for (int j = 0; j < 9; j++)
                 {
-                    GlobalScores[(i / 3) * 3 + j / 3, (i % 3) * 3 + j % 3] = CalculatedScores.Item1[j];
-                    if (CalculatedScores.Item2[j])
+                    GlobalScores[(i / 3) * 3 + j / 3, (i % 3) * 3 + j % 3] = CalculatedScores.Scores[j];
+                    if (CalculatedScores.DeniedCells[j])
                         GlobalScores[(i / 3) * 3 + j / 3, (i % 3) * 3 + j % 3] = -1000;
                 }
             }
@@ -517,14 +367,14 @@ namespace TTTM
         }
 
         // Поиск лучшей позиции для хода
-        protected override Position findBetterPos()
+        protected Position FindBetterPos()
         {
             // Получает очки для всех ячеек и выкидываем те, куда ходить нельзя
             var CalculatedScores = CalculateScores();
-            var Scores = CalculatedScores.Item1;
+            var Scores = CalculatedScores.Scores;
             for (int i = 0; i < 9; i++)
             {
-                if (CalculatedScores.Item2[i])
+                if (CalculatedScores.DeniedCells[i])
                     Scores[i] = -1000;
             }
 
@@ -550,14 +400,14 @@ namespace TTTM
                 return null;
 
             // Из получившегося списка берём рандомный элемент
-            var TurnIndex = Max[rnd.Next(Max.Count)];
+            var TurnIndex = Max[Rnd.Next(Max.Count)];
 
             // Возвращаем его
             return new Position(TurnIndex % 3, TurnIndex / 3);
         }
 
         // Сделать ход
-        public override void makeTurn()
+        public override void MakeTurn()
         {
             if (Game.Finished)
                 return;
@@ -567,49 +417,50 @@ namespace TTTM
 
             Position Field = Game.CurrentField;
             int x = 0, y = 0;
-            if (!Game.Fields[Field.x, Field.y].Full)
+            if (!Game.Fields[Field.x, Field.y].Full) // Если поле не заполненно полностью
             {
-                Position finded = findBetterPos();
-                if (finded == null)
+                Position finded = FindBetterPos(); // Ищем лучший ход
+                if (finded != null) // Если нашли - ходим туда
+                {
+                    x = Field.x * 3 + finded.x;
+                    y = Field.y * 3 + finded.y;
+                }
+                else // Иначе ходим в любую другую
                 {
                     do
                     {
-                        x = rnd.Next(0, 3);
-                        y = rnd.Next(0, 3);
+                        x = Rnd.Next(0, 3);
+                        y = Rnd.Next(0, 3);
                     }
                     while (Game.Fields[Game.CurrentField.x, Game.CurrentField.y].Cells[x, y].Owner != null);
                     x += Field.x * 3;
                     y += Field.y * 3;
                 }
-                else
-                {
-                    x = Field.x * 3 + finded.x;
-                    y = Field.y * 3 + finded.y;
-                }
             }
-            else
+            else // Если же поле было заполнено
             {
-                Position finded = findBetterGlobalPos();
-                if (finded == null)
+                Position finded = findBetterGlobalPos(); // Находим лучший вариант хода по всему полю
+                if (finded != null) // Если нашли - ходим туда
+                {
+                    x = finded.x;
+                    y = finded.y;
+                }
+                else // Иначе ходим в любую свободную
                 {
                     do
                     {
-                        x = rnd.Next(0, 9);
-                        y = rnd.Next(0, 9);
+                        x = Rnd.Next(0, 9);
+                        y = Rnd.Next(0, 9);
                         if (Game.Fields[x / 3, y / 3].Owner != null)
                             continue;
                     }
                     while (Game.Fields[x / 3, y / 3].Cells[x % 3, y % 3].Owner != null);
                 }
-                else
-                {
-                    x = finded.x;
-                    y = finded.y;
-                }
             }
-            TurnsCount++;
+            // Делаем ход и увеличиваем количество сделанных ходов
             if (!Game.Turn(new Position(x, y), Player))
                 throw new Exception("Бот не смог сделать ход"); // Паровозик который не смог
+            TurnsCount++;
         }
     }
 }

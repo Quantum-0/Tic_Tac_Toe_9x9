@@ -15,7 +15,7 @@ namespace Tic_Tac_Toe_WPF_Remake
     /// </summary>
     public partial class WindowSingle : WindowBase
     {
-        ABot Bot;
+        IBot Bot;
         //Position IncorrectTurn;
         //GameManager game;
         //private BufferedGraphicsContext context = BufferedGraphicsManager.Current;

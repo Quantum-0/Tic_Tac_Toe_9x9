@@ -232,27 +232,12 @@ namespace TTTM
     // Менеджер для одиночной игры с ботом
     public class GameManagerWithBot : GameManager
     {
-        public ABot Bot { private set; get; }
+        public IBot Bot { private set; get; }
         public override event EventHandler<Player> ChangeTurn;
         public override event EventHandler<Position> IncorrectTurn;
         public GameManagerWithBot(string player1, string player2, int botLevel = 3) : base(player1, player2)
         {
-            // BASE CTOR HERE
             Bot = new RecursionAnalizerBot(Player2, Player1, game, botLevel);
-            //switch (botType)
-            //{
-            //    case 1:
-            //        Bot = new StupidBot(Player2, game);
-            //        break;
-            //    case 2:
-            //        Bot = new SomeMoreCleverBot(Player2, Player1, game);
-            //        break;
-            //    case 3:
-            //        Bot = new RecursionAnalizerBot(Player2, Player1, game);
-            //        break;
-            //    default:
-            //        throw new Exception("Не удалось создать бота");
-            //}
         }
 
         public void BotTurn()
@@ -260,9 +245,8 @@ namespace TTTM
             // Вылет если ход не бота
             if (CurrentPlayer != Player2)
                 return;
-
-            //await Task.Run((Action)Bot.makeTurn);
-            Bot.makeTurn();
+            
+            Bot.MakeTurn();
             CurrentPlayer = Player1;
 
             // Вызов события об обновлении хода
