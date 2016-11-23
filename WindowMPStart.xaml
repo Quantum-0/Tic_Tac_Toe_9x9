@@ -12,17 +12,44 @@
             <Border BorderBrush="{x:Null}">
                 <ContentPresenter RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"></ContentPresenter>
             </Border>
-            <!--
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="border" Property="Background" Value="Red"></Setter>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter TargetName="border" Property="BorderBrush" Value="Yellow"></Setter>
-                </Trigger>
-            </ControlTemplate.Triggers>
-            -->
         </ControlTemplate>
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
+        <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+        <Style x:Key="ButtonStyleWithoutThatStupidBlueRectangle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid x:Name="ServerListGrid" Background="White" Visibility="Hidden">
@@ -78,15 +105,15 @@
         <Rectangle x:Name="RectColor" Visibility="Visible"  Fill="#FFF4F4F5" Stroke="Black" MouseLeftButtonDown="SelectColor_Click"/>
         <Grid x:Name="MainGrid" Visibility="Visible">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="35*"/>
-                <ColumnDefinition Width="15*"/>
-                <ColumnDefinition Width="17*"/>
-                <ColumnDefinition Width="12*"/>
+                <ColumnDefinition Width="40*"/>
+                <ColumnDefinition Width="9*"/>
                 <ColumnDefinition Width="21*"/>
+                <ColumnDefinition Width="12*"/>
+                <ColumnDefinition Width="18*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="25*"/>
-                <RowDefinition Height="40*"/>
+                <RowDefinition Height="24*"/>
+                <RowDefinition Height="41*"/>
                 <RowDefinition Height="10*"/>
                 <RowDefinition Height="21*"/>
                 <RowDefinition Height="4*"/>
@@ -94,15 +121,52 @@
             <Grid.Background>
                 <ImageBrush ImageSource="Resources/MPStartMenuBG.png"/>
             </Grid.Background>
-            <Button x:Name="buttonGotoCreateServer" Content="Создать сервер" Click="buttonGotoCreateServer_Click" Grid.RowSpan="5" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <Button x:Name="buttonGotoCreateServer" Content="Создать сервер" Click="buttonGotoCreateServer_Click" Grid.RowSpan="5" BorderBrush="{x:Null}" Foreground="{x:Null}" Style="{DynamicResource ButtonStyleWithoutThatStupidBlueRectangle}">
                 <Button.Background>
-                    <ImageBrush ImageSource="Resources/MPStartCreateServer355.png"/>
+                    <ImageBrush ImageSource="Resources/MPStartCreateServer355.png" Opacity="0"/>
                 </Button.Background>
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.5"
+                                Storyboard.TargetProperty="Background.Opacity" To="1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.5"
+                                Storyboard.TargetProperty="Background.Opacity" To="0"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
             </Button>
-            <Button x:Name="buttonGotoServerList" Content="Список серверов" Click="buttonGotoServerList_Click" Foreground="{x:Null}" BorderBrush="{x:Null}" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3">
+            <Button x:Name="buttonGotoServerList" Content="Список серверов" Click="buttonGotoServerList_Click" Foreground="{x:Null}" BorderBrush="{x:Null}" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3" Style="{DynamicResource ButtonStyleWithoutThatStupidBlueRectangle}">
                 <Button.Background>
-                    <ImageBrush ImageSource="Resources/MPStartServerList50-100-25-65.png"/>
+                    <ImageBrush ImageSource="Resources/MPStartServerList50-100-25-65.png" Opacity="0"/>
                 </Button.Background>
+
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.5"
+                                Storyboard.TargetProperty="Background.Opacity" To="1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.5"
+                                Storyboard.TargetProperty="Background.Opacity" To="0"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
             </Button>
             <TextBox x:Name="textBoxNick" Height="23" Margin="11,10,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" GotFocus="textBoxNick_GotFocus" KeyUp="textBoxNick_KeyUp" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"/>
             <Button x:Name="buttonSettings" Content="Все настройки" Margin="0,0,10,0" Height="20" VerticalAlignment="Bottom" Click="buttonSettings_Click" Grid.Row="3" Grid.Column="4" HorizontalAlignment="Right" Width="84"/>
