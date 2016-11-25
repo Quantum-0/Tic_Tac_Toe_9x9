@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -171,6 +172,9 @@ namespace TTTM
                     }
                 }
                 MidScore /= FreeCells;
+                //Contract.Ensures(!float.IsNaN(MidScore));
+                if (float.IsNaN(MidScore))
+                    throw new InvalidOperationException("Среднее значение очков при анализе оказалось равным NaN");
             }
             public double GetGeometricMean() // Среднее геометрическое
             {
@@ -502,7 +506,6 @@ namespace TTTM
 
             }
 
-            ;
             /*
              * Пофиг аще
              * dmax ~ 1; 0.66; 0.33; 0.04; 7?; 
