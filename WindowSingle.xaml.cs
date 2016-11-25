@@ -103,15 +103,20 @@ namespace Tic_Tac_Toe_WPF_Remake
         }
         private void Game_ChangeTurn(object sender, Player e)
         {
-            ((System.Windows.Window)this).Dispatcher.Invoke(delegate
+            Dispatcher.Invoke(delegate
             {
                 // Перерисовка
                 RedrawGame();
                 labelCurrentTurn.Content = e.Name;
 
-                // Запуск таймера хода бота
+                // Ход бота
                 if (game is GameManagerWithBot)
+                {
                     (game as GameManagerWithBot).BotTurn();
+                    imageBot.LoadFromEmotion(Bot.BotEmotion);
+                }
+
+
             });
         }
 
@@ -235,7 +240,8 @@ namespace Tic_Tac_Toe_WPF_Remake
             // Спрашиваем подтверждение на выход
             // (Ибо НЕКОТОРЫЕ не хотят проиграть и кликают по крестику хд)
             if (game != null)
-                if (System.Windows.MessageBox.Show("Вы действительно хотите выйти?", "Выход", System.Windows.MessageBoxButton.YesNo) != System.Windows.MessageBoxResult.Yes)
+                if (System.Windows.MessageBox.Show("Вы действительно хотите выйти?", "Выход", System.Windows.MessageBoxButton.YesNo)
+                    != System.Windows.MessageBoxResult.Yes)
                 {
                     e.Cancel = true;
                     StopingRedrawing = false;
@@ -260,6 +266,24 @@ namespace Tic_Tac_Toe_WPF_Remake
                     IncorrectTurn = null;
                 game.ClickOn(p.X, p.Y);
             }
+        }
+
+        private void buttonExit_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            this.Close();
+            /*StopingRedrawing = true;
+            if (game != null)
+                if (System.Windows.MessageBox.Show("Вы действительно хотите выйти?", "Выход", System.Windows.MessageBoxButton.YesNo)
+                    != System.Windows.MessageBoxResult.Yes)
+                {
+                    StopingRedrawing = false;
+                    ViewRefreshing = Task.Run((Action)GameRedrawing);
+                    return;
+                }
+            game?.Dispose();
+            App.Current.ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+            Settings.Save("Settings.cfg");
+            App.Current.Shutdown();*/
         }
     }
 }

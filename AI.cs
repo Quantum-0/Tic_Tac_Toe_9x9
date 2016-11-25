@@ -7,6 +7,21 @@ using System.Threading.Tasks;
 
 namespace TTTM
 {
+    internal sealed class BotEmotionImageAttribute : Attribute
+    {
+        public System.Windows.Media.ImageSource Image { get; private set; }
+        public BotEmotionImageAttribute(string Path)
+        {
+            Contract.Ensures(System.IO.File.Exists(Path));
+            Uri uri;
+            if (Path.StartsWith("pack:"))
+                uri = new Uri(Path);
+            else
+                uri = new Uri("pack://application:,,,/" + Path);
+            Image = new System.Windows.Media.Imaging.BitmapImage(uri);
+        }
+    }
+
     public interface IBot
     {
         void MakeTurn();
@@ -16,11 +31,22 @@ namespace TTTM
 
     public enum BotEmotion
     {
+        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Happy,
+
+        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Normal,
+
+        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Angry,
+
+        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Bored,
+
+        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Derpy,
+
+        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Sad
     }
 

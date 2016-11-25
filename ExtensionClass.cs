@@ -3,13 +3,22 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TTTM;
 
 namespace Tic_Tac_Toe_WPF_Remake
 {
     public static class ExtensionsClass
     {
+        public static void LoadFromEmotion(this System.Windows.Controls.Image Image, BotEmotion Emotion)
+        {
+            FieldInfo fi = Emotion.GetType().GetField(Emotion.ToString());
+            var Attrs = fi.GetCustomAttributes(typeof(BotEmotionImageAttribute), true);
+            if (Attrs.Length == 1)
+                Image.Source = ((BotEmotionImageAttribute)Attrs[0]).Image;
+        }
         // Рисование диагональной штриховки
         public static void DrawDiagonalyLines(this Graphics gfx, Pen pen, Rectangle Rect)
         {
