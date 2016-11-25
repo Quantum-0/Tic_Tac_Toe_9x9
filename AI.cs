@@ -10,10 +10,21 @@ namespace TTTM
     {
         void MakeTurn();
         Player Player { get; }
+        BotEmotion BotEmotion { get; }
+    }
+
+    public enum BotEmotion
+    {
+        Happy,
+        Normal,
+        Angry,
+        Bored,
+        Derpy,
+        Sad
     }
 
     // Абстрактный бот (как базовый класс для реализаций бота)
-    abstract internal class ABot : IBot
+    abstract internal class ABot
     {
         protected Random Rnd = new Random();
         public Player Player { protected set; get; }
@@ -38,10 +49,11 @@ namespace TTTM
         const float CostFreeCellInNextField = -0f; // Изменение очков в зависимости от количества свободных в следующем поле
         const float CostSendPlayerToOwnedField = 10f; // Стоимость того чтоб отправить противника в уже заполненное поле
 
-        // Первый ход, уровень бота и количество ходов
+        // Первый ход, уровень бота, количество ходов и эмоция для визуализации
         private Position FirstTurn;
         public int Level { private set; get; }
         public int TurnsCount { private set; get; }
+        public BotEmotion BotEmotion { get; private set; }
         // Значения для анализа ходов, зависящие от уровня бота
         private bool InvertCalculation { get; }
         private float PercentOfRandom { get; }
@@ -145,11 +157,11 @@ namespace TTTM
                     throw new ArgumentException("Массив очков и свободных ячеек в структуре должен иметь одинаковый размер");
                 this.Scores = Scores;
                 this.DeniedCells = DeniedCells;
-                this.FreeCells = (byte)DeniedCells.Count(c => c);
+                this.FreeCells = (byte)(9 - DeniedCells.Count(c => c));
                 this.Length = Scores.Length;
                 this.MaxScore = float.MinValue;
                 this.MidScore = 0;
-                for (int i = 0; i < Scores.Length; i++)
+                for (int i = 0; i < Length; i++)
                 {
                     if (!DeniedCells[i])
                     {
@@ -159,6 +171,45 @@ namespace TTTM
                     }
                 }
                 MidScore /= FreeCells;
+            }
+            public double GetGeometricMean() // Среднее геометрическое
+            {
+                var Mul = 0f;
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!DeniedCells[i])
+                        Mul += Scores[i] * Scores[i];
+                }
+                return Math.Sqrt(Mul);
+            }
+            public double GetAriphmeticMean()
+            {
+                var Sum = 0f;
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!DeniedCells[i])
+                        Sum += Scores[i];
+                }
+                return Sum / FreeCells;
+            }
+            public double GetStandardDeviation()
+            {
+                return Math.Sqrt(GetDispersion(MidScore));
+            }
+            public double GetDeviationFromMaximum() // Переименуй пожалуйста эти функции как только появится возможность, не позорься :D
+            {
+                return Math.Sqrt(GetDispersion(MaxScore));
+            }
+            public double GetDispersion(float From) // Дисперсия
+            {
+                var A = From;
+                var Sum = 0d;
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!DeniedCells[i])
+                        Sum += (Scores[i] - A) * (Scores[i] - A);
+                }
+                return Sum / FreeCells;
             }
         }
 
@@ -197,7 +248,7 @@ namespace TTTM
 
             // Не даём ходить в поле первого хода
             if (Depth == 0 && FirstTurn != null)
-                Scores[FirstTurn.x + FirstTurn.y * 3] -= Math.Max(5 - TurnsCount, 0);
+                Scores[FirstTurn.x + FirstTurn.y * 3] -= Math.Max(3 - TurnsCount, 0);
 
             // Рекурсивно подсчитываем для каждого поля куда можем послать противника количество очков
             if (Depth < MaxDepth)
@@ -335,7 +386,7 @@ namespace TTTM
         }
 
         // Поиск лучшей позиции для хода по всей игре (в случае хода в заполненную ячейку)
-        protected Position findBetterGlobalPos()
+        protected Position FindBetterGlobalPos()
         {
             // Генерируем матрицу всех очков
             var GlobalScores = new double[9, 9];
@@ -402,8 +453,105 @@ namespace TTTM
             // Из получившегося списка берём рандомный элемент
             var TurnIndex = Max[Rnd.Next(Max.Count)];
 
+            // Меняем эмоцию
+            SetEmotion(CalculatedScores);
+
             // Возвращаем его
             return new Position(TurnIndex % 3, TurnIndex / 3);
+        }
+
+        private void SetEmotion(CalculatedScoresData CalculatedScores)
+        {
+            var em_dmid = CalculatedScores.GetStandardDeviation();
+            var em_dmax = CalculatedScores.GetDeviationFromMaximum();
+            var em_max = CalculatedScores.MaxScore;
+            var em_mid = CalculatedScores.MidScore;
+
+            if (em_dmid < 1) // Разница между ходами мала
+            {
+                if (em_mid < -4) // :c
+                {
+                    BotEmotion = BotEmotion.Sad;
+                }
+                else if (em_mid > 1) // c:
+                {
+                    BotEmotion = BotEmotion.Happy;
+                }
+                else // :|
+                {
+                    BotEmotion = BotEmotion.Bored;
+                }
+            }
+            else if (em_dmid > 6) // Ну тут всё сразу ясно
+            {
+                if (em_max > 7) // >:D
+                {
+                    BotEmotion = BotEmotion.Happy; 
+                }
+                else if (em_max < -0.5) // =/
+                {
+                    BotEmotion = BotEmotion.Sad;
+                }
+                else
+                {
+                    BotEmotion = BotEmotion.Normal;
+                }
+            }
+            else // Хм...
+            {
+
+            }
+
+            ;
+            /*
+             * Пофиг аще
+             * dmax ~ 1; 0.66; 0.33; 0.04; 7?; 
+             * dmid ~ 0.96; 0.62; 0.31; 0.02; 5? 
+             * max ~ 0.08; 0; 0; 0.05; -0.1?
+             * mid ~ -0.27; -0.22; -0.11; 0.02; -4.9
+             */
+
+            /*
+             * Ну хэй(
+             * dmid ~ 8.35
+             * dmax ~ 11.3
+             * max ~ -0.25
+             * mid ~ -7.9
+             */
+
+            /*
+             * Не ну тут всё понятно
+             * dmid ~ 8
+             * dmax ~ 13
+             * max ~ 6.9
+             * mid ~ -4.3
+             */
+
+            /*
+             * Ахтыхитрюга вот чо задумал
+             * dmid ~ 2.96; 3.65; 6.01; 6.84; 6.35
+             * dmax ~ 3.34; 3.36; 7.33; 10; 11
+             * max ~ 0.08; 0.11; 0.16; 0.04; 0.18
+             * mid ~ -1.45; -2.41; -4; -7.26; -8.73
+             */
+
+            /*
+             * Мвахахахах >:D
+             * dmid ~ 4.9; 6; 5.72; 9; 9; 9.42
+             * dmax ~ 10.3; 12.1; 13.37; 25; 14.45
+             * max ~ 9.27; 11; 10; 18; 2.52
+             * mid ~ 0.2; 0.67; -2; -5; -8.4
+             */
+
+            /* Не ну прям аще шикарный ход мне дал хЪ
+             * dmid ~ 8.8
+             * dmax ~ 21
+             * max ~ 19
+             * mid ~ 0.2
+             */
+
+
+            BotEmotion = BotEmotion.Normal;
         }
 
         // Сделать ход
@@ -439,7 +587,7 @@ namespace TTTM
             }
             else // Если же поле было заполнено
             {
-                Position finded = findBetterGlobalPos(); // Находим лучший вариант хода по всему полю
+                Position finded = FindBetterGlobalPos(); // Находим лучший вариант хода по всему полю
                 if (finded != null) // Если нашли - ходим туда
                 {
                     x = finded.x;
@@ -462,5 +610,6 @@ namespace TTTM
                 throw new Exception("Бот не смог сделать ход"); // Паровозик который не смог
             TurnsCount++;
         }
+        
     }
 }

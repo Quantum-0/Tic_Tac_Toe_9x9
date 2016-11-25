@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         mc:Ignorable="d"
-        Title="Мультиплеер" Height="268.697" Width="456.697" Topmost="True">
+        Title="Мультиплеер" Height="366" Width="633" Topmost="True" MinWidth="633" MinHeight="366" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <local:IntToColorConverter x:Key="IntToColorConverter"/>
         <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
