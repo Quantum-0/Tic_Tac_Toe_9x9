@@ -233,26 +233,6 @@ namespace Tic_Tac_Toe_WPF_Remake
             (new WindowSettings()).ShowDialog();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            StopingRedrawing = true;
-
-            // Спрашиваем подтверждение на выход
-            // (Ибо НЕКОТОРЫЕ не хотят проиграть и кликают по крестику хд)
-            if (game != null)
-                if (System.Windows.MessageBox.Show("Вы действительно хотите выйти?", "Выход", System.Windows.MessageBoxButton.YesNo)
-                    != System.Windows.MessageBoxResult.Yes)
-                {
-                    e.Cancel = true;
-                    StopingRedrawing = false;
-                    ViewRefreshing = Task.Run((Action)GameRedrawing);
-                    return;
-                }
-
-            // Сохранять тут и при запуске новой игры спрашивать, восстановить ли предыдущую
-            game?.Dispose();
-        }
-
         protected void canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Создание новой игры если игра не была создана
@@ -268,10 +248,28 @@ namespace Tic_Tac_Toe_WPF_Remake
             }
         }
 
+        // Ниже очень страшный костыльный код закрытия окна, менее кривая реализацию которого я не смог придумать
+        // Детям, беременным женщинам и людям со слабой психикой не смотреть
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            StopingRedrawing = true;
+            if (game != null)
+                if (System.Windows.MessageBox.Show("Вы действительно хотите выйти?", "Выход", System.Windows.MessageBoxButton.YesNo)
+                    != System.Windows.MessageBoxResult.Yes)
+                {
+                    e.Cancel = true;
+                    StopingRedrawing = false;
+                    ViewRefreshing = Task.Run((Action)GameRedrawing);
+                    return;
+                }
+
+            // Сохранять тут и при запуске новой игры спрашивать, восстановить ли предыдущую
+            game?.Dispose();
+            this.Closed += (s,ee) => { Settings.Save("Settings.cfg"); App.Current.Shutdown(); };
+        }
         private void buttonExit_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            this.Close();
-            /*StopingRedrawing = true;
+            StopingRedrawing = true;
             if (game != null)
                 if (System.Windows.MessageBox.Show("Вы действительно хотите выйти?", "Выход", System.Windows.MessageBoxButton.YesNo)
                     != System.Windows.MessageBoxResult.Yes)
@@ -281,9 +279,8 @@ namespace Tic_Tac_Toe_WPF_Remake
                     return;
                 }
             game?.Dispose();
-            App.Current.ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
-            Settings.Save("Settings.cfg");
-            App.Current.Shutdown();*/
+            this.Closing -= Window_Closing;
+            this.Close();
         }
     }
 }
