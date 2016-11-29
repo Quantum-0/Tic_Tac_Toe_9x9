@@ -32,21 +32,11 @@ namespace TTTM
     public enum BotEmotion
     {
         [BotEmotionImage("Resources\\Emotions\\1.png")]
-        Happy,
-
-        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Normal,
-
-        [BotEmotionImage("Resources\\Emotions\\1.png")]
+        Happy,
         Angry,
-
-        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Bored,
-
-        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Derpy,
-
-        [BotEmotionImage("Resources\\Emotions\\1.png")]
         Sad
     }
 
@@ -71,8 +61,8 @@ namespace TTTM
         const byte MaxFreeCellsToExtandRecursion = 3; // Максимальное количество свободных клеток для расширения глубины рекурсии
         const float WeightMaxScoresFromRecursion = 0.85f; // Вес максимума из рекурсивного вызова
         const float WeightMidScoresFromRecursion = 0.075f; // Вес среднего из рекурсивного вызова
-        const float CostNoFreeCellsWithWhenCommonFieldContainsTrue = -35f; // Я не помню что это :D
-        const float CostNoFreeCellsWithWhenCommonFieldDontContainsTrue = -20f; // Что это, зачем это тут..
+        const float CostNoFreeCellsWithWhenCommonFieldContainsTrue = -100f; // Стоимость хода туда, где противник завершает игру сделав 3 поля подряд
+        const float CostNoFreeCellsWithWhenCommonFieldDontContainsTrue = -20f; // Стоимость хода туда, где противник сможет ходить в любое место
         const float CostFreeCellInNextField = -0f; // Изменение очков в зависимости от количества свободных в следующем поле
         const float CostSendPlayerToOwnedField = 10f; // Стоимость того чтоб отправить противника в уже заполненное поле
 
@@ -204,15 +194,15 @@ namespace TTTM
             }
             public double GetGeometricMean() // Среднее геометрическое
             {
-                var Mul = 0f;
+                var Mul = 1f;
                 for (int i = 0; i < Length; i++)
                 {
                     if (!DeniedCells[i])
-                        Mul += Scores[i] * Scores[i];
+                        Mul *= Scores[i];
                 }
                 return Math.Sqrt(Mul);
             }
-            public double GetAriphmeticMean()
+            public double GetAriphmeticMean() // Среднее арифметическое
             {
                 var Sum = 0f;
                 for (int i = 0; i < Length; i++)
@@ -222,11 +212,11 @@ namespace TTTM
                 }
                 return Sum / FreeCells;
             }
-            public double GetStandardDeviation()
+            public double GetStandardDeviation() // Среднее квадратичное отклонение
             {
                 return Math.Sqrt(GetDispersion(MidScore));
             }
-            public double GetDeviationFromMaximum() // Переименуй пожалуйста эти функции как только появится возможность, не позорься :D
+            public double GetDeviationFromMaximum() // Среднее квадратичное отклонение от максимума
             {
                 return Math.Sqrt(GetDispersion(MaxScore));
             }
@@ -291,7 +281,7 @@ namespace TTTM
                 {
                     if (!StepDeny[i])
                     {
-                        // Делаем ход, чтоб отменить его на игровом поле для рекурсии
+                        // Делаем ход, чтоб отметить его на игровом поле для рекурсии
                         var TurnPos = new Position(Field.x * 3 + i % 3, Field.y * 3 + i / 3);
                         Game.Turn(TurnPos, Depth % 2 == 0 ? Player : HumanPlayer);
                         var CalculatedScores = CalculateScores(new Position(i % 3, i / 3), Depth + 1);
@@ -311,10 +301,10 @@ namespace TTTM
 
                         // Вычисляем количество свободных ячеек и занятость поля, и учитываем это в очках ячейки
                         if (CalculatedScores.FreeCells == 0)
-                        {
-                            if (CommonField.Contains(true))
+                        { // Если в анализируемом поле не осталось свободных ячеек
+                            if (CommonField.Contains(true)) // и при том у противника есть возможность закончить игру одним ходом
                                 Scores[i] += CostNoFreeCellsWithWhenCommonFieldContainsTrue;
-                            else
+                            else // и при этом у противника нет возможности закончить игру одним ходом
                                 Scores[i] += CostNoFreeCellsWithWhenCommonFieldDontContainsTrue;
                         }
                         else
@@ -636,9 +626,20 @@ namespace TTTM
             }
             // Делаем ход и увеличиваем количество сделанных ходов
             if (!Game.Turn(new Position(x, y), Player))
-                throw new Exception("Бот не смог сделать ход"); // Паровозик который не смог
+                throw new BotCannotMakeHisTurnException("Бот не смог сделать ход");
             TurnsCount++;
         }
         
+    }
+    
+    [Serializable]
+    public class BotCannotMakeHisTurnException : Exception
+    {
+        public BotCannotMakeHisTurnException() { }
+        public BotCannotMakeHisTurnException(string message) : base(message) { }
+        public BotCannotMakeHisTurnException(string message, Exception inner) : base(message, inner) { }
+        protected BotCannotMakeHisTurnException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }
