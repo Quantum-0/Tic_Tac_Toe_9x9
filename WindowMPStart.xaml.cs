@@ -36,11 +36,34 @@ namespace Tic_Tac_Toe_WPF_Remake
 
         private void Connection_ConnectingRejected(object sender, EventArgs e)
         {
-            Dispatcher.Invoke(
-                delegate {
+            Dispatcher.Invoke(delegate
+            {
+                if (Connection.Current.state == Connection.State.Connected ||
+                    Connection.Current.state == Connection.State.WaitForStartFromMe ||
+                    Connection.Current.state == Connection.State.WaitForStartFromAnother)
+                {
+                    System.Windows.Forms.MessageBox.Show("Противник отклонил игру");
+                    if (Connection.Current.Role == Connection.NetworkRole.Server)
+                    {
+                        Connection.Current.OpponentDisconnected -= Current_OpponentDisconnected;
+                        Connection.Current.DisconnetClientFromServerAndContinueListening();
+                        CreateServerGrid.Visibility = Visibility.Visible;
+                        ConnectedGrid.Visibility = Visibility.Hidden;
+                    }
+                    else if (Connection.Current.Role == Connection.NetworkRole.Client)
+                    {
+                        Connection.Current.OpponentDisconnected -= Current_OpponentDisconnected;
+                        ConnectedGrid.Visibility = Visibility.Hidden;
+                        ServerListGrid.Visibility = Visibility.Visible;
+                    }
+                    else throw new ArgumentException("Некорректно указана роль после отключения от игры");
+                }
+                else
+                {
                     buttonConnect.IsEnabled = true;
                     System.Windows.Forms.MessageBox.Show("Не удалось подключиться к серверу");
-                });
+                }
+            });
         }
 
         private void Connection_ServerIsntReady(object sender, EventArgs e)
@@ -61,9 +84,26 @@ namespace Tic_Tac_Toe_WPF_Remake
                 RectColor2.SetShapeColor(e.Color);
                 RectColor1.SetShapeColor(Connection.Current.IAM.Color);
                 buttonStartGame.IsEnabled = true;
-
+                ServerListGrid.Visibility = Visibility.Hidden;
+                CreateServerGrid.Visibility = Visibility.Hidden;
+                ConnectedGrid.Visibility = Visibility.Visible;
                 Connection.Current.GameStarts += Connection_GameStarts;
+                Connection.Current.OpponentDisconnected += Current_OpponentDisconnected;
             });
+        }
+
+        private void Current_OpponentDisconnected(object sender, EventArgs e)
+        {
+            Connection.Current.OpponentDisconnected -= Current_OpponentDisconnected;
+            if (Connection.Current.state == Connection.State.Connected ||
+                    Connection.Current.state == Connection.State.WaitForStartFromMe ||
+                    Connection.Current.state == Connection.State.WaitForStartFromAnother)
+            {
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Соединение было разорвано");
+            }
         }
 
         #region Настройки
@@ -197,7 +237,6 @@ namespace Tic_Tac_Toe_WPF_Remake
             labelServerName.Content = textBoxServerName.Text;
             Connection.Current.ServerLog += Connection_ServerLog;
             Connection.Current.StartServer(textBoxServerName.Text, new Connection.IAMData(textBoxNick.Text, RectColor.GetShapeColor()));
-            buttonBack1.IsEnabled = false;
         }
         private void Connection_ServerLog(object sender, string e)
         {
@@ -214,7 +253,6 @@ namespace Tic_Tac_Toe_WPF_Remake
             buttonStopServer.Visibility = Visibility.Hidden;
             Connection.Current.BreakAnyConnection();
             Connection.Current.ServerLog -= Connection_ServerLog;
-            buttonBack1.IsEnabled = true;
         }
         private void ConnectToServer(string PublicKey)
         {
@@ -242,8 +280,21 @@ namespace Tic_Tac_Toe_WPF_Remake
 
         private void buttonDisconnectGame_Click(object sender, RoutedEventArgs e)
         {
-            Connection.Current.SendReject();
-            ConnectedGrid.Visibility = Visibility.Hidden;
+            Dispatcher.Invoke(delegate
+            {
+                ConnectedGrid.Visibility = Visibility.Hidden;
+                if (Connection.Current.Role == Connection.NetworkRole.Client)
+                {
+                    ServerListGrid.Visibility = Visibility.Visible;
+                }
+                else if (Connection.Current.Role == Connection.NetworkRole.Server)
+                {
+                    CreateServerGrid.Visibility = Visibility.Visible;
+                }
+                else throw new ArgumentException("Некорректно указана роль при попытке отключения от игры");
+
+                Connection.Current.RejectOpponent();
+            });
         }
 
         private void buttonGotoCreateServer_Click(object sender, RoutedEventArgs e)
@@ -258,19 +309,25 @@ namespace Tic_Tac_Toe_WPF_Remake
             ServerListGrid.Visibility = Visibility.Visible;
             MainGrid.Visibility = Visibility.Hidden;
             RectColor.Visibility = Visibility.Hidden;
-        }
-
-        private void buttonBack_Click(object sender, RoutedEventArgs e)
-        {
-            ServerListGrid.Visibility = Visibility.Hidden;
-            CreateServerGrid.Visibility = Visibility.Hidden;
-            MainGrid.Visibility = Visibility.Visible;
-            RectColor.Visibility = Visibility.Visible;
+            RefreshServerList();
         }
 
         private void BucketColorSelecter_Click(object sender, RoutedEventArgs e)
         {
             SelectColor_Click(RectColor, null);
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (MainGrid.Visibility == Visibility.Hidden)
+            {
+                Connection.Current.BreakAnyConnection();
+                ServerListGrid.Visibility = Visibility.Hidden;
+                CreateServerGrid.Visibility = Visibility.Hidden;
+                MainGrid.Visibility = Visibility.Visible;
+                RectColor.Visibility = Visibility.Visible;
+                e.Cancel = true;
+            }
         }
     }
 }

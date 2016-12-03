@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tic_Tac_Toe_WPF_Remake"
         mc:Ignorable="d"
-        Title="Мультиплеер" Height="366" Width="633" Topmost="True" MinWidth="633" MinHeight="366" WindowStartupLocation="CenterScreen">
+        Title="Мультиплеер" Height="366" Width="633" MinWidth="633" MinHeight="366" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
     <Window.Resources>
         <local:IntToColorConverter x:Key="IntToColorConverter"/>
         <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
@@ -53,7 +53,7 @@
     </Window.Resources>
     <Grid>
         <Grid x:Name="ServerListGrid" Background="White" Visibility="Hidden">
-            <DataGrid x:Name="dataGrid" Margin="0,0,0,33" AutoGenerateColumns="False">
+            <DataGrid x:Name="dataGrid" Margin="0,0,0,33" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding ServerName}" Header="Название сервера"/>
                     <DataGridTextColumn Binding="{Binding Name}" ClipboardContentBinding="{x:Null}" Header="Имя игрока"/>
@@ -75,7 +75,6 @@
                 </Grid.ColumnDefinitions>
                 <Button x:Name="buttonRefresh" Content="Обновить" Margin="10,5" Click="buttonRefresh_Click"/>
                 <Button x:Name="buttonConnect" Content="Подключиться" Margin="10,5" Grid.Column="1" IsEnabled="False" Click="buttonConnect_Click"/>
-                <Button x:Name="buttonBack2" Content="Вернуться" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Width="75" Click="buttonBack_Click"/>
             </Grid>
         </Grid>
 
@@ -85,7 +84,6 @@
             <Button x:Name="buttonStartServer" Content="Создать сервер" Margin="0,69,10,0" HorizontalAlignment="Right" Width="110" Height="20" VerticalAlignment="Top" Click="buttonStartServer_Click"/>
             <Button x:Name="buttonStopServer" Content="Отключить сервер" Margin="0,0,10,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="110" Click="buttonStopServer_Click"/>
             <TextBox x:Name="textBoxServerLog" Margin="10,69,125,10" TextWrapping="Wrap" Text="TextBox"/>
-            <Button x:Name="buttonBack1" Content="Вернуться" HorizontalAlignment="Left" Margin="364,10,0,0" VerticalAlignment="Top" Width="75" Click="buttonBack_Click"/>
         </Grid>
 
 

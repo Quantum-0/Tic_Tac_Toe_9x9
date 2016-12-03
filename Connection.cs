@@ -95,6 +95,9 @@ namespace TTTM
         Task CheckServerReadyTask;
         Task CheckClientEPTask;
         Settings settings;
+        private bool Stop_CheckItself;
+        private bool Stop_CheckServerReady;
+        private bool Stop_CheckClientEP;
 
         public event EventHandler ConnectingRejected;
         public event EventHandler ServerIsntReady;
@@ -137,7 +140,7 @@ namespace TTTM
             if (state < State.Connected)
                 throw new Exception("Неверное состояние соединения");
 
-            Client.Peer.Send(Encoding.UTF8.GetBytes(Data), SendOptions.ReliableOrdered);
+            Client.Peer?.Send(Encoding.UTF8.GetBytes(Data), SendOptions.ReliableOrdered);
         }
         
         // Connected => WaitForStartFromAnother | WaitForStartFromMe => Game
@@ -190,7 +193,7 @@ namespace TTTM
                 throw new Exception("Неверное состояние соединения");
 
             var TryCount = 0;
-            while (TryCount++ < 100)
+            while (TryCount++ < 100 && !Stop_CheckClientEP)
             {
                 Thread.Sleep(100);
                 RemoteEP = ServerList.ReadClientEP(AccessKey);
@@ -215,16 +218,22 @@ namespace TTTM
                 }
             }
 
-            ServerLog?.Invoke(this, "Истекло время ожидание ответа от клиента");
-            state = State.Created;
-            ServerList.Clear(AccessKey);
-            CheckItselfTask = Task.Run((Action)CheckItself);
+            if (!Stop_CheckClientEP)
+            {
+                ServerLog?.Invoke(this, "Истекло время ожидание ответа от клиента");
+                state = State.Created;
+                ServerList.Clear(AccessKey);
+                CheckItselfTask = Task.Run((Action)CheckItself);
+            }
+            else
+                Stop_CheckClientEP = false;
         }
 
         // Preconnecting => Connecting => Establishing => Connected / Off (клиент)
         private void CheckServerReady()
         {
-            while (true)
+            WaitServerResponseTimeout = 0;
+            while (!Stop_CheckServerReady)
             {
                 Thread.Sleep(1000);
 
@@ -269,6 +278,7 @@ namespace TTTM
                     break;
                 }
             }
+            Stop_CheckServerReady = false;
         }
 
         // Обработка приходящий данных
@@ -327,7 +337,8 @@ namespace TTTM
                     {
                         // state = State.Connected;
                         ConnectingRejected.Invoke(this, new EventArgs());
-                        BreakAnyConnection();
+                        if (Role == NetworkRole.Client)
+                            BreakAnyConnection();
                     }
                     break;
                 default:
@@ -341,7 +352,7 @@ namespace TTTM
             if (state != State.Created)
                 throw new Exception("Неверное состояние соединения");
 
-            while (true)
+            while (!Stop_CheckItself)
             {
                 Thread.Sleep(3000);
 
@@ -365,6 +376,7 @@ namespace TTTM
                     }
                 }
             }
+            Stop_CheckItself = false;
         }
 
         // Establishing => Connection
@@ -393,7 +405,7 @@ namespace TTTM
                             Thread.Sleep(100);
                         }
                         if (state != State.Off)
-                            OpponentDisconnected(this, new EventArgs());
+                            OpponentDisconnected?.Invoke(this, new EventArgs());
                     });
                     ServerLog?.Invoke(this, "Соединение выполнено");
                     return Tuple.Create(Client, Listener);
@@ -501,7 +513,7 @@ namespace TTTM
         }
 
         // Connected / WaitForStartFromMe => Created
-        private void RejectOpponent()
+        public void RejectOpponent()
         {
             if (state != State.Connected && state != State.WaitForStartFromMe)
                 throw new Exception("Нельзя отлонить игру, если она не была предложена");
@@ -521,6 +533,11 @@ namespace TTTM
         // * => Off
         public void BreakAnyConnection()
         {
+            Stop_CheckClientEP = true;
+            Stop_CheckServerReady = true;
+            Stop_CheckItself = true;
+            Thread.Sleep(5000);
+
             switch (state)
             {
                 case State.Off:
@@ -558,13 +575,22 @@ namespace TTTM
             AccessKey = "";
             Role = NetworkRole.Nope;
             state = State.Off;
-            //      Stop all   !!!!!!
-            /*CheckClientEPTimer.Stop();
-            CheckServerReadyTimer.Stop();
-            CheckItselfTimer.Stop();*/
             Client?.Stop();
             if (Listener != null)
                 Listener.NetworkReceiveEvent -= Listener_NetworkReceiveEvent;
+            
+            Stop_CheckClientEP = false;
+            Stop_CheckServerReady = false;
+            Stop_CheckItself = false;
+        }
+
+        public void DisconnetClientFromServerAndContinueListening()
+        {
+            state = State.Created;
+            Client?.Stop();
+            ServerList.Clear(AccessKey);
+            CheckItselfTask = Task.Run((Action)CheckItself);
+            Role = NetworkRole.Server;
         }
 
         // Экспорт DLL-ки для р2р подключения
